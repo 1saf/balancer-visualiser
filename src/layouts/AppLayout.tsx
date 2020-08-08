@@ -9,25 +9,32 @@ type RouteRendererProps = {
     routes?: any;
 }
 
-const RouteRenderer: FC<RouteRendererProps> = ({ routes }) => {
-    const { route } = useRouteNode('');
+const viewMap = keyBy(routes, 'name');
 
-    const splitRoute = route?.name?.split('.');
-    const topRouteName = splitRoute[0];
-    const childRouteName = splitRoute[1];
-    const currentRootNode = routes[topRouteName];
+const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
+    if (!route) return null;
+    const routeName = route?.name.split('.');
+    const rootName = routeName[0];
 
-    if (currentRootNode?.children) {
-        const keyedChildRoutes = keyBy(currentRootNode.children, 'name');
-        const childNode = keyedChildRoutes[childRouteName];
-        return (
-            <currentRootNode.component>
-                <childNode.component />
-            </currentRootNode.component>
-        );
-    }
-    return <currentRootNode.component />
-}
+    const view = viewMap[rootName];
+    const children = view?.children;
+
+    const childrenToRender = (children || []).reduce((toRender, child) => {
+        const containsChild = routeName.findIndex((name: string) => name === child.name);
+        if (containsChild > -1) {
+            toRender.push(child);
+        }
+        return toRender;
+    }, [] as any);
+
+    return (
+        <view.component>
+            {childrenToRender.map((child: any) => (
+                <child.component key={`child-${child.name}`} />
+            ))}
+        </view.component>
+    );
+};
 
 const AppLayout: FC<any> = (props) => {
     const keyedRoutes = useMemo(() => keyBy(routes, 'name'), []);
