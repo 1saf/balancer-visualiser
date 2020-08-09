@@ -9,32 +9,53 @@ type RouteRendererProps = {
     routes?: any;
 }
 
-const viewMap = keyBy(routes, 'name');
+type RouteTree = {
+    component: React.FC<any>;
+    name: string;
+    child: RouteTree;
+}
 
-const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
-    if (!route) return null;
-    const routeName = route?.name.split('.');
-    const rootName = routeName[0];
+const matchChild = (children: any, routes: string[], index: number): any => {
+    if (!children?.length || index > routes.length) return;
+    const matchedChild = children.find((child: any) => {
+        if (child.name === routes[index]) return child;
+    });
+    if (!matchedChild) return;
+    return {
+        component: matchedChild.component,
+        name: routes[index],
+        child: matchChild(matchedChild.children, routes, index + 1),
+    }
+}
 
-    const view = viewMap[rootName];
-    const children = view?.children;
 
-    const childrenToRender = (children || []).reduce((toRender, child) => {
-        const containsChild = routeName.findIndex((name: string) => name === child.name);
-        if (containsChild > -1) {
-            toRender.push(child);
-        }
-        return toRender;
-    }, [] as any);
+const renderTree = (node: any, routes: string[]) => {
+    if (!node) return;
+    return (
+        <node.component>
+            {renderTree(node.child, routes)}
+        </node.component>
+    )
+}
+
+const RouteRenderer: FC<RouteRendererProps> = ({ routes }) => {
+    const { route } = useRouteNode('');
+    const routeArray = route?.name?.split('.');
+    const rootName = routeArray[0];
+    const rootNode = routes[rootName];
+
+    const routeTree: RouteTree = {
+        component: rootNode.component,
+        name: rootName,
+        child: matchChild(rootNode.children, routeArray, 1),
+    }
 
     return (
-        <view.component>
-            {childrenToRender.map((child: any) => (
-                <child.component key={`child-${child.name}`} />
-            ))}
-        </view.component>
+        <React.Fragment>
+            {renderTree(routeTree, routeArray)}
+        </React.Fragment>
     );
-};
+}
 
 const AppLayout: FC<any> = (props) => {
     const keyedRoutes = useMemo(() => keyBy(routes, 'name'), []);
