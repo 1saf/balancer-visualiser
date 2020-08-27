@@ -10,14 +10,17 @@
         "@types/lodash": "^4.14.157",
         "@types/react": "^16.9.43",
         "@types/react-dom": "^16.9.8",
+        "@types/styled-components": "^5.1.2",
         "lodash": "^4.17.19",
         "parcel": "^2.0.0-beta.1",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
+        "react-query": "^2.12.1",
         "react-router5": "^8.0.1",
         "router5": "^8.0.1",
         "router5-plugin-browser": "^8.0.1",
         "router5-plugin-logger": "^8.0.1",
+        "styled-components": "^5.1.1",
         "typescript": "^3.9.7"
     },
     "devDependencies": {
