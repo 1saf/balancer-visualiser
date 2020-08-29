@@ -29,12 +29,18 @@ export const SpacingRemConfig: Record<Spacing, number> = {
 };
 
 export type Padding = 'padding' | 'paddingX' | 'paddingY' | 'paddingLeft' | 'paddingRight' | 'paddingTop' | 'paddingBottom';
-const PaddingToPaddingCSSString: Partial<Record<Padding, string>> = {
+export type Margin = 'margin' | 'marginX' | 'marginY' | 'marginLeft' | 'marginRight' | 'marginTop' | 'marginBottom';
+const SpacingToPaddingCSSString: Partial<Record<Padding & Margin, string>> = {
     padding: 'padding',
     paddingLeft: 'padding-left',
     paddingRight: 'padding-right',
     paddingBottom: 'padding-bottom',
     paddingTop: 'padding-top',
+    margin: 'margin',
+    marginLeft: 'margin-left',
+    marginRight: 'margin-right',
+    marginBottom: 'margin-bottom',
+    marginTop: 'margin-top',
 };
 
 export const getPaddingString = (padding: Padding, unit: Spacing) => {
@@ -50,7 +56,24 @@ export const getPaddingString = (padding: Padding, unit: Spacing) => {
             padding-bottom: ${SpacingRemConfig[unit]}rem;
         `;
     }
-    return `${PaddingToPaddingCSSString[padding]}: ${SpacingRemConfig[unit]}rem;`;
+    return `${(SpacingToPaddingCSSString as any)[padding]}: ${SpacingRemConfig[unit]}rem;`;
+};
+
+// duplicated, but whatever for now, lets just get the product out
+export const getMarginString = (margin: Margin, unit: Spacing) => {
+    if (margin === 'marginX') {
+        return `
+            margin-left: ${SpacingRemConfig[unit]}rem;
+            margin-right: ${SpacingRemConfig[unit]}rem;
+        `;
+    }
+    if (margin === 'marginY') {
+        return `
+            margin-top: ${SpacingRemConfig[unit]}rem;
+            margin-bottom: ${SpacingRemConfig[unit]}rem;
+        `;
+    }
+    return `${(SpacingToPaddingCSSString as any)[margin]}: ${SpacingRemConfig[unit]}rem;`;
 };
 
 export const getMediaQuery = (device: Devices) => {
@@ -62,21 +85,31 @@ export const getResponsiveCss = (device: Devices, css: string[]) => {
     return `${getMediaQuery(device)} {\n${css.map(property => property).join(`;\n`)}\n}`;
 };
 
-export const resolveSpacing = (props: any) => {
-    const paddingProps = pick(props, ['padding', 'paddingLeft', 'paddingRight', 'paddingTop', 'paddingBottom', 'paddingX', 'paddingY']);
+export const resolveSpacing = (t: 'm' | 'p') => (props: any) => {
+    const spacingProperty = t == 'm' ? 'margin' : 'padding';
+    const spacingProps = pick(props, [
+        `${spacingProperty}`,
+        `${spacingProperty}Left`,
+        `${spacingProperty}Right`,
+        `${spacingProperty}Top`,
+        `${spacingProperty}Bottom`,
+        `${spacingProperty}X`,
+        `${spacingProperty}Y`,
+    ]);
+    const spacingPropFunc: any = t == 'm' ? getMarginString : getPaddingString;
 
-    const responsivePadding = Object.keys(paddingProps).reduce(
-        (style, paddingType: Padding) => {
-            const value = props[paddingType];
+    const responsivePadding = Object.keys(spacingProps).reduce(
+        (style, spacingType: Padding) => {
+            const value = props[spacingType];
             if (Array.isArray(value)) {
-                value[0] && style.all.push(getPaddingString(paddingType, value[0]));
-                value[1] && style.tablet.push(getPaddingString(paddingType, value[1]));
-                value[2] && style.landscape.push(getPaddingString(paddingType, value[2]));
-                value[3] && style.smallDesktop.push(getPaddingString(paddingType, value[3]));
-                value[4] && style.largeDesktop.push(getPaddingString(paddingType, value[4]));
+                value[0] && style.all.push(spacingPropFunc(spacingType, value[0]));
+                value[1] && style.tablet.push(spacingPropFunc(spacingType, value[1]));
+                value[2] && style.landscape.push(spacingPropFunc(spacingType, value[2]));
+                value[3] && style.smallDesktop.push(spacingPropFunc(spacingType, value[3]));
+                value[4] && style.largeDesktop.push(spacingPropFunc(spacingType, value[4]));
                 return style;
             }
-            style.all.push(getPaddingString(paddingType, value));
+            style.all.push(spacingPropFunc(spacingType, value));
             return style;
         },
         {

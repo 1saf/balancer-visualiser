@@ -1,7 +1,6 @@
 import React, { FC } from 'react';
-import { Spacing, SpacingRemConfig, ResponsiveProp, getPaddingString, Padding, Devices, resolveSpacing } from '../layout.t';
+import { Spacing, ResponsiveProp, resolveSpacing } from '../layout.t';
 import styled from 'styled-components';
-import { pick } from 'lodash';
 
 type Props = {
     padding?: ResponsiveProp<Spacing>;
@@ -15,7 +14,7 @@ type Props = {
 
 
 const StyledBox = styled.div<Props>`
-    ${resolveSpacing}
+    ${resolveSpacing('p')}
 `;
 
 const Box: FC<Props> = props => {
