@@ -1,4 +1,4 @@
-export default {
+const tokens = {
     colors: {
         ultramarine: '#536dfe',
         raisin_black: '#21222c',
@@ -26,6 +26,13 @@ export default {
         gray700: '#30313f',
         gray800: '#1d1e27',
         gray900: '#181921',
+
     },
     space: [0, 4, 8, 12, 16, 20, 32],
 };
+
+export default {
+    background: tokens.colors.gray100,
+    foreground: tokens.colors.white,
+    borderColor: tokens.colors.gray300,
+}

@@ -4,6 +4,7 @@ import { keyBy } from 'lodash';
 import routes from '../router/routes';
 import { ReactQueryConfigProvider } from 'react-query';
 import styled from 'styled-components';
+import Box from '../components/layout/box/Box';
 
 type Props = {};
 
@@ -38,10 +39,12 @@ const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
     );
 };
 
-const AppLayout = styled.div`
+const AppLayout = styled(Box)`
     background-color: ${props => props.theme.background};
     width: 100%;
     height: 100%;
+    display: flex;
+    justify-content: center;
 `
 
 const App: FC<Props> = props => {
@@ -49,7 +52,7 @@ const App: FC<Props> = props => {
 
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
-            <AppLayout>
+            <AppLayout paddingY='large'>
                 <RouteRenderer route={route} />
             </AppLayout>
         </ReactQueryConfigProvider>
