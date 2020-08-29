@@ -3,8 +3,8 @@ import DashboardItem from '../routes/dashboard/DashboardItem';
 
 export default [
     {
-        name: 'dashboard',
-        path: '/dashboard',
+        name: 'home',
+        path: '/',
         component: Dashboard,
         children: [
             {

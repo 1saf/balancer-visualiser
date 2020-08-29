@@ -5,7 +5,7 @@ import Box from '../../components/layout/box/Box';
 const Dashboard: FC<any> = ({ children }) => {
     const { route } = useRouteNode('dashboard');
     return (
-        <Box>This is dashboard</Box>
+        <Box padding='small' paddingBottom={['small', 'x-large']}>This is dashboard</Box>
     );
 }
 
