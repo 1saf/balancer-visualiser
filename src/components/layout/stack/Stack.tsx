@@ -7,6 +7,7 @@ type Orientation = 'horizontal' | 'vertical';
 type Props = {
     orientation?: Orientation;
     gap?: ResponsiveProp<Spacing>;
+    className?: string;
 };
 
 
@@ -45,9 +46,9 @@ const StyledStack = styled.div<Props>`
 `;
 
 const Stack: FC<Props> = props => {
-    const { orientation = 'vertical', children, gap = 'base' } = props;
+    const { orientation = 'vertical', children, gap = 'base', className } = props;
     return (
-        <StyledStack orientation={orientation} gap={gap}>
+        <StyledStack orientation={orientation} gap={gap} className={className}>
             {children}
         </StyledStack>
     );

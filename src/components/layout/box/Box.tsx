@@ -12,12 +12,16 @@ export type BoxProps = {
     paddingY?: ResponsiveProp<Spacing>;
     className?: string;
     spanX?: number;
+    width?: string;
+    height?: string;
 };
 
 
 const StyledBox = styled.div<BoxProps>`
     ${resolveSpacing('p')}
     ${props => props.spanX && `grid-column: span ${props.spanX};`}
+    ${props => props.width && `width: ${props.width};`}
+    ${props => props.height && `height: ${props.height};`}
 `;
 
 const Box: FC<BoxProps> = props => {
