@@ -1,10 +1,10 @@
 {
-    "name": "react-starter",
+    "name": "balancer-visualiser",
     "author": "Ansaf Ahmed <contact@ansaf.me>",
     "version": "1.0.0",
-    "main": "index.js",
     "scripts": {
-        "dev": "parcel ./src/index.html"
+        "dev": "parcel ./src/index.html",
+        "build": "parcel build --no-scope-hoist ./src/index.html"
     },
     "dependencies": {
         "@types/bent": "^7.3.0",
@@ -15,7 +15,7 @@
         "@types/styled-system": "^5.1.10",
         "bent": "^7.3.10",
         "lodash": "^4.17.19",
-        "parcel": "^2.0.0-beta.1",
+        "parcel": "^2.0.0-nightly.385",
         "react": "^16.13.1",
         "react-dom": "^16.13.1",
         "react-query": "^2.12.1",
