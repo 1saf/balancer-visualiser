@@ -11,11 +11,13 @@ export type BoxProps = {
     paddingX?: ResponsiveProp<Spacing>;
     paddingY?: ResponsiveProp<Spacing>;
     className?: string;
+    spanX?: number;
 };
 
 
 const StyledBox = styled.div<BoxProps>`
     ${resolveSpacing('p')}
+    ${props => props.spanX && `grid-column: span ${props.spanX};`}
 `;
 
 const Box: FC<BoxProps> = props => {
