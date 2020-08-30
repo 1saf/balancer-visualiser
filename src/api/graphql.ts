@@ -1,7 +1,7 @@
 import bent from 'bent';
 import { useQuery, QueryKey, QueryConfig } from 'react-query';
 
-const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer';
+const SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-beta';
 
 const subgraphPOST = (literal: string) => async (key: string, variables: Record<string, any>) => {
     const request = bent(SUBGRAPH_URL, 'POST', 'json', [200, 400, 404, 401, 500, 503]);

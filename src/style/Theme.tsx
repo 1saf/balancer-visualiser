@@ -26,13 +26,22 @@ const tokens = {
         gray700: '#30313f',
         gray800: '#1d1e27',
         gray900: '#181921',
-
     },
     space: [0, 4, 8, 12, 16, 20, 32],
+    typography: {
+        heading_1: 3,
+        heading_2: 2.4375,
+        heading_3: 1.9375,
+        heading_4: 1.5625,
+        heading_5: 1.25,
+        heading_6: 1,
+    },
 };
 
 export default {
     background: tokens.colors.gray100,
     foreground: tokens.colors.white,
     borderColor: tokens.colors.gray300,
-}
+    headingColor: tokens.colors.raisin_black,
+    typography: tokens.typography,
+};
