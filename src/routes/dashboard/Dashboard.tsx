@@ -10,6 +10,8 @@ import Heading from '../../components/design/heading/Heading';
 import Statistic from '../../components/ui/statistic/Statistic';
 
 import numeral from 'numeral';
+import { useQuery } from 'react-query';
+import { getBalancerPrice } from './query/rest';
 
 const StyledDashboard = styled(Box)`
     width: 100%;
@@ -28,17 +30,18 @@ const EmphasizedText = styled.em`
 const Dashboard: FC<any> = ({ children }) => {
     const { route } = useRouteNode('dashboard');
 
-    const { data: response, isLoading } = useGraphQuery('pools', query);
+    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery('pools', query);
+    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
 
-    if (isLoading) return <span>'Loading data'</span>;
-    const balancerStats = (response as any)?.data.balancer;
-
-    console.log('stats', balancerStats);
+    if (isBalancerStatsLoading || isBalPriceRequestLoading) return <span>'Loading data'</span>;
+    const balancerStats = (balancerStatsResponse as any)?.data.balancer;
 
     const totalPools = balancerStats?.poolCount;
     const totalLiquidity = numeral(balancerStats?.totalLiquidity).format('($0.00a)');
     const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).format('($0.00a)');
     const totalSwapFeeVolume = numeral(balancerStats?.totalSwapFee).format('($0.00a)');
+    const privatePools = totalPools - balancerStats?.finalizedPoolCount;
+
     return (
         <StyledDashboard>
             <Box spanX={12}>
@@ -50,6 +53,8 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic heading='Public Pools'>{balancerStats?.finalizedPoolCount}</Statistic>
             <Statistic heading='Total Swap Volume'>{totalSwapVolume}</Statistic>
             <Statistic heading='Total Swap Fee Volume'>{totalSwapFeeVolume}</Statistic>
+            <Statistic heading='Private Pools'>{privatePools}</Statistic>
+            <Statistic heading='Balancer Price (USD)'>${(balPriceResponse as any)?.market_data?.current_price?.usd}</Statistic>
         </StyledDashboard>
     );
 };
