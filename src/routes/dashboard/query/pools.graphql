@@ -1,10 +1,5 @@
-{
-    balancer(id: 1) {
-        poolCount,
-        txCount,
-        totalLiquidity,
-        totalSwapVolume,
-        totalSwapFee
-        finalizedPoolCount
+query getHistoricalLiquidity($block_number: Int) {
+    balancer(id: 1, block: { number: $block_number }) {
+        totalLiquidity
     }
 }

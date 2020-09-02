@@ -1,10 +1,10 @@
-import React, { FC } from 'react';
-import { useRouteNode } from 'react-router5';
+import React, { FC, useState, useMemo } from 'react';
 import Box from '../../components/layout/box/Box';
 import styled from 'styled-components';
-import Card from '../../components/layout/card/Card';
 import query from './query/pools.graphql';
-import { useGraphQuery } from '../../api/graphql';
+import blocksQuery from './query/blocks.graphql';
+import historicalLiquidityQuery from './query/historical.graphql';
+import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL } from '../../api/graphql';
 import bent from 'bent';
 import Heading from '../../components/design/heading/Heading';
 import Statistic from '../../components/ui/statistic/Statistic';
@@ -13,6 +13,7 @@ import numeral from 'numeral';
 import { useQuery } from 'react-query';
 import { getBalancerPrice } from './query/rest';
 import LineGraph from '../../components/ui/graph/LineGraph';
+import { subMonths, endOfMonth, getTime, getUnixTime, addMinutes } from 'date-fns';
 
 const StyledDashboard = styled(Box)`
     width: 100%;
@@ -28,7 +29,7 @@ const EmphasizedText = styled.em`
     color: ${props => props.theme.emphasizedText};
 `;
 
-const useDashboardState = () => {
+const useSingleFigureStatistics = () => {
     const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
 
@@ -57,6 +58,30 @@ const useDashboardState = () => {
     };
 };
 
+const getDates = () => {
+    const dates = [];
+    const today = new Date();
+    for (let i = 1; i <= 6; i++) {
+        const endOfMonthDate = endOfMonth(subMonths(today, i));
+        dates.push({
+            first_ten: getUnixTime(endOfMonthDate),
+            last_ten: getUnixTime(addMinutes(endOfMonthDate, 10)),
+        });
+    }
+    return dates;
+};
+
+
+const useGraphStatistics = () => {
+    const requests = useMemo(() => getDates(), []);
+    const { data: blockTimestampsResponse } = useGraphQuery(['blockTimestamps', { requests }], blocksQuery, {
+        loop: true,
+        graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
+    });
+
+    console.log('blocks', blockTimestampsResponse);
+};
+
 const Dashboard: FC<any> = ({ children }) => {
     const {
         totalLiquidity,
@@ -67,7 +92,9 @@ const Dashboard: FC<any> = ({ children }) => {
         privatePools,
         isLoading,
         balancerPrice,
-    } = useDashboardState();
+    } = useSingleFigureStatistics();
+
+    const lol = useGraphStatistics();
 
     if (isLoading) return <span>'Loading data'</span>;
     return (
