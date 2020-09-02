@@ -13,7 +13,7 @@ type Props = {
 const Statistic: FC<Props> = props => {
     const { children, heading } = props;
     return (
-        <Card paddingX='large' paddingY='x-large' spanX={4}>
+        <Card paddingX='large' paddingY='large' spanX={4}>
             <Stack gap='small'>
                 <Subheading>{heading}</Subheading>
                 <Heading level='3'>{children}</Heading>
