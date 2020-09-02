@@ -57,7 +57,6 @@ const useDashboardState = () => {
 };
 
 const Dashboard: FC<any> = ({ children }) => {
-    const { route } = useRouteNode('dashboard');
     const {
         totalLiquidity,
         totalSwapVolume,
