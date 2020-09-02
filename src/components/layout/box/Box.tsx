@@ -10,6 +10,13 @@ export type BoxProps = {
     paddingBottom?: ResponsiveProp<Spacing>;
     paddingX?: ResponsiveProp<Spacing>;
     paddingY?: ResponsiveProp<Spacing>;
+    margin?: ResponsiveProp<Spacing>;
+    marginLeft?: ResponsiveProp<Spacing>;
+    marginRight?: ResponsiveProp<Spacing>;
+    marginTop?: ResponsiveProp<Spacing>;
+    marginBottom?: ResponsiveProp<Spacing>;
+    marginX?: ResponsiveProp<Spacing>;
+    marginY?: ResponsiveProp<Spacing>;
     className?: string;
     spanX?: number;
     width?: string;
@@ -19,6 +26,7 @@ export type BoxProps = {
 
 const StyledBox = styled.div<BoxProps>`
     ${resolveSpacing('p')}
+    ${resolveSpacing('m')}
     ${props => props.spanX && `grid-column: span ${props.spanX};`}
     ${props => props.width && `width: ${props.width};`}
     ${props => props.height && `height: ${props.height};`}

@@ -12,6 +12,7 @@ import Statistic from '../../components/ui/statistic/Statistic';
 import numeral from 'numeral';
 import { useQuery } from 'react-query';
 import { getBalancerPrice } from './query/rest';
+import LineGraph from '../../components/ui/graph/LineGraph';
 
 const StyledDashboard = styled(Box)`
     width: 100%;
@@ -82,6 +83,8 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic heading='Total Swap Fee Volume'>{totalSwapFeeVolume}</Statistic>
             <Statistic heading='Private Pools'>{privatePools}</Statistic>
             <Statistic heading='Balancer Price (USD)'>${balancerPrice}</Statistic>
+
+            <LineGraph />
         </StyledDashboard>
     );
 };
