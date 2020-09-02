@@ -44,6 +44,7 @@ const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
 const AppLayout = styled(Box)`
     background-color: ${props => props.theme.background};
     width: 100%;
+    height: 100%;
     display: flex;
     justify-content: center;
     @font-face {
@@ -99,8 +100,8 @@ const App: FC<Props> = props => {
 
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
-            <AppLayout paddingY='large'>
-                <Box width='100%' paddingX='large'>
+            <AppLayout>
+                <Box width='100%'>
                     <FullWidthStack>
                         <Header />
                         <RouteRenderer route={route} />

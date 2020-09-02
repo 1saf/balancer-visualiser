@@ -17,8 +17,8 @@ const StyledDashboard = styled(Box)`
     width: 100%;
     background: ${props => props.theme.background};
     display: grid;
-    grid-template-columns: repeat(12, 55px);
-    grid-column-gap: 2rem;
+    grid-template-columns: repeat(12, 75px);
+    grid-column-gap: 1rem;
     grid-row-gap: 1rem;
     justify-content: center;
 `;
@@ -44,7 +44,7 @@ const Dashboard: FC<any> = ({ children }) => {
 
     return (
         <StyledDashboard>
-            <Box spanX={12}>
+            <Box spanX={12} paddingTop='x-large'>
                 <Heading level='5'>
                     At a glance there is <EmphasizedText>{totalLiquidity}</EmphasizedText> of liquidity supplied across a total of
                     <EmphasizedText> {totalPools}</EmphasizedText> pools.

@@ -26,6 +26,8 @@ const tokens = {
         gray700: '#62657C',
         gray800: '#3C3E4D',
         gray900: '#181921',
+
+        background: '#f7fafc'
     },
     space: [0, 4, 8, 12, 16, 20, 32],
     typography: {
@@ -39,9 +41,10 @@ const tokens = {
 };
 
 export default {
-    background: tokens.colors.gray100,
+    background: tokens.colors.background,
     foreground: tokens.colors.white,
-    borderColor: tokens.colors.gray300,
+    borderColor: tokens.colors.gray400,
+    emphasizedBorder: tokens.colors.blue300,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     subheadingColor: tokens.colors.gray700,
