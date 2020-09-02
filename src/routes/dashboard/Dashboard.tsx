@@ -84,7 +84,7 @@ const useGraphStatistics = () => {
 
 const Dashboard: FC<any> = ({ children }) => {
     const {
-        totalLiquidity,
+        totalLiquidity, 
         totalSwapVolume,
         totalPools,
         finalizedPoolCount,
