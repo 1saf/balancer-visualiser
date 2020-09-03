@@ -1,5 +1,5 @@
-{
-    balancer(id: 1) {
+query HistoricalBalancerQuery($blockNumber: Int) {
+    balancer(id: 1, block: { number: $blockNumber }) {
         poolCount,
         txCount,
         totalLiquidity,

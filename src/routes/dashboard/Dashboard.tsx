@@ -3,16 +3,18 @@ import Box from '../../components/layout/box/Box';
 import styled from 'styled-components';
 import query from './query/pools.graphql';
 import blocksQuery from './query/blocks.graphql';
-import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL } from '../../api/graphql';
+import historicalPoolsQuery from './query/historical.graphql';
+import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, GraphQLResponse } from '../../api/graphql';
 import bent from 'bent';
 import Heading from '../../components/design/heading/Heading';
 import Statistic from '../../components/ui/statistic/Statistic';
 
-import numeral from 'numeral';
+import numeral, { format } from 'numeral';
 import { useQuery } from 'react-query';
 import { getBalancerPrice } from './query/rest';
 import LineGraph from '../../components/ui/graph/LineGraph';
-import { subMonths, endOfMonth, getTime, getUnixTime, addMinutes } from 'date-fns';
+import { subMonths, endOfMonth, getTime, getUnixTime, addMinutes, format as formatDate } from 'date-fns';
+import { sortBy } from 'lodash';
 
 const StyledDashboard = styled(Box)`
     width: 100%;
@@ -28,12 +30,20 @@ const EmphasizedText = styled.em`
     color: ${props => props.theme.emphasizedText};
 `;
 
+type BalancerResponse = GraphQLResponse<{
+    balancer: {
+        finalizedPoolCount: number;
+        poolCount: number;
+        totalLiquidity: string;
+        totalSwapFee: string;
+        totalSwapVolume: string;
+    };
+}>;
 const useSingleFigureStatistics = () => {
-    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery('pools', query);
+    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
 
-    console.log('bing', balancerStatsResponse)
-    const balancerStats = (balancerStatsResponse as any)?.data?.balancer;
+    const balancerStats = balancerStatsResponse?.data?.balancer;
 
     const totalPools = balancerStats?.poolCount;
     const totalLiquidity = numeral(balancerStats?.totalLiquidity).format('($0.00a)');
@@ -66,20 +76,57 @@ const getDates = () => {
         dates.push({
             first_ten: getUnixTime(endOfMonthDate),
             last_ten: getUnixTime(addMinutes(endOfMonthDate, 10)),
+            date: formatDate(endOfMonthDate, 'yyyy-MM-dd'),
         });
     }
-    return dates;
+
+    return dates.reverse();
 };
 
+type EthBlocksResponse = GraphQLResponse<{ blocks: { id: string; number: string; timestamp: string }[] }>[];
 
 const useGraphStatistics = () => {
     const requests = useMemo(() => getDates(), []);
-    // const { data: blockTimestampsResponse } = useGraphQuery(['blockTimestamps', { requests }], blocksQuery, {
-    //     loop: true,
-    //     graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
-    // });
+    const { data: blockTimestampsResponses, isLoading: isEthTimestampResponseLoading } = useGraphQuery<EthBlocksResponse>(['blockTimestamps', { requests }], blocksQuery, {
+        loop: true,
+        graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
+    });
 
-    // console.log('blocks', blockTimestampsResponse);
+    const sortedBlockNumbers = sortBy(
+        (blockTimestampsResponses || []).map(blockTimestampResponse => {
+            const blockTimestamp = blockTimestampResponse?.data?.blocks[0];
+            return {
+                blockNumber: parseInt(blockTimestamp.number, 10),
+                blockTimestamp: parseInt(blockTimestamp.timestamp, 10),
+            };
+        }),
+        'blockTimestamp'
+    );
+
+    const { data: historicalBalancerResponses, isLoading: isHistoricalBalancerResponseLoading } = useGraphQuery<BalancerResponse[]>(
+        ['historicalBlocks', { requests: sortedBlockNumbers }],
+        historicalPoolsQuery,
+        { loop: true, enabled: sortedBlockNumbers.length }
+    );
+
+    const historicalBalancerData = (historicalBalancerResponses || []).map(historicalBalancerResponse => {
+        const { finalizedPoolCount, totalLiquidity, totalSwapFee, totalSwapVolume, poolCount } = historicalBalancerResponse?.data?.balancer;
+        return {
+            finalizedPoolCount,
+            totalLiquidity,
+            totalSwapFee,
+            totalSwapVolume,
+            poolCount,
+        };
+    });
+
+    const chartData = {
+        values: (historicalBalancerData || []).map(d => parseFloat(d.totalLiquidity)),
+        axis: requests.map(r => r.date),
+        name: 'TVL',
+    };
+
+    return { chartData, isLoading: isEthTimestampResponseLoading || isHistoricalBalancerResponseLoading  };
 };
 
 const Dashboard: FC<any> = ({ children }) => {
@@ -94,8 +141,10 @@ const Dashboard: FC<any> = ({ children }) => {
         balancerPrice,
     } = useSingleFigureStatistics();
 
+    const { chartData, isLoading: bLoading } = useGraphStatistics();
+    console.log('c', chartData);
 
-    if (isLoading) return <span>'Loading data'</span>;
+    if (isLoading || bLoading) return <span>'Loading data'</span>;
     return (
         <StyledDashboard>
             <Box spanX={12} paddingTop='x-large'>
@@ -110,7 +159,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic heading='Private Pools'>{privatePools}</Statistic>
             <Statistic heading='Balancer Price (USD)'>${balancerPrice}</Statistic>
 
-            <LineGraph />
+            <LineGraph data={chartData} legend={['Total Value Locked']} title='TVL (6 months) - Design is WIP' />
         </StyledDashboard>
     );
 };

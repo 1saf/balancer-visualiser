@@ -7,8 +7,8 @@
         "build": "parcel build --no-scope-hoist ./src/index.html"
     },
     "dependencies": {
-        "@nivo/line": "^0.62.0",
         "@types/bent": "^7.3.0",
+        "@types/echarts": "^4.6.5",
         "@types/lodash": "^4.14.157",
         "@types/numeral": "^0.0.28",
         "@types/react": "^16.9.43",
@@ -17,6 +17,7 @@
         "@types/styled-system": "^5.1.10",
         "bent": "^7.3.10",
         "date-fns": "^2.16.1",
+        "echarts": "^4.9.0",
         "lodash": "^4.17.19",
         "numeral": "^2.0.6",
         "parcel": "^2.0.0-nightly.385",

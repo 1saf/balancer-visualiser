@@ -9,8 +9,8 @@ const StyledCard = styled(Box)`
     border: 1px solid ${props => props.theme.emphasizedBorder};
     height: fit-content;
     border-radius: 4px;
-    filter: drop-shadow(0px 2px 1px rgba(24, 25, 33, 0.05));
-    `;
+    box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.01), 0px 2px 3px rgba(24, 25, 33, 0.02);
+        `;
 
 const Card: FC<Props> = (props) => {
     return <StyledCard {...props} />;

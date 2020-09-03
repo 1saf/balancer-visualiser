@@ -7,6 +7,10 @@ const tokens = {
         congo_pink: '#E96B94',
         white: '#FFFFFF',
 
+        yellow300: '#fce7cb',
+        yellow400: '#f9ce97',
+        yellow500: '#F7C27D',
+
         blue100: '#eef0fe',
         blue200: '#cbd2fb',
         blue300: '#97a6f6',
@@ -44,7 +48,7 @@ export default {
     background: tokens.colors.background,
     foreground: tokens.colors.white,
     borderColor: tokens.colors.gray400,
-    emphasizedBorder: tokens.colors.blue300,
+    emphasizedBorder: tokens.colors.gray400,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     subheadingColor: tokens.colors.gray700,
