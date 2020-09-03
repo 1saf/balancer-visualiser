@@ -3,7 +3,6 @@ import Box from '../../components/layout/box/Box';
 import styled from 'styled-components';
 import query from './query/pools.graphql';
 import blocksQuery from './query/blocks.graphql';
-import historicalLiquidityQuery from './query/historical.graphql';
 import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL } from '../../api/graphql';
 import bent from 'bent';
 import Heading from '../../components/design/heading/Heading';
@@ -33,7 +32,8 @@ const useSingleFigureStatistics = () => {
     const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
 
-    const balancerStats = (balancerStatsResponse as any)?.data.balancer;
+    console.log('bing', balancerStatsResponse)
+    const balancerStats = (balancerStatsResponse as any)?.data?.balancer;
 
     const totalPools = balancerStats?.poolCount;
     const totalLiquidity = numeral(balancerStats?.totalLiquidity).format('($0.00a)');
@@ -74,12 +74,12 @@ const getDates = () => {
 
 const useGraphStatistics = () => {
     const requests = useMemo(() => getDates(), []);
-    const { data: blockTimestampsResponse } = useGraphQuery(['blockTimestamps', { requests }], blocksQuery, {
-        loop: true,
-        graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
-    });
+    // const { data: blockTimestampsResponse } = useGraphQuery(['blockTimestamps', { requests }], blocksQuery, {
+    //     loop: true,
+    //     graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
+    // });
 
-    console.log('blocks', blockTimestampsResponse);
+    // console.log('blocks', blockTimestampsResponse);
 };
 
 const Dashboard: FC<any> = ({ children }) => {
@@ -94,7 +94,6 @@ const Dashboard: FC<any> = ({ children }) => {
         balancerPrice,
     } = useSingleFigureStatistics();
 
-    const lol = useGraphStatistics();
 
     if (isLoading) return <span>'Loading data'</span>;
     return (

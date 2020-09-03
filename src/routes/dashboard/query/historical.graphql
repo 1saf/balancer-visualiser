@@ -1,0 +1,10 @@
+{
+    balancer(id: 1) {
+        poolCount,
+        txCount,
+        totalLiquidity,
+        totalSwapVolume,
+        totalSwapFee
+        finalizedPoolCount
+    }
+}
