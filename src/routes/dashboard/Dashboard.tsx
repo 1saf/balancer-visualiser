@@ -9,11 +9,11 @@ import bent from 'bent';
 import Heading from '../../components/design/heading/Heading';
 import Statistic from '../../components/ui/statistic/Statistic';
 
-import numeral, { format } from 'numeral';
+import numeral from 'numeral';
 import { useQuery } from 'react-query';
 import { getBalancerPrice } from './query/rest';
 import LineGraph from '../../components/ui/graph/LineGraph';
-import { subMonths, endOfMonth, getTime, getUnixTime, addMinutes, format as formatDate } from 'date-fns';
+import { subMonths, endOfMonth, getTime, getUnixTime, addMinutes, format as formatDate, subDays, endOfDay } from 'date-fns';
 import { sortBy } from 'lodash';
 
 const StyledDashboard = styled(Box)`
@@ -71,8 +71,8 @@ const useSingleFigureStatistics = () => {
 const getDates = () => {
     const dates = [];
     const today = new Date();
-    for (let i = 1; i <= 6; i++) {
-        const endOfMonthDate = endOfMonth(subMonths(today, i));
+    for (let i = 1; i <= 90; i++) {
+        const endOfMonthDate = endOfDay(subDays(today, i));
         dates.push({
             first_ten: getUnixTime(endOfMonthDate),
             last_ten: getUnixTime(addMinutes(endOfMonthDate, 10)),

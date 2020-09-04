@@ -4,6 +4,7 @@ import Box from '../../layout/box/Box';
 import styled, { css } from 'styled-components';
 import echarts from 'echarts';
 import numeral from 'numeral';
+import { tokens } from '../../../style/Theme';
 
 type LineChartData = {
     values: unknown[];
@@ -28,6 +29,10 @@ const option = (data: LineChartData, title: string, legend: string[]) => ({
     },
     tooltip: {
         trigger: 'axis',
+        transitionDuration: 1,
+        alwaysShowContent: true,
+        triggerOn: 'mousemove',
+        hideDelay: 0,
     },
     legend: {
         data: legend,
@@ -36,7 +41,9 @@ const option = (data: LineChartData, title: string, legend: string[]) => ({
         data: data.axis,
         type: 'category',
         boundaryGap: false,
-
+        axisLine: {
+            show: false,
+        },
         axisTick: {
             alignWithLabel: true,
         },
@@ -45,13 +52,25 @@ const option = (data: LineChartData, title: string, legend: string[]) => ({
         axisLabel: {
             formatter: (v: number, i: number) => numeral(v).format('($0a)'),
         },
+        axisLine: {
+            show: false,
+        },
+        splitLine: {
+            show: false,
+        },
+        position: 'right',
     },
+    grid: {
+        show: false,
+    },
+    color: [tokens.colors.ultramarine],
     series: [
         {
             name: data.name,
             type: 'line',
             data: data.values,
             smooth: true,
+            areaStyle: {},
         },
     ],
 });
