@@ -1,6 +1,7 @@
 import React, { FC } from 'react';
 import { Spacing, ResponsiveProp, getMediaQuery, SpacingRemConfig } from '../layout.t';
 import styled, { css } from 'styled-components';
+import Box, { BoxProps } from '../box/Box';
 
 type Orientation = 'horizontal' | 'vertical';
 
@@ -41,14 +42,14 @@ const resolveStackCss = (props: Props) => {
     `;
 };
 
-const StyledStack = styled.div<Props>`
+const StyledStack = styled(Box)<Props>`
     ${resolveStackCss}
 `;
 
-const Stack: FC<Props> = props => {
+const Stack: FC<Props & BoxProps> = props => {
     const { orientation = 'vertical', children, gap = 'base', className } = props;
     return (
-        <StyledStack orientation={orientation} gap={gap} className={className}>
+        <StyledStack {...props} orientation={orientation} gap={gap} className={className}>
             {children}
         </StyledStack>
     );

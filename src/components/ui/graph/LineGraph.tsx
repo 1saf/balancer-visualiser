@@ -10,6 +10,7 @@ import Subheading from '../../design/subheading/Subheading';
 import { tail, last } from 'lodash';
 import { format as formatDate, parse } from 'date-fns';
 import numeral from 'numeral';
+import ActionButton from '../../design/action_button/ActionButton';
 
 type LineChartData = {
     values: unknown[];
@@ -24,8 +25,8 @@ type Props = {
 };
 
 const StyledLineGraphContainer = styled(Card)`
-    min-height: 300px;
-    height: 300px;
+    min-height: 275px;
+    height: 275px;
     position: relative;
 `;
 
@@ -39,9 +40,24 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         alwaysShowContent: true,
         triggerOn: 'mousemove',
         hideDelay: 0,
+        borderColor: tokens.colors.gray400,
+        borderWidth: 1,
+        backgroundColor: '#FFFFFF',
+        padding: [7.5, 12.5, 7.5, 12.5],
+        extraCssText: 'box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.1); min-width: 200px',
+        textStyle: {
+            color: tokens.colors.gray700,
+        },
+        formatter: ([params]: any) => {
+            console.log('par', params);
+            return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
+                new Date(params?.name * 1000),
+                'PP'
+            )}</span> <br/> ${params?.marker} ${params?.seriesName}: ${numeral(params?.value).format('$0,0.00')}`;
+        },
     },
     legend: {
-        data: legend,
+        show: false,
     },
     axisPointer: {
         snap: true,
@@ -56,6 +72,9 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         axisTick: {
             alignWithLabel: true,
         },
+        axisLabel: {
+            formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
+        },
     },
     yAxis: {
         axisLabel: {
@@ -69,7 +88,7 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         },
         position: 'right',
     },
-    color: [tokens.colors.ultramarine],
+    color: [tokens.colors.congo_pink],
     series: [
         {
             name: data.name,
@@ -80,7 +99,7 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1.25, [
                     {
                         offset: 0,
-                        color: tokens.colors.ultramarine,
+                        color: tokens.colors.congo_pink,
                     },
                     {
                         offset: 1,
@@ -91,11 +110,10 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         },
     ],
     grid: {
-        show: false,
-        left: '4%',
+        left: '3.75%',
         right: '5%',
-        bottom: '7.5%',
-        top: '5%',
+        bottom: '25%',
+        top: '7.5%',
     },
 });
 
@@ -104,16 +122,42 @@ type GraphInfoProps = {
 };
 
 const StyledGraphInfo = styled(Stack)`
-    position: absolute;
-    top: 1.5rem;
-    left: 1.5rem;
+    border-bottom: 1px solid ${props => props.theme.borderColor};
+    justify-content: space-between;
+    align-items: center;
 `;
+
+const historicalPeriods = [{
+    period: '24',
+    type: 'hour',
+    label: '24H',
+}, {
+    period: '7',
+    type: 'days',
+    label: '7D',
+}, {
+    period: '14',
+    type: 'days',
+    label: '14D'
+}, {
+    period: '30',
+    type: 'days',
+    label: '30D',
+}, {
+    period: '90',
+    type: 'days',
+    label: '90D'
+}, {
+    period: '1',
+    type: 'year',
+    label: '1Y'
+}]
 
 // seperate component so the whole chart doesnt re-render
 const GraphInfo = forwardRef((props: GraphInfoProps, ref) => {
     const { data } = props;
     const [hoveredValue, setHoveredValue] = useState<string>(numeral(last(data.values) as number).format('($0.00a)'));
-    const [hoveredDate, setHoveredDate] = useState<string>(formatDate(parse(last(data.axis) as string, 'yyyy-MM-dd', new Date()), 'PP'));
+    const [hoveredDate, setHoveredDate] = useState<string>(formatDate(new Date((last(data.axis) as number) * 1000), 'PP'));
     const axisMouseIndex = useRef<number>();
 
     useImperativeHandle(ref, () => ({
@@ -122,15 +166,22 @@ const GraphInfo = forwardRef((props: GraphInfoProps, ref) => {
             if (axisMouseIndex.current !== params.dataIndex) {
                 axisMouseIndex.current = params.dataIndex;
                 data.values[params.dataIndex] && setHoveredValue(numeral(data.values[params.dataIndex] as number).format('($0.00a)'));
-                data.values[params.dataIndex] && setHoveredDate((formatDate(parse(data.axis[params.dataIndex] as string, 'yyyy-MM-dd', new Date()), 'PP')));
+                data.values[params.dataIndex] && setHoveredDate(formatDate(new Date((data.axis[params.dataIndex] as number) * 1000), 'PP'));
             }
-        }
+        },
     }));
 
     return (
-        <StyledGraphInfo gap='x-small'>
-            <Subheading>Total Value Locked - {hoveredDate}</Subheading>
-            <Heading level='4'>{hoveredValue}</Heading>
+        <StyledGraphInfo gap='x-small' orientation='horizontal' paddingBottom='medium'>
+            <Stack gap='x-small'>
+                <Subheading>Total Value Locked - {hoveredDate}</Subheading>
+                <Heading level='4'>{hoveredValue}</Heading>
+            </Stack>
+            <Stack orientation='horizontal' gap='x-small'>
+                {
+                    historicalPeriods.map(period => <ActionButton>{period.label}</ActionButton>)
+                }
+            </Stack>
         </StyledGraphInfo>
     );
 });

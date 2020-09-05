@@ -45,7 +45,7 @@ const useSingleFigureStatistics = () => {
 
     const balancerStats = balancerStatsResponse?.data?.balancer;
 
-    const totalPools = balancerStats?.poolCount;
+    const totalPools = balancerStats?.poolCount;//
     const totalLiquidity = numeral(balancerStats?.totalLiquidity).format('($0.00a)');
     const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).format('($0.00a)');
     const totalSwapFeeVolume = numeral(balancerStats?.totalSwapFee).format('($0.00a)');
@@ -122,7 +122,7 @@ const useGraphStatistics = () => {
 
     const chartData = {
         values: (historicalBalancerData || []).map(d => parseFloat(d.totalLiquidity)),
-        axis: requests.map(r => r.date),
+        axis: requests.map(r => r.first_ten),
         name: 'TVL',
     };
 
@@ -142,7 +142,6 @@ const Dashboard: FC<any> = ({ children }) => {
     } = useSingleFigureStatistics();
 
     const { chartData, isLoading: bLoading } = useGraphStatistics();
-    console.log('c', chartData);
 
     if (isLoading || bLoading) return <span>'Loading data'</span>;
     return (
@@ -159,7 +158,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic heading='Private Pools'>{privatePools}</Statistic>
             <Statistic heading='Balancer Price (USD)'>${balancerPrice}</Statistic>
 
-            <LineGraph data={chartData} legend={['Total Value Locked']} title='TVL (6 months) - Design is WIP' />
+            <LineGraph data={chartData} legend={['TVL']} title='TVL (6 months) - Design is WIP' />
         </StyledDashboard>
     );
 };

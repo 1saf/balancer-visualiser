@@ -31,7 +31,7 @@ export const tokens = {
         gray800: '#3C3E4D',
         gray900: '#181921',
 
-        background: '#f7fafc'
+        background: '#f7fafc',
     },
     space: [0, 4, 8, 12, 16, 20, 32],
     typography: {
@@ -52,5 +52,7 @@ export default {
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     subheadingColor: tokens.colors.gray700,
-    emphasizedText: tokens.colors.congo_pink
+    emphasizedText: tokens.colors.congo_pink,
+    actionButtonHover: tokens.colors.blue100,
+    actionButtonTextColor: tokens.colors.gray800,
 };
