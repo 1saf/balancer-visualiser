@@ -1,20 +1,14 @@
-import React, { FC, useRef, useEffect, forwardRef, useImperativeHandle, useState } from 'react';
+import React, { FC, useRef, useEffect } from 'react';
 import Card from '../../layout/card/Card';
 import Box from '../../layout/box/Box';
-import styled, { css } from 'styled-components';
+import styled from 'styled-components';
 import echarts from 'echarts';
 import { tokens } from '../../../style/Theme';
-import Stack from '../../layout/stack/Stack';
-import Heading from '../../design/heading/Heading';
-import Subheading from '../../design/subheading/Subheading';
-import { tail, last } from 'lodash';
-import { format as formatDate, parse } from 'date-fns';
+import LineGraphHeader from './LineGraphHeader';
+import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
-import ActionButton from '../../design/action_button/ActionButton';
-import Dropdown from '../../design/dropdown/Dropdown';
-import { UisChart, UisAngleDown } from '@iconscout/react-unicons-solid';
 
-type LineChartData = {
+export type LineChartData = {
     values: unknown[];
     axis: unknown[];
     name: string;
@@ -23,7 +17,8 @@ type LineChartData = {
 type Props = {
     data: LineChartData;
     title: string;
-    legend: string[];
+    onPeriodChange: any;
+    isLoading?: boolean;
 };
 
 const StyledLineGraphContainer = styled(Card)`
@@ -33,7 +28,7 @@ const StyledLineGraphContainer = styled(Card)`
     background: ${props => props.theme.cardBackgroundColor};
 `;
 
-const option = (data: LineChartData, title: string, legend: string[]): echarts.EChartOption => ({
+const option = (data: LineChartData): echarts.EChartOption => ({
     title: {
         show: false,
     },
@@ -79,7 +74,7 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
             fontFamily: 'SegoeUI',
             fontSize: 12,
             color: tokens.colors.gray600,
-            fontWeight: 700
+            fontWeight: 700 as any
         },
     },
     yAxis: {
@@ -88,7 +83,7 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
             fontFamily: 'SegoeUI',
             fontSize: 14,
             color: tokens.colors.gray600,
-            fontWeight: 700
+            fontWeight: 700 as any
         },
         axisLine: {
             show: false,
@@ -127,109 +122,27 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
     },
 });
 
-type GraphInfoProps = {
-    data: LineChartData;
-};
-
-const StyledGraphInfo = styled(Stack)`
-    border-bottom: 1px solid ${props => props.theme.borderColor};
-    align-items: flex-end;
-    border-top-right-radius 4px;
-    border-top-left-radius: 4px;
-    background: #FFFFFF;
-`;
-
-const historicalPeriods = [
-    {
-        value: '24',
-        type: 'hour',
-        label: '24 hours',
-    },
-    {
-        value: '7',
-        type: 'days',
-        label: '7 days',
-    },
-    {
-        value: '14',
-        type: 'days',
-        label: '14 days',
-    },
-    {
-        value: '30',
-        type: 'days',
-        label: '30 days',
-    },
-    {
-        value: '90',
-        type: 'days',
-        label: '90 days',
-    },
-    {
-        value: '1',
-        type: 'year',
-        label: '1 year',
-    },
-];
-
-// seperate component so the whole chart doesnt re-render
-const GraphInfo = forwardRef((props: GraphInfoProps, ref) => {
-    const { data } = props;
-    const [hoveredValue, setHoveredValue] = useState<string>(numeral(last(data.values) as number).format('($0.00a)'));
-    const [hoveredDate, setHoveredDate] = useState<string>(formatDate(new Date((last(data.axis) as number) * 1000), 'PP'));
-    const axisMouseIndex = useRef<number>();
-
-    useImperativeHandle(ref, () => ({
-        onAxisMove: (params: any) => {
-            if (!axisMouseIndex.current) axisMouseIndex.current = params.dataIndex;
-            if (axisMouseIndex.current !== params.dataIndex) {
-                axisMouseIndex.current = params.dataIndex;
-                data.values[params.dataIndex] && setHoveredValue(numeral(data.values[params.dataIndex] as number).format('($0.00a)'));
-                data.values[params.dataIndex] && setHoveredDate(formatDate(new Date((data.axis[params.dataIndex] as number) * 1000), 'PP'));
-            }
-        },
-    }));
-
-    return (
-        <React.Fragment>
-            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='large' paddingY='base'>
-                <Stack gap='small'>
-                    <Heading level='6'>Total Value Locked</Heading>
-                    <Stack gap='x-small'>
-                        <Heading level='4'>{hoveredValue}</Heading>
-                        <Subheading>{hoveredDate}</Subheading>
-                    </Stack>
-                </Stack>
-            </StyledGraphInfo>
-            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='large' paddingY='medium'>
-                <Stack orientation='horizontal' gap='x-small'>
-                    <Dropdown options={historicalPeriods} icon={<UisChart size='16' />} />
-                </Stack>
-            </StyledGraphInfo>
-        </React.Fragment>
-    );
-});
-
-// const StyledCanvasContainer = styled.div`
-
-// `;
 
 const LineGraph: FC<Props> = props => {
-    const { data, title, legend } = props;
+    const { data, title, onPeriodChange, isLoading } = props;
     const chartContainerRef = useRef();
     const chartRef = useRef<echarts.ECharts>();
     const graphHighlightRef = useRef<any>();
 
     useEffect(() => {
-        chartRef.current = echarts.init(chartContainerRef.current);
-        chartRef.current.setOption(option(data, title, legend));
+        chartRef.current && chartRef.current.setOption(option(data));
+        console.log('bingo', data);
+        chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef.current.onAxisMove(data));
+    }, [isLoading]);
 
-        chartRef.current.on('updateAxisPointer', graphHighlightRef.current.onAxisMove);
+    useEffect(() => {
+        chartRef.current = echarts.init(chartContainerRef.current);
+        chartRef.current.setOption(option(data));
     }, [chartContainerRef]);
 
     return (
         <StyledLineGraphContainer spanX={12} marginTop='x-large'>
-            <GraphInfo data={data} ref={graphHighlightRef} />
+            <LineGraphHeader title={title} data={data} onPeriodChange={onPeriodChange} ref={graphHighlightRef} />
             <Box padding='large' width='100%' height='100%' ref={chartContainerRef} />
         </StyledLineGraphContainer>
     );

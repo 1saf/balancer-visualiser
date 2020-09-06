@@ -14,7 +14,7 @@ export type DropdownOption = {
 type DropdownProps = {
     icon?: React.ReactNode;
     options: DropdownOption[];
-    onSelected: (option: DropdownOption) => void;
+    onSelected?: (option: DropdownOption) => void;
 };
 
 type DropdownItemProps = {
@@ -57,9 +57,6 @@ const StyledDropdownButton = styled.button`
     color: ${props => props.theme.actionButtonTextColor};
     cursor: pointer;
     min-width: 125px;
-    &:hover {
-        // background: ${props => props.theme.actionButtonHover};
-    }
     &:active {
         box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.2), 0px 0px 3px rgba(24, 25, 33, 0.02);
     }
@@ -115,7 +112,7 @@ const Dropdown: FC<DropdownProps> = props => {
                         gap='x-small'
                     >
                         {(options || []).map(option => (
-                            <DropdownItem onClick={handleOptionSelected} option={option} />
+                            <DropdownItem onClick={handleOptionSelected} option={option} key={option.value} />
                         ))}
                     </StyledDropdownMenu>
                 )}
