@@ -4,13 +4,22 @@ import styled, { css } from 'styled-components';
 import Box, { BoxProps } from '../box/Box';
 
 type Orientation = 'horizontal' | 'vertical';
+type JustificationOptions = 'start' | 'center' | 'between' | 'end';
 
 type Props = {
     orientation?: Orientation;
     gap?: ResponsiveProp<Spacing>;
     className?: string;
+    align?: JustificationOptions;
+    justify?: JustificationOptions;
 };
 
+const justifyConfig: Record<JustificationOptions, string> = {
+    start: 'flex-start',
+    center: 'center',
+    between: 'space-between',
+    end: 'flex-end',
+}
 
 const resolveStackCss = (props: Props) => {
     const { orientation, gap } = props;
@@ -18,9 +27,12 @@ const resolveStackCss = (props: Props) => {
     const marginProperty = `margin-${marginType}`;
     const flexDirection = orientation === 'horizontal' ? 'row' : 'column';
 
-    return css`
+    return css<Props>`
     display: flex;
     flex-direction: ${flexDirection};
+    ${props => props.align && `align-items: ${justifyConfig[props.align]}`};
+    ${props => props.justify && `justify-content: ${justifyConfig[props.justify]}`};
+
     & > * {
         &:not(:last-child) {
             ${!Array.isArray(gap) && `${marginProperty}: ${SpacingRemConfig[gap]}rem;`}

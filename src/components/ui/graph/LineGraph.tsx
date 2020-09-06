@@ -11,6 +11,8 @@ import { tail, last } from 'lodash';
 import { format as formatDate, parse } from 'date-fns';
 import numeral from 'numeral';
 import ActionButton from '../../design/action_button/ActionButton';
+import Dropdown from '../../design/dropdown/Dropdown';
+import { UisChart, UisAngleDown } from '@iconscout/react-unicons-solid';
 
 type LineChartData = {
     values: unknown[];
@@ -25,9 +27,10 @@ type Props = {
 };
 
 const StyledLineGraphContainer = styled(Card)`
-    min-height: 275px;
-    height: 275px;
+    min-height: 400px;
+    height: 400px;
     position: relative;
+    background: ${props => props.theme.cardBackgroundColor};
 `;
 
 const option = (data: LineChartData, title: string, legend: string[]): echarts.EChartOption => ({
@@ -44,12 +47,11 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         borderWidth: 1,
         backgroundColor: '#FFFFFF',
         padding: [7.5, 12.5, 7.5, 12.5],
-        extraCssText: 'box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.1); min-width: 200px',
+        extraCssText: 'box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.1); min-width: 200px; z-index: 1 !important;',
         textStyle: {
             color: tokens.colors.gray700,
         },
         formatter: ([params]: any) => {
-            console.log('par', params);
             return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
                 new Date(params?.name * 1000),
                 'PP'
@@ -74,11 +76,19 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
         },
         axisLabel: {
             formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
+            fontFamily: 'SegoeUI',
+            fontSize: 12,
+            color: tokens.colors.gray600,
+            fontWeight: 700
         },
     },
     yAxis: {
         axisLabel: {
             formatter: (v: number, i: number) => numeral(v).format('($0a)'),
+            fontFamily: 'SegoeUI',
+            fontSize: 14,
+            color: tokens.colors.gray600,
+            fontWeight: 700
         },
         axisLine: {
             show: false,
@@ -111,9 +121,9 @@ const option = (data: LineChartData, title: string, legend: string[]): echarts.E
     ],
     grid: {
         left: '3.75%',
-        right: '5%',
-        bottom: '25%',
-        top: '7.5%',
+        right: '8.5%',
+        bottom: '50%',
+        top: '5%',
     },
 });
 
@@ -123,35 +133,44 @@ type GraphInfoProps = {
 
 const StyledGraphInfo = styled(Stack)`
     border-bottom: 1px solid ${props => props.theme.borderColor};
-    justify-content: space-between;
-    align-items: center;
+    align-items: flex-end;
+    border-top-right-radius 4px;
+    border-top-left-radius: 4px;
+    background: #FFFFFF;
 `;
 
-const historicalPeriods = [{
-    period: '24',
-    type: 'hour',
-    label: '24H',
-}, {
-    period: '7',
-    type: 'days',
-    label: '7D',
-}, {
-    period: '14',
-    type: 'days',
-    label: '14D'
-}, {
-    period: '30',
-    type: 'days',
-    label: '30D',
-}, {
-    period: '90',
-    type: 'days',
-    label: '90D'
-}, {
-    period: '1',
-    type: 'year',
-    label: '1Y'
-}]
+const historicalPeriods = [
+    {
+        value: '24',
+        type: 'hour',
+        label: '24 hours',
+    },
+    {
+        value: '7',
+        type: 'days',
+        label: '7 days',
+    },
+    {
+        value: '14',
+        type: 'days',
+        label: '14 days',
+    },
+    {
+        value: '30',
+        type: 'days',
+        label: '30 days',
+    },
+    {
+        value: '90',
+        type: 'days',
+        label: '90 days',
+    },
+    {
+        value: '1',
+        type: 'year',
+        label: '1 year',
+    },
+];
 
 // seperate component so the whole chart doesnt re-render
 const GraphInfo = forwardRef((props: GraphInfoProps, ref) => {
@@ -172,19 +191,28 @@ const GraphInfo = forwardRef((props: GraphInfoProps, ref) => {
     }));
 
     return (
-        <StyledGraphInfo gap='x-small' orientation='horizontal' paddingBottom='medium'>
-            <Stack gap='x-small'>
-                <Subheading>Total Value Locked - {hoveredDate}</Subheading>
-                <Heading level='4'>{hoveredValue}</Heading>
-            </Stack>
-            <Stack orientation='horizontal' gap='x-small'>
-                {
-                    historicalPeriods.map(period => <ActionButton>{period.label}</ActionButton>)
-                }
-            </Stack>
-        </StyledGraphInfo>
+        <React.Fragment>
+            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='large' paddingY='base'>
+                <Stack gap='small'>
+                    <Heading level='6'>Total Value Locked</Heading>
+                    <Stack gap='x-small'>
+                        <Heading level='4'>{hoveredValue}</Heading>
+                        <Subheading>{hoveredDate}</Subheading>
+                    </Stack>
+                </Stack>
+            </StyledGraphInfo>
+            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='large' paddingY='medium'>
+                <Stack orientation='horizontal' gap='x-small'>
+                    <Dropdown options={historicalPeriods} icon={<UisChart size='16' />} />
+                </Stack>
+            </StyledGraphInfo>
+        </React.Fragment>
     );
 });
+
+// const StyledCanvasContainer = styled.div`
+
+// `;
 
 const LineGraph: FC<Props> = props => {
     const { data, title, legend } = props;
@@ -200,9 +228,9 @@ const LineGraph: FC<Props> = props => {
     }, [chartContainerRef]);
 
     return (
-        <StyledLineGraphContainer spanX={12} padding='large' marginTop='x-large'>
+        <StyledLineGraphContainer spanX={12} marginTop='x-large'>
             <GraphInfo data={data} ref={graphHighlightRef} />
-            <div style={{ width: '100%', height: '100%' }} ref={chartContainerRef} />
+            <Box padding='large' width='100%' height='100%' ref={chartContainerRef} />
         </StyledLineGraphContainer>
     );
 };

@@ -8,7 +8,7 @@ type Props = {
 
 const StyledHeading = styled.div<Props>`
     font-size: ${props => `${props.theme.typography[`heading_${props.level}`]}rem`};
-    font-weight: 600;
+    font-weight: ${props => `${props.theme.fontWeight[`heading_${props.level}`]}`};
     color: ${props => props.theme.headingColor};
     user-select: none;
 `

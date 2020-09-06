@@ -7,7 +7,7 @@ const StyledActionButton = styled.button<Props>`
     padding: 0.5rem 1rem;
     font-size: 0.75rem;
     font-weight: 700;
-    border: 1px ${props => props.theme.borderColor};
+    border: 1px ${props => props.theme.borderColor} solid;
     border-radius: 5px;
     background: white;
     cursor: pointer;

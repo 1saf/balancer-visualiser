@@ -42,17 +42,27 @@ export const tokens = {
         heading_5: 1.25,
         heading_6: 1,
     },
+    fontWeight: {
+        heading_1: 600,
+        heading_2: 600,
+        heading_3: 600,
+        heading_4: 600,
+        heading_5: 700,
+        heading_6: 700,  
+    }
 };
 
 export default {
     background: tokens.colors.background,
     foreground: tokens.colors.white,
     borderColor: tokens.colors.gray400,
-    emphasizedBorder: tokens.colors.blue200,
+    emphasizedBorder: tokens.colors.gray300,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
+    fontWeight: tokens.fontWeight,
     subheadingColor: tokens.colors.gray700,
     emphasizedText: tokens.colors.congo_pink,
-    actionButtonHover: tokens.colors.blue100,
-    actionButtonTextColor: tokens.colors.gray800,
+    actionButtonHover: tokens.colors.gray200,
+    actionButtonTextColor: tokens.colors.gray700,
+    cardBackgroundColor: tokens.colors.gray100
 };
