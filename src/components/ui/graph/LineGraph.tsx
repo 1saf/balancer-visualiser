@@ -49,7 +49,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         formatter: ([params]: any) => {
             return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
                 new Date(params?.name * 1000),
-                'PP'
+                'PP p'
             )}</span> <br/> ${params?.marker} ${params?.seriesName}: ${numeral(params?.value).format('$0,0.00')}`;
         },
     },
@@ -59,6 +59,10 @@ const option = (data: LineChartData): echarts.EChartOption => ({
     axisPointer: {
         snap: true,
     },
+    dataZoom: [{
+        type: 'inside',
+        xAxisIndex: 0,
+    }],
     xAxis: {
         data: data.axis,
         type: 'category',
@@ -70,7 +74,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
             alignWithLabel: true,
         },
         axisLabel: {
-            formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
+            formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy p'),
             fontFamily: 'SegoeUI',
             fontSize: 12,
             color: tokens.colors.gray600,
@@ -117,11 +121,21 @@ const option = (data: LineChartData): echarts.EChartOption => ({
     grid: {
         left: '3.75%',
         right: '8.5%',
-        bottom: '50%',
         top: '5%',
     },
 });
 
+const StyledLoadingOverlay = styled(Box)`
+    position: absolute;
+    top: 150px;
+    left: 0;
+    height: 252px;
+    width: 100%;
+    background-color: #F3F3F5;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+`;
 
 const LineGraph: FC<Props> = props => {
     const { data, title, onPeriodChange, isLoading } = props;
@@ -130,10 +144,12 @@ const LineGraph: FC<Props> = props => {
     const graphHighlightRef = useRef<any>();
 
     useEffect(() => {
-        chartRef.current && chartRef.current.setOption(option(data));
-        console.log('bingo', data);
+        !isLoading && chartRef.current && data.values.length && chartRef.current.clear();
+        chartRef.current && chartRef.current.setOption(option(data), true, true);
+        chartRef.current && chartRef.current.off('updateAxisPointer');
         chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef.current.onAxisMove(data));
-    }, [isLoading]);
+    }, [isLoading, data.values.length]);
+
 
     useEffect(() => {
         chartRef.current = echarts.init(chartContainerRef.current);
@@ -143,7 +159,11 @@ const LineGraph: FC<Props> = props => {
     return (
         <StyledLineGraphContainer spanX={12} marginTop='x-large'>
             <LineGraphHeader title={title} data={data} onPeriodChange={onPeriodChange} ref={graphHighlightRef} />
-            <Box padding='large' width='100%' height='100%' ref={chartContainerRef} />
+            <Box padding='large' width='100%' height='252px' ref={chartContainerRef} />
+            {
+                isLoading &&
+                <StyledLoadingOverlay>Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes</StyledLoadingOverlay>
+            }
         </StyledLineGraphContainer>
     );
 };

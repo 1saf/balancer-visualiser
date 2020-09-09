@@ -51,8 +51,8 @@ const timePeriods = [
         label: '90 days',
     },
     {
-        value: '1',
-        type: 'years',
+        value: '365',
+        type: 'days',
         label: '1 year',
     },
 ];
@@ -68,7 +68,6 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
             if (!axisMouseIndex.current) axisMouseIndex.current = params.dataIndex;
             if (axisMouseIndex.current !== params.dataIndex) {
                 axisMouseIndex.current = params.dataIndex;
-                console.log('d', data);
                 data.values[params.dataIndex] && setHoveredValue(numeral(data.values[params.dataIndex] as number).format('($0.00a)'));
                 data.values[params.dataIndex] && setHoveredDate(formatDate(new Date((data.axis[params.dataIndex] as number) * 1000), 'PP'));
             }

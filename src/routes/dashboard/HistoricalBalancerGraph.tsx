@@ -93,7 +93,7 @@ const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey:
     });
 
     const historicalBalancerData = (historicalBalancerResponses || []).map(historicalBalancerResponse => {
-        return (historicalBalancerResponse?.data?.balancer as any)[historicalDataKey];
+        return ((historicalBalancerResponse?.data?.balancer as any) || {})[historicalDataKey];
     });
 
     const chartData = {
@@ -102,12 +102,9 @@ const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey:
         name,
     };
 
-    const isLoading =
-        isEthTimestampResponseFetching ||
-        isEthTimestampResponseLoading ||
-        isHistoricalBalancerResponseLoading ||
-        isHistoricalBalancerResponseFetching;
-    return { chartData, isLoading, setGraphTimePeriod };
+    const isLoading = isEthTimestampResponseLoading || isHistoricalBalancerResponseLoading;
+    const isFetching = isEthTimestampResponseFetching || isHistoricalBalancerResponseFetching;
+    return { chartData, isLoading, isFetching, setGraphTimePeriod };
 };
 
 const HistoricalBalancerGraph: FC<Props> = props => {
