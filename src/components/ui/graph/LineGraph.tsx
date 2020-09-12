@@ -22,8 +22,8 @@ type Props = {
 };
 
 const StyledLineGraphContainer = styled(Card)`
-    min-height: 400px;
-    height: 400px;
+    min-height: 450px;
+    height: 450px;
     position: relative;
     background: ${props => props.theme.cardBackgroundColor};
 `;
@@ -60,6 +60,9 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         snap: true,
     },
     dataZoom: [{
+        type: 'slider',
+        xAxisIndex: 0,
+    },{
         type: 'inside',
         xAxisIndex: 0,
     }],
@@ -129,7 +132,7 @@ const StyledLoadingOverlay = styled(Box)`
     position: absolute;
     top: 150px;
     left: 0;
-    height: 252px;
+    height: 300px;
     width: 100%;
     background-color: #F3F3F5;
     display: flex;

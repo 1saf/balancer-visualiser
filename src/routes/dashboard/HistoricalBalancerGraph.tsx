@@ -1,5 +1,5 @@
 import React, { FC, useMemo, useState } from 'react';
-import { subDays, subMonths, subYears, subHours, endOfDay, getUnixTime, addMinutes, format as formatDate } from 'date-fns';
+import { subDays, subMonths, subYears, subHours, eachDayOfInterval, getUnixTime, addMinutes, format as formatDate, startOfDay } from 'date-fns';
 import { GraphQLResponse, useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL } from '../../api/graphql';
 import blocksQuery from './query/blocks.graphql';
 import { sortBy } from 'lodash';
@@ -13,32 +13,34 @@ type Props = {
 
 export type TimeType = 'hour' | 'days' | 'months' | 'years';
 export type TimePeriod = {
-    type: TimeType;
-    value: number;
-};
-
-const dateFuncMap: Record<TimeType, Function> = {
-    days: subDays,
-    months: subMonths,
-    years: subYears,
-    hour: subHours,
+    value: 'hourly' | 'daily' | string,
+    label: string,
 };
 
 type EthBlocksResponse = GraphQLResponse<{ blocks: { id: string; number: string; timestamp: string }[] }>[];
 
 const getDates = (timePeriod: TimePeriod) => {
-    const dates = [];
+    let dates: any[] = [];
     const today = new Date();
-    for (let i = 1; i <= timePeriod.value; i++) {
-        let date = dateFuncMap[timePeriod.type](today, i);
-        if (timePeriod.type !== 'hour') date = endOfDay(date);
-
-        // subgraph queries are faster when requested as the first block between 2 timestamps
-        dates.push({
+    if (timePeriod.value === 'hourly') {
+        for (let i = 1; i <= 24; i++) {
+            const date = subHours(today, i);
+            // subgraph queries are faster when requested as the first block between 2 timestamps
+            dates.push({
+                first_ten: getUnixTime(date),
+                last_ten: getUnixTime(addMinutes(date, 10)),
+                date: formatDate(date, 'yyyy-MM-dd'),
+            });
+        }
+    } else if (timePeriod?.value === 'daily') {
+        dates = eachDayOfInterval({
+            start: new Date(2020, 2, 29),
+            end: today,
+        }).map(date => ({
             first_ten: getUnixTime(date),
             last_ten: getUnixTime(addMinutes(date, 10)),
             date: formatDate(date, 'yyyy-MM-dd'),
-        });
+        }));
     }
 
     return dates.reverse();
@@ -56,8 +58,8 @@ type BalancerResponse = GraphQLResponse<{
 
 const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey: string, name: string) => {
     // default to start at 24 hour
-    const [graphTimePeriod, setGraphTimePeriod] = useState<TimePeriod>({ type: 'hour', value: 24 });
-    const requests = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value, graphTimePeriod.type]);
+    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'daily', label: 'Daily' });
+    const requests = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value]);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     const {

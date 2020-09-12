@@ -50,7 +50,7 @@ const StyledDropdownButton = styled.button`
     background: white;
     border-radius: 3px;
     border: none;
-    box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.3), 0px 2px 3px rgba(24, 25, 33, 0.02);
+    box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.3), 0px 0px 3px rgba(24, 25, 33, 0.02);
     outline: none;
     padding: 0.35rem 0.5rem;
     font-size: 0.875rem;

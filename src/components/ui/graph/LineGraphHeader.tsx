@@ -26,34 +26,12 @@ const StyledGraphInfo = styled(Stack)`
 
 const timePeriods = [
     {
-        value: '24',
-        type: 'hour',
+        value: 'daily',
+        label: 'Daily',
+    },
+    {
+        value: 'hourly',
         label: '24 hours',
-    },
-    {
-        value: '7',
-        type: 'days',
-        label: '7 days',
-    },
-    {
-        value: '14',
-        type: 'days',
-        label: '14 days',
-    },
-    {
-        value: '30',
-        type: 'days',
-        label: '30 days',
-    },
-    {
-        value: '90',
-        type: 'days',
-        label: '90 days',
-    },
-    {
-        value: '365',
-        type: 'days',
-        label: '1 year',
     },
 ];
 
