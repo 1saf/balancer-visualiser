@@ -84,6 +84,8 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic heading='Balancer Price (USD)'>${balancerPrice}</Statistic>
 
             <HistoricalBalancerGraph name='Total Value Locked' dataKey='totalLiquidity' query={historicalPoolsQuery} />
+            <HistoricalBalancerGraph name='Cumulative Swap Volume' dataKey='totalSwapVolume' query={historicalPoolsQuery} />
+            <HistoricalBalancerGraph name='Cumulative Fee Volume' dataKey='totalSwapFee' query={historicalPoolsQuery} />
         </StyledDashboard>
     );
 };

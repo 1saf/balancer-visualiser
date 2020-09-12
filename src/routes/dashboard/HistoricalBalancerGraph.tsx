@@ -112,7 +112,7 @@ const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey:
 const HistoricalBalancerGraph: FC<Props> = props => {
     const { query, dataKey, name } = props;
     const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(query, dataKey, name);
-    return <LineGraph isLoading={isLoading} data={chartData} title='Total Value Locked' onPeriodChange={setGraphTimePeriod} />;
+    return <LineGraph isLoading={isLoading} data={chartData} title={name} onPeriodChange={setGraphTimePeriod} />;
 };
 
 export default HistoricalBalancerGraph;
