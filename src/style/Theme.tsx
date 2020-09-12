@@ -56,7 +56,7 @@ export default {
     background: tokens.colors.background,
     foreground: tokens.colors.white,
     borderColor: tokens.colors.gray400,
-    emphasizedBorder: tokens.colors.gray300,
+    emphasizedBorder: tokens.colors.gray400,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     fontWeight: tokens.fontWeight,

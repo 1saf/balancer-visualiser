@@ -5,12 +5,12 @@ import Box, { BoxProps } from '../box/Box';
 type Props = {} & BoxProps;
 
 const StyledCard = styled(Box)`
+    position: relative;
     background-color: ${props => props.theme.foreground};
-    border: 1px solid ${props => props.theme.emphasizedBorder};
     height: fit-content;
-    border-radius: 4px;
-    box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.01), 0px 2px 3px rgba(24, 25, 33, 0.02);
-        `;
+    border-radius: 8px;
+    box-shadow: 0px 1px 5px rgba(83, 109, 254, 0.1), 0px 1px 2px rgba(24, 25, 33, 0.2);
+`;
 
 const Card: FC<Props> = (props) => {
     return <StyledCard {...props} />;

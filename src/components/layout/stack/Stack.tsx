@@ -59,7 +59,7 @@ const StyledStack = styled(Box)<Props>`
 `;
 
 const Stack: FC<Props & BoxProps> = props => {
-    const { orientation = 'vertical', children, gap = 'base', className } = props;
+    const { orientation = 'vertical', children, gap = 'none', className } = props;
     return (
         <StyledStack {...props} orientation={orientation} gap={gap} className={className}>
             {children}

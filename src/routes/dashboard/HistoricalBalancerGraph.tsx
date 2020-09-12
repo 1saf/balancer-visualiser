@@ -1,62 +1,19 @@
 import React, { FC, useMemo, useState } from 'react';
 import { subDays, subMonths, subYears, subHours, eachDayOfInterval, getUnixTime, addMinutes, format as formatDate, startOfDay } from 'date-fns';
-import { GraphQLResponse, useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL } from '../../api/graphql';
+import { GraphQLResponse, useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, EthBlocksResponse } from '../../api/graphql';
 import blocksQuery from './query/blocks.graphql';
 import { sortBy } from 'lodash';
 import LineGraph from '../../components/ui/graph/LineGraph';
+import { getDates } from '../../utils';
+import { BalancerResponse } from '../../api/datatypes';
 
 type Props = {
-    query: string;
+    queryLiteral: string;
     dataKey: string;
     name: string;
 };
 
-export type TimeType = 'hour' | 'days' | 'months' | 'years';
-export type TimePeriod = {
-    value: 'hourly' | 'daily' | string,
-    label: string,
-};
-
-type EthBlocksResponse = GraphQLResponse<{ blocks: { id: string; number: string; timestamp: string }[] }>[];
-
-const getDates = (timePeriod: TimePeriod) => {
-    let dates: any[] = [];
-    const today = new Date();
-    if (timePeriod.value === 'hourly') {
-        for (let i = 1; i <= 24; i++) {
-            const date = subHours(today, i);
-            // subgraph queries are faster when requested as the first block between 2 timestamps
-            dates.push({
-                first_ten: getUnixTime(date),
-                last_ten: getUnixTime(addMinutes(date, 10)),
-                date: formatDate(date, 'yyyy-MM-dd'),
-            });
-        }
-    } else if (timePeriod?.value === 'daily') {
-        dates = eachDayOfInterval({
-            start: new Date(2020, 2, 29),
-            end: today,
-        }).map(date => ({
-            first_ten: getUnixTime(date),
-            last_ten: getUnixTime(addMinutes(date, 10)),
-            date: formatDate(date, 'yyyy-MM-dd'),
-        }));
-    }
-
-    return dates.reverse();
-};
-
-type BalancerResponse = GraphQLResponse<{
-    balancer: {
-        finalizedPoolCount: number;
-        poolCount: number;
-        totalLiquidity: string;
-        totalSwapFee: string;
-        totalSwapVolume: string;
-    };
-}>;
-
-const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey: string, name: string) => {
+const useHistoricalGraphState = (queryLiteral: any, historicalDataKey: string, name: string) => {
     // default to start at 24 hour
     const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'daily', label: 'Daily' });
     const requests = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value]);
@@ -89,7 +46,7 @@ const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey:
         data: historicalBalancerResponses,
         isLoading: isHistoricalBalancerResponseLoading,
         isFetching: isHistoricalBalancerResponseFetching,
-    } = useGraphQuery<BalancerResponse[]>(['historicalBlocks', { requests: sortedBlockNumbers }], historicalDataQuery, {
+    } = useGraphQuery<BalancerResponse[]>(['historicalBlocks', { requests: sortedBlockNumbers }], queryLiteral, {
         loop: true,
         enabled: sortedBlockNumbers.length,
     });
@@ -110,8 +67,8 @@ const useHistoricalGraphState = (historicalDataQuery: string, historicalDataKey:
 };
 
 const HistoricalBalancerGraph: FC<Props> = props => {
-    const { query, dataKey, name } = props;
-    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(query, dataKey, name);
+    const { queryLiteral, dataKey, name } = props;
+    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(queryLiteral, dataKey, name);
     return <LineGraph isLoading={isLoading} data={chartData} title='Total Value Locked' onPeriodChange={setGraphTimePeriod} />;
 };
 

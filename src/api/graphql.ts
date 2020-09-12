@@ -3,6 +3,7 @@ import { useQuery, QueryKey, QueryConfig } from 'react-query';
 
 export const BALANCER_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer-beta';
 export const ETH_BLOCKS_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks';
+export type EthBlocksResponse = GraphQLResponse<{ blocks: { id: string; number: string; timestamp: string }[] }>[];
 export type GraphQLResponse<T> = { data: T };
 
 export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, loop?: boolean) => async (

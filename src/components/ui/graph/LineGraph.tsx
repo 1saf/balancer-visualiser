@@ -100,7 +100,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         },
         position: 'right',
     },
-    color: [tokens.colors.congo_pink],
+    color: [tokens.colors.ultramarine],
     series: [
         {
             name: data.name,
@@ -108,10 +108,10 @@ const option = (data: LineChartData): echarts.EChartOption => ({
             data: data.values,
             smooth: false,
             areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1.25, [
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1.5, [
                     {
                         offset: 0,
-                        color: tokens.colors.congo_pink,
+                        color: tokens.colors.ultramarine,
                     },
                     {
                         offset: 1,
