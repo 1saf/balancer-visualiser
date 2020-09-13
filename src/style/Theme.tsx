@@ -6,6 +6,7 @@ export const tokens = {
         mellow_apricot: '#F7C27D',
         congo_pink: '#E96B94',
         white: '#FFFFFF',
+        medium_aquamarine: '#47E5BC',
 
         yellow300: '#fce7cb',
         yellow400: '#f9ce97',
@@ -64,5 +65,8 @@ export default {
     emphasizedText: tokens.colors.congo_pink,
     actionButtonHover: tokens.colors.gray200,
     actionButtonTextColor: tokens.colors.gray700,
-    cardBackgroundColor: tokens.colors.gray100
+    cardBackgroundColor: tokens.colors.gray100,
+
+    tooltipBackgroundColor: tokens.colors.ultramarine,
+    tooltipTextColor: tokens.colors.gray100,
 };

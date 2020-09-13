@@ -25,6 +25,7 @@ const StyledLineGraphContainer = styled(Card)`
     min-height: 450px;
     height: 450px;
     position: relative;
+    border-radius: 15px;
     background: ${props => props.theme.cardBackgroundColor};
 `;
 
@@ -35,7 +36,6 @@ const option = (data: LineChartData): echarts.EChartOption => ({
     tooltip: {
         trigger: 'axis',
         transitionDuration: 1,
-        alwaysShowContent: true,
         triggerOn: 'mousemove',
         hideDelay: 0,
         borderColor: tokens.colors.gray400,
@@ -107,6 +107,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
             type: 'line',
             data: data.values,
             smooth: false,
+            showSymbol: false,
             areaStyle: {
                 color: new echarts.graphic.LinearGradient(0, 0, 0, 1.5, [
                     {

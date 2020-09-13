@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@iconscout/react-unicons-solid": "^0.0.2",
+        "@tippyjs/react": "^4.1.0",
         "@types/": "iconscout/react-unicons-solid",
         "@types/bent": "^7.3.0",
         "@types/echarts": "^4.6.5",

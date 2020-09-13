@@ -27,6 +27,7 @@ export type BoxProps = {
     animate?: any;
     exit?: any;
     transition?: any;
+    style?: any;
 };
 
 

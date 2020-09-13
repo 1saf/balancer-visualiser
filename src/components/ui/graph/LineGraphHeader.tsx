@@ -19,8 +19,8 @@ type LineGraphHeaderProps = {
 const StyledGraphInfo = styled(Stack)`
     border-bottom: 1px solid ${props => props.theme.borderColor};
     align-items: flex-end;
-    border-top-right-radius 4px;
-    border-top-left-radius: 4px;
+    border-top-right-radius 15px;
+    border-top-left-radius: 15px;
     background: #FFFFFF;
 `;
 

@@ -87,7 +87,7 @@ const AppLayout = styled(Box)`
             url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/semibold/latest.ttf) format('truetype');
         font-weight: 700;
     }
-    font-family: SegoeUI;
+    font-family: SegoeUI !important;
     -webkit-font-smoothing: antialiased;
 `;
 
