@@ -81,11 +81,11 @@ const option = (data: LineChartData, colors?: [string, string]): echarts.EChartO
                 color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
                     {
                         offset: 0,
-                        color: `rgba(${hexToRgb(colors[0] || tokens.colors.blue400)}, 0.5)`,
+                        color: `rgba(${hexToRgb(colors[0] || tokens.colors.blue400)}, 0.4)`,
                     },
                     {
                         offset: 1,
-                        color: `rgba(${hexToRgb(colors[1] || tokens.colors.congo_pink)}, 0.5)`,
+                        color: `rgba(${hexToRgb(colors[1] || tokens.colors.congo_pink)}, 0.4)`,
                     },
                 ]) as any,
             },

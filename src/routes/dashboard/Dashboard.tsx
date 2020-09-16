@@ -11,13 +11,12 @@ import numeral from 'numeral';
 import { useQuery } from 'react-query';
 import { getBalancerPrice, getHistoricalBalancerPrice } from './query/rest';
 import HistoricalBalancerGraph from './HistoricalBalancerGraph';
-import { sortBy, last } from 'lodash';
+import { sortBy, last, takeRight } from 'lodash';
 import { BalancerResponse, BalancerData, HistoricalCGMarketChart } from '../../api/datatypes';
 import { getDates } from '../../utils';
 import { subDays } from 'date-fns/esm';
 import { getUnixTime } from 'date-fns';
 
-import Heading from '../../components/design/heading/Heading';
 import Eye from '../../assets/eye-solid.svg';
 import EyeSlash from '../../assets/eye-slash-solid.svg';
 import Exchange from '../../assets/exchange-alt-solid.svg';
@@ -25,6 +24,7 @@ import HoldingCash from '../../assets/hand-holding-usd-solid.svg';
 import Pebbles from '../../assets/pebbles.svg';
 
 import { tokens } from '../../style/Theme';
+import Heading from '../../components/design/heading/Heading';
 
 const today = new Date();
 
@@ -117,8 +117,8 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const isLoading = isEthTimestampResponseLoading || isHistoricalBalancerResponseLoading;
     const isFetching = isEthTimestampResponseFetching || isHistoricalBalancerResponseFetching;
 
-    const past30DaysData = historicalBalancerData.slice(1).slice(-30);
-    const past30DaysTimestamps = timestamps.slice(1).slice(-30);
+    const past30DaysData = takeRight(historicalBalancerData, 30);
+    const past30DaysTimestamps = takeRight(timestamps, 30);
 
     const historicalPublicPools = past30DaysData.map(d => d.finalizedPoolCount);
     const historicalPrivatePools = past30DaysData.map(d => d.poolCount - d.finalizedPoolCount);
@@ -155,7 +155,7 @@ const useHistoricalBalancePrice = () => {
     const dailyData = (historicalBalPriceResponse?.prices || []).filter((_, i) => i % 24 == 0);
 
     const historicalBalPrices = dailyData.map(p => p[1]);
-    const historicalBalTimestamps = dailyData.map(p => p[1]);
+    const historicalBalTimestamps = dailyData.map(p => p[0] / 1000);
     return {
         historicalBalPrices,
         historicalBalTimestamps,
@@ -171,7 +171,7 @@ const Dashboard: FC<any> = ({ children }) => {
         historicalPublicPools,
         historicalSwapFee,
         historicalTotalSwapVolume,
-        historicalValueLocked
+        historicalValueLocked,
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
     const {
@@ -191,8 +191,11 @@ const Dashboard: FC<any> = ({ children }) => {
 
     return (
         <StyledDashboard padding='base'>
+            <Box spanX={12}>
+                <Heading level='2'>Quick Statistics</Heading>
+            </Box>
             <Statistic
-                colors={[tokens.colors.ultramarine, tokens.colors.medium_aquamarine]}
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Eye color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={finalizedPoolCount}
                 heading='Public Pools'
@@ -219,7 +222,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 description='The current total amount of liquidity on balancer in USD.'
             />
             <Statistic
-                colors={[tokens.colors.ultramarine, tokens.colors.congo_pink]}
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={totalSwapVolume}
                 heading='Total Swap Volume'
@@ -227,7 +230,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 timestamps={timestamps}
             />
             <Statistic
-                colors={[tokens.colors.mellow_apricot, tokens.colors.congo_pink]}
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={totalSwapFeeVolume}
                 heading='Total Swap Fee Volume'
@@ -235,7 +238,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 timestamps={timestamps}
             />
             <Statistic
-                colors={[tokens.colors.medium_aquamarine, tokens.colors.congo_pink]}
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Pebbles color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={`$${balancerPrice}`}
                 heading='Balancer Price (USD)'
@@ -243,9 +246,10 @@ const Dashboard: FC<any> = ({ children }) => {
                 timestamps={historicalBalTimestamps}
             />
 
-            <HistoricalBalancerGraph name='Total Value Locked' dataKey='totalLiquidity' queryLiteral={historicalPoolsQuery} />
-            {/* <HistoricalBalancerGraph name='Cumulative Swap Volume' dataKey='totalSwapVolume' queryLiteral={historicalPoolsQuery} />
-            <HistoricalBalancerGraph name='Cumulative Fee Volume' dataKey='totalSwapFee' queryLiteral={historicalPoolsQuery} /> */}
+            <Box spanX={2}>
+                <Heading level='2'>In-Depth Statistics</Heading>
+            </Box>
+            <HistoricalBalancerGraph name='Total Value Locked' dataKey='totalLiquidity' query={historicalPoolsQuery} />
         </StyledDashboard>
     );
 };

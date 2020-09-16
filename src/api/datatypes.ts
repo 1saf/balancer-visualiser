@@ -23,3 +23,5 @@ export type HistoricalCGMarketChart = {
     prices: [number, number][],
     total_volumes: [number, number][],
 }
+
+export type DataType = 'currency' | 'number';

@@ -1,4 +1,4 @@
-import React, { FC, useRef, useEffect } from 'react';
+import React, { FC, useRef, useEffect, ReactElement } from 'react';
 import Card from '../../layout/card/Card';
 import Box from '../../layout/box/Box';
 import styled from 'styled-components';
@@ -17,8 +17,8 @@ export type LineChartData = {
 type Props = {
     data: LineChartData;
     title: string;
-    onPeriodChange: any;
     isLoading?: boolean;
+    headerRenderer?: (headerElRef: React.Ref<ReactElement>) => void;
 };
 
 const StyledLineGraphContainer = styled(Card)`
@@ -75,6 +75,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         },
         axisTick: {
             alignWithLabel: true,
+            show: false
         },
         axisLabel: {
             formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy p'),
@@ -95,8 +96,13 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         axisLine: {
             show: false,
         },
-        splitLine: {
+        axisTick: {
             show: false,
+        },
+        splitLine: {
+            lineStyle: {
+                color: tokens.colors.gray300
+            }
         },
         position: 'right',
     },
@@ -123,9 +129,9 @@ const option = (data: LineChartData): echarts.EChartOption => ({
         },
     ],
     grid: {
-        left: '3.75%',
-        right: '8.5%',
+        right: '12.5%',
         top: '5%',
+        left: '7.5%'
     },
 });
 
@@ -142,7 +148,7 @@ const StyledLoadingOverlay = styled(Box)`
 `;
 
 const LineGraph: FC<Props> = props => {
-    const { data, title, onPeriodChange, isLoading } = props;
+    const { data, isLoading, headerRenderer } = props;
     const chartContainerRef = useRef();
     const chartRef = useRef<echarts.ECharts>();
     const graphHighlightRef = useRef<any>();
@@ -151,8 +157,8 @@ const LineGraph: FC<Props> = props => {
         !isLoading && chartRef.current && data.values.length && chartRef.current.clear();
         chartRef.current && chartRef.current.setOption(option(data), true, true);
         chartRef.current && chartRef.current.off('updateAxisPointer');
-        chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef.current.onAxisMove(data));
-    }, [isLoading, data.values.length]);
+        chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef?.current?.onAxisMove(data));
+    }, [isLoading, data.values.length, graphHighlightRef?.current]);
 
 
     useEffect(() => {
@@ -161,9 +167,9 @@ const LineGraph: FC<Props> = props => {
     }, [chartContainerRef]);
 
     return (
-        <StyledLineGraphContainer spanX={12} marginTop='x-large'>
-            <LineGraphHeader title={title} data={data} onPeriodChange={onPeriodChange} ref={graphHighlightRef} />
-            <Box padding='large' width='100%' height='252px' ref={chartContainerRef} />
+        <StyledLineGraphContainer spanX={12}>
+            {headerRenderer(graphHighlightRef)}
+            <Box padding='large' width='100%' height='300px' ref={chartContainerRef} />
             {
                 isLoading &&
                 <StyledLoadingOverlay>Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes</StyledLoadingOverlay>

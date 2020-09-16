@@ -2,6 +2,9 @@
 import { subDays, subMonths, subYears, subHours, eachDayOfInterval, getUnixTime, addMinutes, format as formatDate, startOfDay } from 'date-fns';
 import { TimePeriod } from './api/datatypes';
 
+export const BALANCER_CONTRACT_START_DATE = new Date(2020, 2, 29);
+export const TODAY = new Date();
+
 export const getDates = (timePeriod: TimePeriod) => {
     let dates: any[] = [];
     const today = new Date();
@@ -25,6 +28,5 @@ export const getDates = (timePeriod: TimePeriod) => {
             date: formatDate(date, 'yyyy-MM-dd'),
         }));
     }
-
-    return dates.reverse();
+    return dates;
 };

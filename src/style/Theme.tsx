@@ -63,10 +63,15 @@ export default {
     fontWeight: tokens.fontWeight,
     subheadingColor: tokens.colors.gray700,
     emphasizedText: tokens.colors.congo_pink,
-    actionButtonHover: tokens.colors.gray200,
-    actionButtonTextColor: tokens.colors.gray700,
+
     cardBackgroundColor: tokens.colors.gray100,
 
     tooltipBackgroundColor: tokens.colors.ultramarine,
     tooltipTextColor: tokens.colors.gray100,
+
+    silentdropdownHover: tokens.colors.ultramarine,
+    dropdownItemHoverColor: tokens.colors.blue500,
+    
+    actionButtonHover: tokens.colors.gray200,
+    actionButtonTextColor: tokens.colors.gray700,
 };
