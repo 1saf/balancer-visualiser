@@ -9,6 +9,7 @@ import numeral from 'numeral';
 import Dropdown, { DropdownOption } from '../../design/dropdown/Dropdown';
 import { LineChartData } from './LineGraph';
 import Box from '../../layout/box/Box';
+import Tooltip from '../../design/tooltip/Tooltip';
 
 type LineGraphHeaderProps = {
     data: LineChartData;
@@ -26,7 +27,7 @@ const StyledGraphInfo = styled(Stack)`
     background: #FFFFFF;
 `;
 
-const graphOptions = [
+export const graphOptions = [
     {
         value: 'tvl',
         label: 'Total Value Locked',
@@ -57,12 +58,12 @@ const timePeriods = [
     {
         value: 'daily',
         label: 'All Time',
-        description: 'Daily data since the inception of the Balancer smart contract.'
+        description: 'Daily data since the inception of the Balancer smart contract.',
     },
     {
         value: 'hourly',
         label: 'Last 24 Hours',
-        description: 'Hourly data starting 24 hours from the current minute.'
+        description: 'Hourly data starting 24 hours from the current minute.',
     },
 ];
 
@@ -83,17 +84,13 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
         },
     }));
 
-    const handleDataKeyChanged = (option: DropdownOption) => {
-        onDataKeyChange(option?.value);
-    };
-
     return (
         <React.Fragment>
             <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='x-large'>
                 <Stack justify='between' orientation='horizontal' width='100%'>
-                    <Stack gap='small'>
-                        <Dropdown silent options={graphOptions} onSelected={handleDataKeyChanged} menuWidth='225px' />
-                        <Stack gap='x-small'>
+                    <Stack>
+                        <Dropdown silent options={graphOptions} onSelected={onDataKeyChange} menuWidth='225px' />
+                        <Stack gap='x-small' paddingLeft='x-small'>
                             <Heading level='4'>{hoveredValue}</Heading>
                             <Subheading>{hoveredDate}</Subheading>
                         </Stack>

@@ -8,6 +8,11 @@ export const tokens = {
         white: '#FFFFFF',
         medium_aquamarine: '#47E5BC',
 
+        green100: '#d4f3e8',
+        green200: '#8ae9cb',
+        green300: '#4cd2ae',
+        green400: '#4eb497',
+
         yellow300: '#fce7cb',
         yellow400: '#f9ce97',
         yellow500: '#F7C27D',
@@ -70,6 +75,7 @@ export default {
     tooltipTextColor: tokens.colors.gray100,
 
     silentdropdownHover: tokens.colors.ultramarine,
+    silentdropdownButtonHover: tokens.colors.blue100,
     dropdownItemHoverColor: tokens.colors.blue500,
     
     actionButtonHover: tokens.colors.gray200,

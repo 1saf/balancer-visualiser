@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, forwardRef } from 'react';
 import { Spacing, ResponsiveProp, getMediaQuery, SpacingRemConfig } from '../layout.t';
 import styled, { css } from 'styled-components';
 import Box, { BoxProps } from '../box/Box';
@@ -58,13 +58,13 @@ const StyledStack = styled(Box)<Props>`
     ${resolveStackCss}
 `;
 
-const Stack: FC<Props & BoxProps> = props => {
+const Stack: FC<Props & BoxProps> = forwardRef((props, ref) => {
     const { orientation = 'vertical', children, gap = 'none', className } = props;
     return (
-        <StyledStack {...props} orientation={orientation} gap={gap} className={className}>
+        <StyledStack {...props} ref={ref} orientation={orientation} gap={gap} className={className}>
             {children}
         </StyledStack>
     );
-};
+});
 
 export default Stack;

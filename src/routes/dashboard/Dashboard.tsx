@@ -177,7 +177,6 @@ const Dashboard: FC<any> = ({ children }) => {
     const {
         isLoading: isSingleFigureLoading,
         totalLiquidity,
-        totalPools,
         privatePools,
         totalSwapFeeVolume,
         totalSwapVolume,
@@ -190,7 +189,7 @@ const Dashboard: FC<any> = ({ children }) => {
     if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices) return <span>'Loading data'</span>;
 
     return (
-        <StyledDashboard padding='base'>
+        <StyledDashboard paddingY='large'>
             <Box spanX={12}>
                 <Heading level='2'>Quick Statistics</Heading>
             </Box>
@@ -249,7 +248,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Box spanX={2}>
                 <Heading level='2'>In-Depth Statistics</Heading>
             </Box>
-            <HistoricalBalancerGraph name='Total Value Locked' dataKey='totalLiquidity' query={historicalPoolsQuery} />
+            <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
         </StyledDashboard>
     );
 };

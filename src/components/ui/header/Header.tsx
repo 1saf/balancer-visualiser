@@ -24,7 +24,7 @@ const StyledHeader = styled(Box)`
 const Header: FC<Props> = props => {
     const {} = props;
     return (
-        <StyledHeader padding='medium'>
+        <StyledHeader paddingY='medium'>
             <Box spanX={12}>
                 <StyledPebbles />
             </Box>

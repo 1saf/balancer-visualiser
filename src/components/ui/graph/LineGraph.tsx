@@ -4,7 +4,6 @@ import Box from '../../layout/box/Box';
 import styled from 'styled-components';
 import echarts from 'echarts';
 import { tokens } from '../../../style/Theme';
-import LineGraphHeader from './LineGraphHeader';
 import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
 
@@ -19,6 +18,7 @@ type Props = {
     title: string;
     isLoading?: boolean;
     headerRenderer?: (headerElRef: React.Ref<ReactElement>) => void;
+    dataFormat?: string;
 };
 
 const StyledLineGraphContainer = styled(Card)`
@@ -29,7 +29,7 @@ const StyledLineGraphContainer = styled(Card)`
     background: ${props => props.theme.cardBackgroundColor};
 `;
 
-const option = (data: LineChartData): echarts.EChartOption => ({
+const option = (data: LineChartData, dataFormat: string): echarts.EChartOption => ({
     title: {
         show: false,
     },
@@ -50,7 +50,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
             return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
                 new Date(params?.name * 1000),
                 'PP p'
-            )}</span> <br/> ${params?.marker} ${params?.seriesName}: ${numeral(params?.value).format('$0,0.00')}`;
+            )}</span> <br/> ${params?.marker} ${params?.seriesName}: ${numeral(params?.value).format(dataFormat)}`;
         },
     },
     legend: {
@@ -87,7 +87,7 @@ const option = (data: LineChartData): echarts.EChartOption => ({
     },
     yAxis: {
         axisLabel: {
-            formatter: (v: number, i: number) => numeral(v).format('($0a)'),
+            formatter: (v: number, i: number) => numeral(v).format(dataFormat),
             fontFamily: 'SegoeUI',
             fontSize: 14,
             color: tokens.colors.gray600,
@@ -148,14 +148,14 @@ const StyledLoadingOverlay = styled(Box)`
 `;
 
 const LineGraph: FC<Props> = props => {
-    const { data, isLoading, headerRenderer } = props;
+    const { data, isLoading, headerRenderer, dataFormat } = props;
     const chartContainerRef = useRef();
     const chartRef = useRef<echarts.ECharts>();
     const graphHighlightRef = useRef<any>();
 
     useEffect(() => {
         !isLoading && chartRef.current && data.values.length && chartRef.current.clear();
-        chartRef.current && chartRef.current.setOption(option(data), true, true);
+        chartRef.current && chartRef.current.setOption(option(data, dataFormat), true, true);
         chartRef.current && chartRef.current.off('updateAxisPointer');
         chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef?.current?.onAxisMove(data));
     }, [isLoading, data.values.length, graphHighlightRef?.current]);
@@ -163,7 +163,7 @@ const LineGraph: FC<Props> = props => {
 
     useEffect(() => {
         chartRef.current = echarts.init(chartContainerRef.current);
-        chartRef.current.setOption(option(data));
+        chartRef.current.setOption(option(data, dataFormat));
     }, [chartContainerRef]);
 
     return (

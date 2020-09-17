@@ -1,42 +1,39 @@
 import React, { FC, useMemo, useState } from 'react';
 import {
-    subDays,
-    subMonths,
-    subYears,
-    subHours,
     eachDayOfInterval,
     getUnixTime,
     addMinutes,
     format as formatDate,
-    startOfDay,
+    startOfDay, subHours
 } from 'date-fns';
 import { GraphQLResponse, useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, EthBlocksResponse } from '../../api/graphql';
 import blocksQuery from './query/blocks.graphql';
 import { sortBy } from 'lodash';
 import LineGraph from '../../components/ui/graph/LineGraph';
 import { BALANCER_CONTRACT_START_DATE, getDates, TODAY } from '../../utils';
-import { BalancerData, BalancerResponse, HistoricalCGMarketChart } from '../../api/datatypes';
+import { BalancerData, BalancerResponse, HistoricalCGMarketChart, TimePeriod } from '../../api/datatypes';
 import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
 import { useQuery } from 'react-query';
 import { getHistoricalBalancerPrice } from './query/rest';
 
 import historicalBalancerQuery from './query/historical.graphql';
+import { DropdownOption } from '../../components/design/dropdown/Dropdown';
 
 type Props = {
     query: string;
     dataKey: string;
-    name: string;
-    dataFetchHook: any;
 };
 
 type DataExtractorFn = (data: BalancerData) => number;
 
-const useHistoricalBalancePrice = (enabled: boolean) => {
+const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: TimePeriod) => {
+    let fromDate = BALANCER_CONTRACT_START_DATE;
+    if (graphTimePeriod?.value === 'hourly') fromDate = subHours(TODAY, 24);
     const { data: historicalBalPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
         [
             'historicalBalPrice',
             {
-                from: getUnixTime(BALANCER_CONTRACT_START_DATE),
+                from: getUnixTime(fromDate),
                 to: getUnixTime(TODAY),
             },
         ],
@@ -54,13 +51,13 @@ const useHistoricalBalancePrice = (enabled: boolean) => {
     };
 };
 
-const useHistoricalGraphState = (dataKey: string, name: string, extractor?: DataExtractorFn) => {
+const useHistoricalGraphState = (dataKey: DropdownOption, name: string, extractor?: DataExtractorFn) => {
     // default to start at 24 hour
     const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'daily', label: 'Daily' });
     const requests = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value]);
 
     // get balancer usd prices, query disabled until till the datakey is correct
-    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey === 'balancer_usd');
+    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey?.value === 'balancer_usd', graphTimePeriod);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     const {
@@ -95,7 +92,7 @@ const useHistoricalGraphState = (dataKey: string, name: string, extractor?: Data
         enabled: sortedBlockNumbers.length,
     });
 
-    if (dataKey === 'balancer_usd')
+    if (dataKey?.value === 'balancer_usd')
         return {
             ...historicalBalancerPriceChartData,
             setGraphTimePeriod,
@@ -104,7 +101,7 @@ const useHistoricalGraphState = (dataKey: string, name: string, extractor?: Data
     const historicalBalancerData = (historicalBalancerResponses || []).map(historicalBalancerResponse => {
         const data = (historicalBalancerResponse?.data?.balancer as any) || {};
         if (extractor) return extractor(data);
-        return data[dataKey];
+        return data[dataKey?.value];
     });
 
     const chartData = {
@@ -135,16 +132,15 @@ const dataFormats: Record<string, string> = {
 };
 
 const HistoricalBalancerGraph: FC<Props> = props => {
-    const { dataKey, name } = props;
-    const [currentDataKey, setCurrentDataKey] = useState(dataKey);
-
-    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(currentDataKey, name, dataExtractors[currentDataKey]);
+    const { dataKey } = props;
+    const [currentDataKey, setCurrentDataKey] = useState<DropdownOption>({ value: dataKey, label: 'Total Value Locked' });
+    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(currentDataKey, currentDataKey?.label, dataExtractors[currentDataKey?.value]);
 
     return (
         <LineGraph
             headerRenderer={ref => (
                 <LineGraphHeader
-                    dataFormat={dataFormats[currentDataKey] || '($0.00a)'}
+                    dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
                     isLoading={isLoading}
                     data={chartData}
                     onDataKeyChange={setCurrentDataKey}
@@ -154,7 +150,8 @@ const HistoricalBalancerGraph: FC<Props> = props => {
             )}
             isLoading={isLoading}
             data={chartData}
-            title={name}
+            title={currentDataKey?.label}
+            dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
         />
     );
 };

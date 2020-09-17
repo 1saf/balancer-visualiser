@@ -22,7 +22,7 @@ export type BoxProps = {
     spanX?: number;
     width?: string;
     height?: string;
-    ref?: React.Ref<RefObject<HTMLDivElement>>;
+    ref?: React.Ref<HTMLDivElement>;
     initial?: any;
     animate?: any;
     exit?: any;

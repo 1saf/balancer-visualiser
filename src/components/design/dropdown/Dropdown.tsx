@@ -1,10 +1,11 @@
-import React, { FC, useState, useCallback } from 'react';
+import React, { FC, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import Stack from '../../layout/stack/Stack';
 import { AnimatePresence } from 'framer-motion';
 
 import { UisAngleDown } from '@iconscout/react-unicons-solid';
 import Box from '../../layout/box/Box';
+import { useOnClickOutside } from '../../../utils';
 
 export type DropdownOption = {
     label: string;
@@ -56,7 +57,7 @@ const OptionDescription = styled.span`
 const DropdownItem: FC<DropdownItemProps> = props => {
     const { option, onClick } = props;
     return (
-        <StyledDropdownItem onClick={() => onClick(option)} padding='small'>
+        <StyledDropdownItem onClick={() => onClick(option)}>
             <Stack gap='x-small'>
                 <Box>{option?.label}</Box>
                 {option?.description && <OptionDescription>{option?.description}</OptionDescription>}
@@ -72,7 +73,7 @@ const StyledDropdownButton = styled.button<Partial<DropdownProps>>`
     border: none;
     ${props => !props.silent && `box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.3), 0px 0px 3px rgba(24, 25, 33, 0.02);`}
     outline: none;
-    padding: ${props => (!props.silent ? '0.35rem 0.5rem' : '0')};
+    padding: ${props => (!props.silent ? '0.35rem 0.5rem' : '0.5rem 0.35rem 0.5rem 0.35rem')};
     font-size: ${props => (!props.silent ? `1rem` : `1rem`)};
     color: ${props => props.theme.actionButtonTextColor};
     font-weight: ${props => (!props.silent ? '500' : '700')};
@@ -83,6 +84,7 @@ const StyledDropdownButton = styled.button<Partial<DropdownProps>>`
     }
     &:hover {
         color: ${props => (!props.silent ? props.theme.actionButtonTextColor : props.theme.silentdropdownHover)};
+        background: ${props => (!props.silent ? '' : props.theme.silentdropdownButtonHover)};
     }
 `;
 
@@ -108,6 +110,7 @@ const Dropdown: FC<DropdownProps> = props => {
     const { icon, options, onSelected, menuWidth, silent } = props;
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [currentOption, setCurrentOption] = useState<DropdownOption>(options[0]);
+    const dropdownRef = useRef();
 
     const toggleVisibility = () => {
         setOptionsVisible(!optionsVisible);
@@ -119,8 +122,9 @@ const Dropdown: FC<DropdownProps> = props => {
         onSelected && onSelected(option);
     };
 
+    useOnClickOutside(dropdownRef, () => setOptionsVisible(false));
     return (
-        <StyledDropdownContainer gap='none'>
+        <StyledDropdownContainer gap='none' ref={dropdownRef}>
             <StyledDropdownButton onClick={toggleVisibility} silent={silent}>
                 <Stack align='center' orientation='horizontal' gap='x-small'>
                     <Stack orientation='horizontal' gap='x-small'>
