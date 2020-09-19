@@ -62,6 +62,14 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
     dataZoom: [{
         type: 'slider',
         xAxisIndex: 0,
+        labelFormatter: (value: any, valueStr: any) => {
+            console.log('esk', value, valueStr);
+            return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy')
+        },
+        textStyle: {
+            color: tokens.colors.gray700,
+            fontWeight: '700' as any,
+        }
     },{
         type: 'inside',
         xAxisIndex: 0,

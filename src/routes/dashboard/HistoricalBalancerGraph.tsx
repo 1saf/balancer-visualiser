@@ -1,19 +1,14 @@
 import React, { FC, useMemo, useState } from 'react';
-import {
-    eachDayOfInterval,
-    getUnixTime,
-    addMinutes,
-    format as formatDate,
-    startOfDay, subHours
-} from 'date-fns';
+import { eachDayOfInterval, getUnixTime, addMinutes, format as formatDate, startOfDay, subHours } from 'date-fns';
 import { GraphQLResponse, useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, EthBlocksResponse } from '../../api/graphql';
 import blocksQuery from './query/blocks.graphql';
-import { sortBy } from 'lodash';
+import { dropRight, sortBy } from 'lodash';
 import LineGraph from '../../components/ui/graph/LineGraph';
+import BarGraph from '../../components/ui/graph/BarGraph';
 import { BALANCER_CONTRACT_START_DATE, getDates, TODAY } from '../../utils';
 import { BalancerData, BalancerResponse, HistoricalCGMarketChart, TimePeriod } from '../../api/datatypes';
 import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
-import { useQuery } from 'react-query';
+import { queryCache, useQuery } from 'react-query';
 import { getHistoricalBalancerPrice } from './query/rest';
 
 import historicalBalancerQuery from './query/historical.graphql';
@@ -115,6 +110,24 @@ const useHistoricalGraphState = (dataKey: DropdownOption, name: string, extracto
     return { chartData, isLoading, isFetching, setGraphTimePeriod };
 };
 
+const useDailyBalancerGraphState = (data: number[] = [], timestamps: number[] = []) => {
+    if (!data.length || !timestamps.length) return {};
+
+    const dailyData = data.map((value, i) => {
+        if (i === data.length - 1) return value;
+        const nextValue = data[i + 1];
+        return nextValue - value;
+    });
+
+    return {
+        chartData: {
+            values: dropRight(dailyData, 1),
+            axis: dropRight(timestamps, 1),
+            name: 'Non'
+        },
+    };
+};
+
 const dataExtractors: Record<string, DataExtractorFn> = {
     tvl: data => parseFloat(data?.totalLiquidity),
     tsv: data => parseFloat(data?.totalSwapVolume),
@@ -134,25 +147,33 @@ const dataFormats: Record<string, string> = {
 const HistoricalBalancerGraph: FC<Props> = props => {
     const { dataKey } = props;
     const [currentDataKey, setCurrentDataKey] = useState<DropdownOption>({ value: dataKey, label: 'Total Value Locked' });
-    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(currentDataKey, currentDataKey?.label, dataExtractors[currentDataKey?.value]);
+    const { chartData, isLoading, setGraphTimePeriod } = useHistoricalGraphState(
+        currentDataKey,
+        currentDataKey?.label,
+        dataExtractors[currentDataKey?.value]
+    );
 
+    const { chartData: nonCumData } = useDailyBalancerGraphState(chartData?.values, chartData?.axis);
     return (
-        <LineGraph
-            headerRenderer={ref => (
-                <LineGraphHeader
-                    dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
-                    isLoading={isLoading}
-                    data={chartData}
-                    onDataKeyChange={setCurrentDataKey}
-                    onPeriodChange={setGraphTimePeriod}
-                    ref={ref}
-                />
-            )}
-            isLoading={isLoading}
-            data={chartData}
-            title={currentDataKey?.label}
-            dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
-        />
+        <React.Fragment>
+            <LineGraph
+                headerRenderer={ref => (
+                    <LineGraphHeader
+                        dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
+                        isLoading={isLoading}
+                        data={chartData}
+                        onDataKeyChange={setCurrentDataKey}
+                        onPeriodChange={setGraphTimePeriod}
+                        ref={ref}
+                    />
+                )}
+                isLoading={isLoading}
+                data={chartData}
+                title={currentDataKey?.label}
+                dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
+            />
+            <BarGraph isLoading={isLoading} data={nonCumData} title='oo' />
+        </React.Fragment>
     );
 };
 
