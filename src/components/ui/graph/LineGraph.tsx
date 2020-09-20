@@ -42,7 +42,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         borderWidth: 1,
         backgroundColor: '#FFFFFF',
         padding: [7.5, 12.5, 7.5, 12.5],
-        extraCssText: 'box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.1); min-width: 200px; z-index: 1 !important;',
+        extraCssText: 'box-shadow: 0px 0 10px rgba(10, 10, 10, 0.1); z-index: 1 !important; border: none;',
         textStyle: {
             color: tokens.colors.gray700,
         },
@@ -63,7 +63,6 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         type: 'slider',
         xAxisIndex: 0,
         labelFormatter: (value: any, valueStr: any) => {
-            console.log('esk', value, valueStr);
             return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy')
         },
         textStyle: {

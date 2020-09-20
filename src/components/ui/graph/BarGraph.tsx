@@ -42,7 +42,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         borderWidth: 1,
         backgroundColor: '#FFFFFF',
         padding: [7.5, 12.5, 7.5, 12.5],
-        extraCssText: 'box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.1); min-width: 200px; z-index: 1 !important;',
+        extraCssText: 'box-shadow: 0px 0 10px rgba(10, 10, 10, 0.1); z-index: 1 !important; border: none;',
         textStyle: {
             color: tokens.colors.gray700,
         },
@@ -52,44 +52,45 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 'PP p'
             )}</span> <br/> ${params?.marker} ${params?.seriesName}: ${numeral(params?.value).format(dataFormat)}`;
         },
+        axisPointer: {
+            type: 'shadow',
+            label: {
+                show: true,
+            },
+        },
     },
     legend: {
         show: false,
     },
-    axisPointer: {
-        snap: true,
-    },
-    dataZoom: [{
-        type: 'slider',
-        xAxisIndex: 0,
-        labelFormatter: (value: any, valueStr: any) => {
-            return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy')
+    dataZoom: [
+        {
+            type: 'slider',
+            xAxisIndex: 0,
+            labelFormatter: (value: any, valueStr: any) => {
+                return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy');
+            },
+            textStyle: {
+                color: tokens.colors.gray700,
+                fontWeight: '700' as any,
+            },
         },
-        textStyle: {
-            color: tokens.colors.gray700,
-            fontWeight: '700' as any,
-        }
-    },{
-        type: 'inside',
-        xAxisIndex: 0,
-    }],
+        {
+            type: 'inside',
+            xAxisIndex: 0,
+        },
+    ],
     xAxis: {
         data: data.axis,
         type: 'category',
-        boundaryGap: false,
-        axisLine: {
-            show: false,
-        },
         axisTick: {
-            alignWithLabel: true,
-            show: false
+            show: false,
         },
         axisLabel: {
             formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
             fontFamily: 'SegoeUI',
             fontSize: 12,
             color: tokens.colors.gray600,
-            fontWeight: 700 as any
+            fontWeight: 700 as any,
         },
     },
     yAxis: {
@@ -98,7 +99,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
             fontFamily: 'SegoeUI',
             fontSize: 14,
             color: tokens.colors.gray600,
-            fontWeight: 700 as any
+            fontWeight: 700 as any,
         },
         axisLine: {
             show: false,
@@ -108,8 +109,8 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         },
         splitLine: {
             lineStyle: {
-                color: tokens.colors.gray300
-            }
+                color: tokens.colors.gray300,
+            },
         },
         position: 'right',
     },
@@ -124,7 +125,8 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
     grid: {
         right: '12.5%',
         top: '5%',
-        left: '7.5%'
+        left: '7.5%',
+        containLabel: true,
     },
 });
 
@@ -134,7 +136,7 @@ const StyledLoadingOverlay = styled(Box)`
     left: 0;
     height: 300px;
     width: 100%;
-    background-color: #F3F3F5;
+    background-color: #f3f3f5;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -147,17 +149,26 @@ const BarGraph: FC<Props> = props => {
     const graphHighlightRef = useRef<any>();
 
     useEffect(() => {
+        !isLoading && chartRef.current && data.values.length && chartRef.current.clear();
+        chartRef.current && chartRef.current.setOption(option(data, dataFormat), true, true);
+        chartRef.current && chartRef.current.off('updateAxisPointer');
+        chartRef.current && chartRef.current.on('updateAxisPointer', graphHighlightRef?.current?.onAxisMove(data));
+    }, [isLoading, data.values.length, graphHighlightRef?.current]);
+
+    useEffect(() => {
         chartRef.current = echarts.init(chartContainerRef.current);
         chartRef.current.setOption(option(data, dataFormat));
     }, [chartContainerRef]);
 
     return (
         <StyledBarGraphContainer spanX={12}>
+            {headerRenderer(graphHighlightRef)}
             <Box padding='large' width='100%' height='300px' ref={chartContainerRef} />
-            {
-                isLoading &&
-                <StyledLoadingOverlay>Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes</StyledLoadingOverlay>
-            }
+            {isLoading && (
+                <StyledLoadingOverlay>
+                    Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes
+                </StyledLoadingOverlay>
+            )}
         </StyledBarGraphContainer>
     );
 };
