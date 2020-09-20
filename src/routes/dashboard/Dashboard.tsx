@@ -246,7 +246,10 @@ const Dashboard: FC<any> = ({ children }) => {
     return (
         <StyledDashboard paddingY='large'>
             <Box spanX={12}>
-                <Heading level='2'>Quick Statistics</Heading>
+                <Heading level='2'>Balancer Statistics</Heading>
+            </Box>
+            <Box spanX={12}>
+                <Heading level='4'>All Time</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
@@ -301,16 +304,16 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalBalPrices}
                 timestamps={historicalBalTimestamps}
             />
-            <Statistic
+            {/* <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Ethereum color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={`$${ethPrice}`}
                 heading='Ethereum Price (USD)'
                 data={historicalEthPrices}
                 timestamps={historicalEthTimestamps}
-            />
+            /> */}
             <Box spanX={12}>
-                <Heading level='2'>Past 24 Hours</Heading>
+                <Heading level='4'>Past 24 Hours</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
