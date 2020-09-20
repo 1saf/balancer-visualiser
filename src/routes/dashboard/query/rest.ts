@@ -10,3 +10,13 @@ export const getHistoricalBalancerPrice = async (key: string, { from, to }: { fr
     const request = await bent('GET', 'json', [200, 400, 503, 500]);
     return request(`https://api.coingecko.com/api/v3/coins/balancer/market_chart/range?vs_currency=usd&from=${from}&to=${to}`) as Promise<HistoricalCGMarketChart>;
 };
+
+export const getEthPrice = async (key: string) => {
+    const request = await bent('GET', 'json', [200, 400, 503, 500]);
+    return request('https://api.coingecko.com/api/v3/coins/ethereum');
+};
+
+export const getHistoricalEthPrice = async (key: string, { from, to }: { from: number, to: number }) => {
+    const request = await bent('GET', 'json', [200, 400, 503, 500]);
+    return request(`https://api.coingecko.com/api/v3/coins/ethereum/market_chart/range?vs_currency=usd&from=${from}&to=${to}`) as Promise<HistoricalCGMarketChart>;
+};

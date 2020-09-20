@@ -9,7 +9,7 @@ import Statistic from '../../components/ui/statistic/Statistic';
 
 import numeral from 'numeral';
 import { useQuery } from 'react-query';
-import { getBalancerPrice, getHistoricalBalancerPrice } from './query/rest';
+import { getBalancerPrice, getHistoricalBalancerPrice, getEthPrice, getHistoricalEthPrice } from './query/rest';
 import HistoricalBalancerGraph from './HistoricalBalancerGraph';
 import { sortBy, last, takeRight } from 'lodash';
 import { BalancerResponse, BalancerData, HistoricalCGMarketChart } from '../../api/datatypes';
@@ -45,6 +45,7 @@ const EmphasizedText = styled.em`
 const useSingleFigureStatistics = () => {
     const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
+    const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
 
     const balancerStats = balancerStatsResponse?.data?.balancer;
 
@@ -56,6 +57,7 @@ const useSingleFigureStatistics = () => {
     const privatePools = totalPools - finalizedPoolCount;
 
     const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
+    const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
 
     const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
 
@@ -68,6 +70,7 @@ const useSingleFigureStatistics = () => {
         isLoading,
         finalizedPoolCount,
         balancerPrice,
+        ethPrice
     };
 };
 
@@ -163,6 +166,30 @@ const useHistoricalBalancePrice = () => {
     };
 };
 
+const useHistoricalEthPrice = () => {
+    const thirtyDaysAgo = subDays(today, 30);
+    const { data: historicalEthPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
+        [
+            'historicalEThPrice',
+            {
+                from: getUnixTime(thirtyDaysAgo),
+                to: getUnixTime(today),
+            },
+        ],
+        getHistoricalEthPrice
+    );
+
+    const dailyData = (historicalEthPriceResponse?.prices || []).filter((_, i) => i % 24 == 0);
+
+    const historicalEthPrices = dailyData.map(p => p[1]);
+    const historicalEthTimestamps = dailyData.map(p => p[0] / 1000);
+    return {
+        historicalEthPrices,
+        historicalEthTimestamps,
+        isLoading,
+    };
+};
+
 const Dashboard: FC<any> = ({ children }) => {
     const {
         isLoading: isHistoricalDataLoading,
@@ -182,11 +209,13 @@ const Dashboard: FC<any> = ({ children }) => {
         totalSwapVolume,
         finalizedPoolCount,
         balancerPrice,
+        ethPrice
     } = useSingleFigureStatistics();
 
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
+    const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
-    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices) return <span>'Loading data'</span>;
+    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
 
     return (
         <StyledDashboard paddingY='large'>
@@ -244,8 +273,16 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalBalPrices}
                 timestamps={historicalBalTimestamps}
             />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Pebbles color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={`$${ethPrice}`}
+                heading='Ethereum Price (USD)'
+                data={historicalEthPrices}
+                timestamps={historicalEthTimestamps}
+            />
 
-            <Box spanX={2}>
+            <Box spanX={12}>
                 <Heading level='2'>In-Depth Statistics</Heading>
             </Box>
             <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
