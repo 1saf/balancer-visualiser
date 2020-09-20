@@ -62,8 +62,10 @@ const Statistic = (props: Props) => {
         axis: timestamps,
         name: heading,
     };
-
-    const percentage = (last(data) - data[0]) / data[0];
+    let percentage;
+    if (data) {
+        percentage = (last(data) - data[0]) / data[0];
+    }
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
     const changeType = percentage > 0 ? 'positive' : 'negative';
@@ -84,6 +86,7 @@ const Statistic = (props: Props) => {
                         <Subheading>{heading}</Subheading>
                         <Stack orientation='horizontal' align='end' gap='small'>
                             <Heading level='3'>{value}</Heading>
+                            {data && (
                             <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
                                 <Box>
                                     <Change type={changeType} level='6'>
@@ -91,12 +94,15 @@ const Statistic = (props: Props) => {
                                     </Change>
                                 </Box>
                             </Tooltip>
+                            )}
                         </Stack>
                     </Stack>
                 </Stack>
+                {data && (
                 <GraphContainer>
                     <GlanceLineGraph colors={colors} data={graphData} />
                 </GraphContainer>
+                )}
             </Stack>
         </NoOverflowCard>
     );

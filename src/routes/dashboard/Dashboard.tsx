@@ -128,17 +128,26 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalTotalSwapVolume = past30DaysData.map(d => parseFloat(d.totalSwapVolume));
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
-    let past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[0].totalSwapFee);
-    let past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[0].totalSwapVolume);
 
-    let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
-    past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
+    let past24HoursSwapFees
+    let past24HoursSwapVolume
+    let past24HoursLiquidityUtilisation
+    let past24HoursRevenueRatio
 
-    const past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
-    const past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
-
-    past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
-    past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');
+    if (!isLoading && !isFetching) {
+        console.log('here');
+        past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[0].totalSwapFee);
+        past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[0].totalSwapVolume);
+    
+        let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
+        past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
+    
+        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
+        past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
+    
+        past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
+        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
+    }
 
     return {
         isLoading,
@@ -316,7 +325,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursSwapVolume}
                 heading='Total Swap Volume Past 24 Hours'
-                data={historicalSwapFee}
+                data={null}
                 timestamps={timestamps}
             />
             <Statistic
@@ -324,7 +333,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursLiquidityUtilisation}
                 heading='Liquidity Utilisation Past 24 Hours'
-                data={historicalSwapFee}
+                data={null}
                 timestamps={timestamps}
                 description='Trading volume from past 24 hours divided by hourly average liquidity'
             />
@@ -333,9 +342,9 @@ const Dashboard: FC<any> = ({ children }) => {
                 icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursRevenueRatio}
                 heading='Revenue Ratio Past 24 Hours'
-                data={historicalSwapFee}
+                data={null}
                 timestamps={timestamps}
-                description='Fees from past 24 hours dividec by hourly average liquidity'
+                description='Fees from past 24 hours divided by hourly average liquidity'
             />
 
             <Box spanX={12}>
