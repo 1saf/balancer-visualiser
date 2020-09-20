@@ -138,11 +138,8 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[28].totalSwapFee);
         past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[28].totalSwapVolume);
     
-        let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
-        past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
-    
-        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
-        past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
+        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
+        past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
     
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
         past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
@@ -334,7 +331,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 heading='Liquidity Utilisation Past 24 Hours'
                 data={null}
                 timestamps={timestamps}
-                description='Trading volume from past 24 hours divided by hourly average liquidity'
+                description='Trading volume from past 24 hours TVL'
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
@@ -343,7 +340,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 heading='Revenue Ratio Past 24 Hours'
                 data={null}
                 timestamps={timestamps}
-                description='Fees from past 24 hours divided by hourly average liquidity'
+                description='Fees from past 24 hours divided by TVL'
             />
 
             <Box spanX={12}>
