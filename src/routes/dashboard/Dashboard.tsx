@@ -129,6 +129,18 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
 
+    let past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[0].totalSwapFee);
+    let past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[0].totalSwapVolume);
+
+    let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
+    past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
+
+    const past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
+    const past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
+
+    past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
+    past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');
+
     return {
         isLoading,
         isFetching,
@@ -139,6 +151,10 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         historicalTotalSwapVolume,
         historicalSwapFee,
         historicalValueLocked,
+        past24HoursSwapFees,
+        past24HoursSwapVolume,
+        past24HoursLiquidityUtilisation,
+        past24HoursRevenueRatio
     };
 };
 
@@ -199,6 +215,10 @@ const Dashboard: FC<any> = ({ children }) => {
         historicalSwapFee,
         historicalTotalSwapVolume,
         historicalValueLocked,
+        past24HoursSwapFees,
+        past24HoursSwapVolume,
+        past24HoursLiquidityUtilisation,
+        past24HoursRevenueRatio
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
     const {
@@ -209,7 +229,7 @@ const Dashboard: FC<any> = ({ children }) => {
         totalSwapVolume,
         finalizedPoolCount,
         balancerPrice,
-        ethPrice
+        ethPrice,
     } = useSingleFigureStatistics();
 
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
@@ -261,7 +281,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={totalSwapFeeVolume}
-                heading='Total Swap Fee Volume'
+                heading='Total Fee Volume'
                 data={historicalSwapFee}
                 timestamps={timestamps}
             />
@@ -280,6 +300,40 @@ const Dashboard: FC<any> = ({ children }) => {
                 heading='Ethereum Price (USD)'
                 data={historicalEthPrices}
                 timestamps={historicalEthTimestamps}
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapFees}
+                heading='Total Fees Past 24 Hours'
+                data={historicalSwapFee}
+                timestamps={timestamps}
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapVolume}
+                heading='Total Swap Volume Past 24 Hours'
+                data={historicalSwapFee}
+                timestamps={timestamps}
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursLiquidityUtilisation}
+                heading='Liquidity Utilisation Past 24 Hours'
+                data={historicalSwapFee}
+                timestamps={timestamps}
+                description='Trading volume from past 24 hours divided by hourly average liquidity'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursRevenueRatio}
+                heading='Revenue Ratio Past 24 Hours'
+                data={historicalSwapFee}
+                timestamps={timestamps}
+                description='Fees from past 24 hours dividec by hourly average liquidity'
             />
 
             <Box spanX={12}>
