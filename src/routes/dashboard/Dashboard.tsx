@@ -9,7 +9,7 @@ import Statistic from '../../components/ui/statistic/Statistic';
 
 import numeral from 'numeral';
 import { useQuery } from 'react-query';
-import { getBalancerPrice, getHistoricalBalancerPrice } from './query/rest';
+import { getBalancerPrice, getHistoricalBalancerPrice, getEthPrice, getHistoricalEthPrice } from './query/rest';
 import HistoricalBalancerGraph from './HistoricalBalancerGraph';
 import { sortBy, last, takeRight } from 'lodash';
 import { BalancerResponse, BalancerData, HistoricalCGMarketChart } from '../../api/datatypes';
@@ -45,6 +45,7 @@ const EmphasizedText = styled.em`
 const useSingleFigureStatistics = () => {
     const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
+    const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
 
     const balancerStats = balancerStatsResponse?.data?.balancer;
 
@@ -56,6 +57,7 @@ const useSingleFigureStatistics = () => {
     const privatePools = totalPools - finalizedPoolCount;
 
     const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
+    const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
 
     const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
 
@@ -68,6 +70,7 @@ const useSingleFigureStatistics = () => {
         isLoading,
         finalizedPoolCount,
         balancerPrice,
+        ethPrice
     };
 };
 
@@ -126,6 +129,25 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
 
+    let past24HoursSwapFees
+    let past24HoursSwapVolume
+    let past24HoursLiquidityUtilisation
+    let past24HoursRevenueRatio
+
+    if (!isLoading && !isFetching) {
+        past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[28].totalSwapFee);
+        past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[28].totalSwapVolume);
+    
+        let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
+        past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
+    
+        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
+        past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
+    
+        past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
+        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
+    }
+
     return {
         isLoading,
         isFetching,
@@ -136,6 +158,10 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         historicalTotalSwapVolume,
         historicalSwapFee,
         historicalValueLocked,
+        past24HoursSwapFees,
+        past24HoursSwapVolume,
+        past24HoursLiquidityUtilisation,
+        past24HoursRevenueRatio
     };
 };
 
@@ -163,6 +189,30 @@ const useHistoricalBalancePrice = () => {
     };
 };
 
+const useHistoricalEthPrice = () => {
+    const thirtyDaysAgo = subDays(today, 30);
+    const { data: historicalEthPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
+        [
+            'historicalEthPrice',
+            {
+                from: getUnixTime(thirtyDaysAgo),
+                to: getUnixTime(today),
+            },
+        ],
+        getHistoricalEthPrice
+    );
+
+    const dailyData = (historicalEthPriceResponse?.prices || []).filter((_, i) => i % 24 == 0);
+
+    const historicalEthPrices = dailyData.map(p => p[1]);
+    const historicalEthTimestamps = dailyData.map(p => p[0] / 1000);
+    return {
+        historicalEthPrices,
+        historicalEthTimestamps,
+        isLoading,
+    };
+};
+
 const Dashboard: FC<any> = ({ children }) => {
     const {
         isLoading: isHistoricalDataLoading,
@@ -172,6 +222,10 @@ const Dashboard: FC<any> = ({ children }) => {
         historicalSwapFee,
         historicalTotalSwapVolume,
         historicalValueLocked,
+        past24HoursSwapFees,
+        past24HoursSwapVolume,
+        past24HoursLiquidityUtilisation,
+        past24HoursRevenueRatio
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
     const {
@@ -182,11 +236,13 @@ const Dashboard: FC<any> = ({ children }) => {
         totalSwapVolume,
         finalizedPoolCount,
         balancerPrice,
+        ethPrice,
     } = useSingleFigureStatistics();
 
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
+    const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
-    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices) return <span>'Loading data'</span>;
+    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
 
     return (
         <StyledDashboard paddingY='large'>
@@ -232,7 +288,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={totalSwapFeeVolume}
-                heading='Total Swap Fee Volume'
+                heading='Total Fee Volume'
                 data={historicalSwapFee}
                 timestamps={timestamps}
             />
@@ -244,8 +300,53 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalBalPrices}
                 timestamps={historicalBalTimestamps}
             />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Pebbles color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={`$${ethPrice}`}
+                heading='Ethereum Price (USD)'
+                data={historicalEthPrices}
+                timestamps={historicalEthTimestamps}
+            />
+            <Box spanX={12}>
+                <Heading level='2'>Past 24 Hours</Heading>
+            </Box>
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapFees}
+                heading='Total Fees Past 24 Hours'
+                data={null}
+                timestamps={timestamps}
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapVolume}
+                heading='Total Swap Volume Past 24 Hours'
+                data={null}
+                timestamps={timestamps}
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursLiquidityUtilisation}
+                heading='Liquidity Utilisation Past 24 Hours'
+                data={null}
+                timestamps={timestamps}
+                description='Trading volume from past 24 hours divided by hourly average liquidity'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursRevenueRatio}
+                heading='Revenue Ratio Past 24 Hours'
+                data={null}
+                timestamps={timestamps}
+                description='Fees from past 24 hours divided by hourly average liquidity'
+            />
 
-            <Box spanX={2}>
+            <Box spanX={12}>
                 <Heading level='2'>In-Depth Statistics</Heading>
             </Box>
             <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
