@@ -128,7 +128,6 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalTotalSwapVolume = past30DaysData.map(d => parseFloat(d.totalSwapVolume));
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
-
     let past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[0].totalSwapFee);
     let past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[0].totalSwapVolume);
 
@@ -186,7 +185,7 @@ const useHistoricalEthPrice = () => {
     const thirtyDaysAgo = subDays(today, 30);
     const { data: historicalEthPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
         [
-            'historicalEThPrice',
+            'historicalEthPrice',
             {
                 from: getUnixTime(thirtyDaysAgo),
                 to: getUnixTime(today),
@@ -301,12 +300,15 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalEthPrices}
                 timestamps={historicalEthTimestamps}
             />
+            <Box spanX={12}>
+                <Heading level='2'>Past 24 Hours</Heading>
+            </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursSwapFees}
                 heading='Total Fees Past 24 Hours'
-                data={historicalSwapFee}
+                data={null}
                 timestamps={timestamps}
             />
             <Statistic
