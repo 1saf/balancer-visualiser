@@ -135,7 +135,6 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     let past24HoursRevenueRatio
 
     if (!isLoading && !isFetching) {
-        console.log('here');
         past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[0].totalSwapFee);
         past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[0].totalSwapVolume);
     
