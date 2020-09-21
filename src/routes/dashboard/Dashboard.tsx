@@ -28,6 +28,8 @@ import Percent from '../../assets/percent.svg';
 import { tokens } from '../../style/Theme';
 import Heading from '../../components/design/heading/Heading';
 
+import { analytics } from './analytics/analytics';
+
 const today = new Date();
 
 const StyledDashboard = styled(Box)`
@@ -145,6 +147,7 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
         past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
+        analytics();
     }
 
     return {
@@ -242,7 +245,7 @@ const Dashboard: FC<any> = ({ children }) => {
     const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
     if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
-
+    
     return (
         <StyledDashboard paddingY='large'>
             <Box spanX={12}>
