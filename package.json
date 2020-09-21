@@ -27,6 +27,7 @@
         "numeral": "^2.0.6",
         "parcel": "^2.0.0-nightly.385",
         "react": "^16.13.1",
+        "react-content-loader": "^5.1.2",
         "react-dom": "^16.13.1",
         "react-query": "^2.12.1",
         "react-router5": "^8.0.1",

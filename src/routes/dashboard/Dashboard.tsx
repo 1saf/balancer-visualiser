@@ -24,9 +24,12 @@ import HoldingCash from '../../assets/hand-holding-usd-solid.svg';
 import Pebbles from '../../assets/pebbles.svg';
 import Ethereum from '../../assets/ethereum.svg';
 import Percent from '../../assets/percent.svg';
+import Lock from '../../assets/lock-solid.svg';
 
 import { tokens } from '../../style/Theme';
 import Heading from '../../components/design/heading/Heading';
+import Skeleton from '../../components/design/skeleton/Skeleton';
+import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 
 import { analytics } from './analytics/analytics';
 
@@ -74,7 +77,7 @@ const useSingleFigureStatistics = () => {
         isLoading,
         finalizedPoolCount,
         balancerPrice,
-        ethPrice
+        ethPrice,
     };
 };
 
@@ -133,18 +136,18 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
 
-    let past24HoursSwapFees
-    let past24HoursSwapVolume
-    let past24HoursLiquidityUtilisation
-    let past24HoursRevenueRatio
+    let past24HoursSwapFees;
+    let past24HoursSwapVolume;
+    let past24HoursLiquidityUtilisation;
+    let past24HoursRevenueRatio;
 
     if (!isLoading && !isFetching) {
         past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[28].totalSwapFee);
         past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[28].totalSwapVolume);
-    
-        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
-        past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
-    
+
+        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%');
+        past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%');
+
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
         past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
         analytics();
@@ -163,7 +166,7 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         past24HoursSwapFees,
         past24HoursSwapVolume,
         past24HoursLiquidityUtilisation,
-        past24HoursRevenueRatio
+        past24HoursRevenueRatio,
     };
 };
 
@@ -227,7 +230,7 @@ const Dashboard: FC<any> = ({ children }) => {
         past24HoursSwapFees,
         past24HoursSwapVolume,
         past24HoursLiquidityUtilisation,
-        past24HoursRevenueRatio
+        past24HoursRevenueRatio,
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
     const {
@@ -246,14 +249,86 @@ const Dashboard: FC<any> = ({ children }) => {
 
     if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
     
+    const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices;
+    if (isLoading)
+        return (
+            <StyledDashboard paddingY='large'>
+                <Box spanX={12}>
+                    <Heading level='2'>Loading...</Heading>
+                </Box>
+                <Box spanX={4}>
+                    <Skeleton width={372} height={225} viewBox='0 0 372 225'>
+                        <StatisticSkeleton />
+                    </Skeleton>
+                </Box>
+                <Box spanX={4}>
+                    <Skeleton width={372} height={225} viewBox='0 0 372 225'>
+                        <StatisticSkeleton />
+                    </Skeleton>
+                </Box>
+                <Box spanX={4}>
+                    <Skeleton width={372} height={225} viewBox='0 0 372 225'>
+                        <StatisticSkeleton />
+                    </Skeleton>
+                </Box>
+                <Box spanX={4}>
+                    <Skeleton width={372} height={225} viewBox='0 0 372 225'>
+                        <StatisticSkeleton />
+                    </Skeleton>
+                </Box>
+            </StyledDashboard>
+        );
+
     return (
         <StyledDashboard paddingY='large'>
             <Box spanX={12}>
-                <Heading level='2'>Quick Statistics</Heading>
+                <Heading level='2'>Balancer Statistics</Heading>
+            </Box>
+            <Box spanX={12}>
+                <Heading level='4'>All Time</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<EyeSlash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapFees}
+                heading='Total Fees'
+                data={null}
+                timestamps={timestamps}
+                description='Past 24 hours'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapVolume}
+                heading='Total Swap Volume'
+                data={null}
+                timestamps={timestamps}
+                description='Past 24 hours'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursLiquidityUtilisation}
+                heading='Liquidity Utilisation'
+                data={null}
+                timestamps={timestamps}
+                description='Trading volume from past 24 hours divided by TVL'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursRevenueRatio}
+                heading='Revenue Ratio'
+                data={null}
+                timestamps={timestamps}
+                description='Fees from past 24 hours divided by TVL'
+            />
+            <Box spanX={12}>
+                <Heading level='2'>Past 30 Days</Heading>
+            </Box>
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Lock color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={totalLiquidity}
                 heading='Total Value Locked'
                 data={historicalValueLocked}
@@ -304,16 +379,16 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalBalPrices}
                 timestamps={historicalBalTimestamps}
             />
-            <Statistic
+            {/* <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Ethereum color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={`$${ethPrice}`}
                 heading='Ethereum Price (USD)'
                 data={historicalEthPrices}
                 timestamps={historicalEthTimestamps}
-            />
+            /> */}
             <Box spanX={12}>
-                <Heading level='2'>Past 24 Hours</Heading>
+                <Heading level='4'>Past 24 Hours</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}

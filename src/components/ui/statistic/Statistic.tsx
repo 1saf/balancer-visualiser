@@ -25,11 +25,6 @@ type Props = {
     description?: string;
 };
 
-const NoOverflowCard = styled(Card)`
-    overflow: hidden;
-    min-height: 225px;
-    position: relative;
-`;
 
 const GraphContainer = styled(Box)`
     position: absolute;
@@ -40,9 +35,7 @@ const GraphContainer = styled(Box)`
 `;
 
 const IconContainer = styled(Box)`
-    border: 1px solid ${props => props.theme.borderColor};
     border-radius: 4px;
-    box-shadow: 0px 1px 5px rgba(83, 109, 254, 0.1);
 `;
 
 const Change = styled(Heading)<{ type: 'positive' | 'negative' }>`
@@ -62,16 +55,34 @@ const Statistic = (props: Props) => {
         axis: timestamps,
         name: heading,
     };
+
+    // Large or small card
     let percentage;
+    let NoOverflowCard;
+    let span;
     if (data) {
         percentage = (last(data) - data[0]) / data[0];
+        NoOverflowCard = styled(Card)`
+            overflow: hidden;
+            min-height: 225px;
+            position: relative;
+        `;
+        span = 4;
+    } else {
+        NoOverflowCard = styled(Card)`
+            overflow: hidden;
+            min-height: 100px;
+            position: relative;
+        `;
+        span = 3;
+
     }
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
     const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
-        <NoOverflowCard spanX={4}>
+        <NoOverflowCard spanX={span}>
             {description && (
                 <Tooltip tip={description}>
                     <WhatsThis>
