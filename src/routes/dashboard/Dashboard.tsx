@@ -31,6 +31,8 @@ import Heading from '../../components/design/heading/Heading';
 import Skeleton from '../../components/design/skeleton/Skeleton';
 import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 
+import { analytics } from './analytics/analytics';
+
 const today = new Date();
 
 const StyledDashboard = styled(Box)`
@@ -147,7 +149,8 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%');
 
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
-        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');
+        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
+        analytics();
     }
 
     return {
@@ -244,6 +247,8 @@ const Dashboard: FC<any> = ({ children }) => {
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
     const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
+    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
+    
     const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices;
     if (isLoading)
         return (
