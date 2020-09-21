@@ -22,6 +22,8 @@ import EyeSlash from '../../assets/eye-slash-solid.svg';
 import Exchange from '../../assets/exchange-alt-solid.svg';
 import HoldingCash from '../../assets/hand-holding-usd-solid.svg';
 import Pebbles from '../../assets/pebbles.svg';
+import Ethereum from '../../assets/ethereum.svg';
+import Percent from '../../assets/percent.svg';
 
 import { tokens } from '../../style/Theme';
 import Heading from '../../components/design/heading/Heading';
@@ -138,11 +140,8 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[28].totalSwapFee);
         past24HoursSwapVolume = parseFloat(past30DaysData[29].totalSwapVolume) - parseFloat(past30DaysData[28].totalSwapVolume);
     
-        let past24HoursAverageLiquidity = past30DaysData.reduce((total, next) => parseFloat(total) + parseFloat(next.totalLiquidity), 0);
-        past24HoursAverageLiquidity = past24HoursAverageLiquidity / 30;
-    
-        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / past24HoursAverageLiquidity).format('(0.00)%')
-        past24HoursRevenueRatio = numeral(past24HoursSwapFees / past24HoursAverageLiquidity).format('(0.00)%')
+        past24HoursLiquidityUtilisation = numeral(past24HoursSwapVolume / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
+        past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%')
     
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
         past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
@@ -251,6 +250,33 @@ const Dashboard: FC<any> = ({ children }) => {
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<EyeSlash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={totalLiquidity}
+                heading='Total Value Locked'
+                data={historicalValueLocked}
+                timestamps={timestamps}
+                description='The current total amount of liquidity on balancer in USD.'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={totalSwapVolume}
+                heading='Total Swap Volume'
+                data={historicalTotalSwapVolume}
+                timestamps={timestamps}
+                description='Total swaps done over all time in USD'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={totalSwapFeeVolume}
+                heading='Total Fees'
+                data={historicalSwapFee}
+                timestamps={timestamps}
+                description='Total fees captured over all time in USD'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Eye color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={finalizedPoolCount}
                 heading='Public Pools'
@@ -269,31 +295,6 @@ const Dashboard: FC<any> = ({ children }) => {
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<EyeSlash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalLiquidity}
-                heading='Total Value Locked'
-                data={historicalValueLocked}
-                timestamps={timestamps}
-                description='The current total amount of liquidity on balancer in USD.'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalSwapVolume}
-                heading='Total Swap Volume'
-                data={historicalTotalSwapVolume}
-                timestamps={timestamps}
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalSwapFeeVolume}
-                heading='Total Fee Volume'
-                data={historicalSwapFee}
-                timestamps={timestamps}
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Pebbles color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={`$${balancerPrice}`}
                 heading='Balancer Price (USD)'
@@ -302,7 +303,7 @@ const Dashboard: FC<any> = ({ children }) => {
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Pebbles color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                icon={<Ethereum color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={`$${ethPrice}`}
                 heading='Ethereum Price (USD)'
                 data={historicalEthPrices}
@@ -315,35 +316,37 @@ const Dashboard: FC<any> = ({ children }) => {
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursSwapFees}
-                heading='Total Fees Past 24 Hours'
+                heading='Total Fees'
                 data={null}
                 timestamps={timestamps}
+                description='Past 24 hours'
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursSwapVolume}
-                heading='Total Swap Volume Past 24 Hours'
+                heading='Total Swap Volume'
                 data={null}
                 timestamps={timestamps}
+                description='Past 24 hours'
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursLiquidityUtilisation}
-                heading='Liquidity Utilisation Past 24 Hours'
+                heading='Liquidity Utilisation'
                 data={null}
                 timestamps={timestamps}
-                description='Trading volume from past 24 hours divided by hourly average liquidity'
+                description='Trading volume from past 24 hours divided by TVL'
             />
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
                 value={past24HoursRevenueRatio}
-                heading='Revenue Ratio Past 24 Hours'
+                heading='Revenue Ratio'
                 data={null}
                 timestamps={timestamps}
-                description='Fees from past 24 hours divided by hourly average liquidity'
+                description='Fees from past 24 hours divided by TVL'
             />
 
             <Box spanX={12}>
