@@ -1,10 +1,10 @@
 import React, { FC, useState } from 'react';
-import LineGraph from '../../components/ui/graph/LineGraph';
+import LineGraph, { getSeries } from '../../components/ui/graph/LineGraph';
 import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
 
 import { DropdownOption } from '../../components/design/dropdown/Dropdown';
 
-import { useHistoricalGraphState, useDailyBalancerGraphState, dataExtractors, dataFormats } from './state/hooks';
+import { useHistoricalGraphState, useBalancerMovementData, dataExtractors, dataFormats } from './state/hooks';
 
 type Props = {
     query: string;
@@ -20,13 +20,13 @@ const HistoricalBalancerGraph: FC<Props> = props => {
         dataExtractors[currentDataKey?.value]
     );
 
-    const chartData = {
-        values,
+    const movementData = useBalancerMovementData(values, timestamps);
+
+    const chartConfig = {
+        series: [getSeries('line', name, values), getSeries('bar', `Volume Movement`, movementData?.values, 1)],
         axis: timestamps,
-        name,
     };
 
-    // const { chartData: nonCumData } = useDailyBalancerGraphState(chartData?.values, chartData?.axis);
     return (
         <React.Fragment>
             <LineGraph
@@ -34,33 +34,17 @@ const HistoricalBalancerGraph: FC<Props> = props => {
                     <LineGraphHeader
                         dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
                         isLoading={isLoading}
-                        data={chartData}
+                        data={chartConfig}
                         onDataKeyChange={setCurrentDataKey}
                         onPeriodChange={setGraphTimePeriod}
                         ref={ref}
                     />
                 )}
                 isLoading={isLoading}
-                data={chartData}
+                data={chartConfig}
                 title={currentDataKey?.label}
                 dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
             />
-            {/* <BarGraph
-                headerRenderer={ref => (
-                    <LineGraphHeader
-                        dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
-                        isLoading={isLoading}
-                        data={chartData}
-                        onDataKeyChange={setCurrentDataKey}
-                        onPeriodChange={setGraphTimePeriod}
-                        ref={ref}
-                    />
-                )}
-                isLoading={isLoading}
-                data={nonCumData}
-                title='oo'
-                dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
-            /> */}
         </React.Fragment>
     );
 };

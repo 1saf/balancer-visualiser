@@ -22,11 +22,11 @@ export const dataExtractors: Record<string, DataExtractorFn> = {
 };
 
 export const dataFormats: Record<string, string> = {
-    tvl: '($0.00a)',
-    tsv: '($0.00a)',
-    tsfv: '($0.00a)',
-    public_pools: '(0)',
-    private_pools: '(0)',
+    tvl: '$0,0.00a',
+    tsv: '$0,0.00a',
+    tsfv: '$0,0.00a',
+    public_pools: '0,0',
+    private_pools: '0,0',
 };
 
 export const useEthTimestampBlocks = (dates: Date[]) => {
@@ -85,15 +85,11 @@ export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, e
             setGraphTimePeriod,
         };
 
-    const historicalBalancerData = useMemo(
-        () =>
-            (historicalBalancerDataResponses || []).map(historicalBalancerResponse => {
-                const data = (historicalBalancerResponse?.data?.balancer as any) || {};
-                if (extractor) return extractor(data);
-                return data[dataKey?.value];
-            }),
-        [dataKey, extractor]
-    );
+    const historicalBalancerData = (historicalBalancerDataResponses || []).map(historicalBalancerResponse => {
+        const data = (historicalBalancerResponse?.data?.balancer as any) || {};
+        if (extractor) return extractor(data);
+        return data[dataKey?.value];
+    });
 
     const isLoading = isLoadingEthBlocks || isLoadingHistoricalBalancerData;
     return {
@@ -133,20 +129,22 @@ export const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: Tim
     };
 };
 
-export const useDailyBalancerGraphState = (data: number[] = [], timestamps: number[] = []) => {
+export const useBalancerMovementData = (data: number[] = [], timestamps: number[] = []) => {
     if (!data.length || !timestamps.length) return {};
 
     const dailyData = data.map((value, i) => {
         if (i === data.length - 1) return value;
         const nextValue = data[i + 1];
-        return nextValue - value;
+        const volume = nextValue - value;
+        return [
+            i,
+            Math.abs(volume),
+            volume > 0 ? 1 : -1
+        ];
     });
 
     return {
-        chartData: {
-            values: dropRight(dailyData, 1),
-            axis: dropRight(timestamps, 1),
-            name: 'Non',
-        },
+        values: dropRight(dailyData, 1),
+        axis: dropRight(timestamps, 1),
     };
 };

@@ -35,9 +35,7 @@ const GraphContainer = styled(Box)`
 `;
 
 const IconContainer = styled(Box)`
-    border: 1px solid ${props => props.theme.borderColor};
     border-radius: 4px;
-    box-shadow: 0px 1px 5px rgba(83, 109, 254, 0.1);
 `;
 
 const Change = styled(Heading)<{ type: 'positive' | 'negative' }>`
