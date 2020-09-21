@@ -42,7 +42,7 @@ export const graphOptions = [
     },
     {
         value: 'balancer_usd',
-        label: 'Balancer Price (USD)',
+        label: 'BAL Price (USD)',
     },
     {
         value: 'public_pools',
