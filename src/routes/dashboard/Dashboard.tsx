@@ -149,7 +149,7 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         past24HoursRevenueRatio = numeral(past24HoursSwapFees / parseFloat(past30DaysData[29].totalLiquidity)).format('(0.00)%');
 
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
-        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');  
+        past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');
         analytics();
     }
 
@@ -247,8 +247,6 @@ const Dashboard: FC<any> = ({ children }) => {
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
     const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
-    if (isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices) return <span>'Loading data'</span>;
-    
     const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices;
     if (isLoading)
         return (
@@ -285,7 +283,47 @@ const Dashboard: FC<any> = ({ children }) => {
                 <Heading level='2'>Balancer Statistics</Heading>
             </Box>
             <Box spanX={12}>
-                <Heading level='4'>All Time</Heading>
+                <Heading level='4'>Past 24 Hours</Heading>
+            </Box>
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapFees}
+                heading='Total Fees'
+                data={null}
+                timestamps={timestamps}
+                description='Past 24 hours'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursSwapVolume}
+                heading='Total Swap Volume'
+                data={null}
+                timestamps={timestamps}
+                description='Past 24 hours'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursLiquidityUtilisation}
+                heading='Liquidity Utilisation'
+                data={null}
+                timestamps={timestamps}
+                description='Trading volume from past 24 hours divided by TVL'
+            />
+            <Statistic
+                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
+                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
+                value={past24HoursRevenueRatio}
+                heading='Revenue Ratio'
+                data={null}
+                timestamps={timestamps}
+                description='Fees from past 24 hours divided by TVL'
+            />
+
+            <Box spanX={12}>
+                <Heading level='4'>30 day glance</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
@@ -348,46 +386,6 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalEthPrices}
                 timestamps={historicalEthTimestamps}
             /> */}
-            <Box spanX={12}>
-                <Heading level='4'>Past 24 Hours</Heading>
-            </Box>
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursSwapFees}
-                heading='Total Fees'
-                data={null}
-                timestamps={timestamps}
-                description='Past 24 hours'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursSwapVolume}
-                heading='Total Swap Volume'
-                data={null}
-                timestamps={timestamps}
-                description='Past 24 hours'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursLiquidityUtilisation}
-                heading='Liquidity Utilisation'
-                data={null}
-                timestamps={timestamps}
-                description='Trading volume from past 24 hours divided by TVL'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursRevenueRatio}
-                heading='Revenue Ratio'
-                data={null}
-                timestamps={timestamps}
-                description='Fees from past 24 hours divided by TVL'
-            />
-
             <Box spanX={12}>
                 <Heading level='2'>In-Depth Statistics</Heading>
             </Box>
