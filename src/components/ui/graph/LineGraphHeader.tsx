@@ -68,8 +68,8 @@ const timePeriods = [
 ];
 
 const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
-    const { data, onPeriodChange, title, onDataKeyChange, dataFormat } = props;
-    const [hoveredValue, setHoveredValue] = useState<string>(numeral(last(data.values) as number).format(dataFormat));
+    const { data, onPeriodChange, onDataKeyChange, dataFormat } = props;
+    const [hoveredValue, setHoveredValue] = useState<string>(numeral(last(data?.series?.data) as number).format(dataFormat));
     const [hoveredDate, setHoveredDate] = useState<string>(formatDate(new Date(((last(data.axis) as number) || null) * 1000), 'PP'));
     const axisMouseIndex = useRef<number>();
 
@@ -78,8 +78,8 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
             if (!axisMouseIndex.current) axisMouseIndex.current = params.dataIndex;
             if (axisMouseIndex.current !== params.dataIndex) {
                 axisMouseIndex.current = params.dataIndex;
-                data.values[params.dataIndex] && setHoveredValue(numeral(data.values[params.dataIndex] as number).format(dataFormat));
-                data.values[params.dataIndex] && setHoveredDate(formatDate(new Date((data.axis[params.dataIndex] as number) * 1000), 'PP'));
+                data?.series[0]?.data[params.dataIndex] && setHoveredValue(numeral(data?.series[0]?.data[params.dataIndex] as number).format(dataFormat));
+                data?.series[0]?.data[params.dataIndex] && setHoveredDate(formatDate(new Date((data.axis[params.dataIndex] as number) * 1000), 'PP'));
             }
         },
     }));
