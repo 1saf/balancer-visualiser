@@ -25,7 +25,6 @@ type Props = {
     description?: string;
 };
 
-
 const GraphContainer = styled(Box)`
     position: absolute;
     top: 75px;
@@ -48,8 +47,14 @@ const WhatsThis = styled(Box)`
     top: 1rem;
 `;
 
+const NoOverflowCard = styled(Card)<{ withGraph?: boolean }>`
+    overflow: hidden;
+    min-height: ${props => props.withGraph ? '225px' : '100px'};
+    position: relative;
+`;
+
 const Statistic = (props: Props) => {
-    const { heading, data, timestamps, value, icon, colors, description } = props;
+    const { heading, data = [], timestamps, value, icon, colors, description } = props;
     const graphData = {
         values: data,
         axis: timestamps,
@@ -57,32 +62,14 @@ const Statistic = (props: Props) => {
     };
 
     // Large or small card
-    let percentage;
-    let NoOverflowCard;
-    let span;
-    if (data) {
-        percentage = (last(data) - data[0]) / data[0];
-        NoOverflowCard = styled(Card)`
-            overflow: hidden;
-            min-height: 225px;
-            position: relative;
-        `;
-        span = 4;
-    } else {
-        NoOverflowCard = styled(Card)`
-            overflow: hidden;
-            min-height: 100px;
-            position: relative;
-        `;
-        span = 3;
-
-    }
+    const percentage = (data && data?.length) ? (last(data) - data[0]) / data[0] : 0;
+    const span = (data && data?.length) ? 4 : 3;
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
     const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
-        <NoOverflowCard spanX={span}>
+        <NoOverflowCard withGraph={!!(data && data?.length)} spanX={span}>
             {description && (
                 <Tooltip tip={description}>
                     <WhatsThis>
@@ -98,21 +85,21 @@ const Statistic = (props: Props) => {
                         <Stack orientation='horizontal' align='end' gap='small'>
                             <Heading level='3'>{value}</Heading>
                             {data && (
-                            <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
-                                <Box>
-                                    <Change type={changeType} level='6'>
-                                        {formattedPercentage}
-                                    </Change>
-                                </Box>
-                            </Tooltip>
+                                <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
+                                    <Box>
+                                        <Change type={changeType} level='6'>
+                                            {formattedPercentage}
+                                        </Change>
+                                    </Box>
+                                </Tooltip>
                             )}
                         </Stack>
                     </Stack>
                 </Stack>
                 {data && (
-                <GraphContainer>
-                    <GlanceLineGraph colors={colors} data={graphData} />
-                </GraphContainer>
+                    <GraphContainer>
+                        <GlanceLineGraph colors={colors} data={graphData} />
+                    </GraphContainer>
                 )}
             </Stack>
         </NoOverflowCard>

@@ -32,6 +32,7 @@ import Skeleton from '../../components/design/skeleton/Skeleton';
 import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 
 import { analytics } from './analytics/analytics';
+import Feedback from '../../components/design/feedback/Feedback';
 
 const today = new Date();
 
@@ -52,7 +53,7 @@ const EmphasizedText = styled.em`
 const useSingleFigureStatistics = () => {
     const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
     const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
-    const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
+    // const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
 
     const balancerStats = balancerStatsResponse?.data?.balancer;
 
@@ -64,7 +65,7 @@ const useSingleFigureStatistics = () => {
     const privatePools = totalPools - finalizedPoolCount;
 
     const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
-    const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
+    // const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
 
     const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
 
@@ -77,7 +78,7 @@ const useSingleFigureStatistics = () => {
         isLoading,
         finalizedPoolCount,
         balancerPrice,
-        ethPrice,
+        // ethPrice,
     };
 };
 
@@ -91,7 +92,7 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
         isLoading: isEthTimestampResponseLoading,
         isFetching: isEthTimestampResponseFetching,
     } = useGraphQuery<EthBlocksResponse>(['blockTimestamps', { requests }], blocksQuery, {
-        loop: true,
+        loop: true, 
         graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
     });
 
@@ -136,10 +137,12 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
 
-    let past24HoursSwapFees;
-    let past24HoursSwapVolume;
-    let past24HoursLiquidityUtilisation;
-    let past24HoursRevenueRatio;
+    console.log('render');
+
+    let past24HoursSwapFees = 0;
+    let past24HoursSwapVolume = 0;
+    let past24HoursLiquidityUtilisation = '';
+    let past24HoursRevenueRatio = '';
 
     if (!isLoading && !isFetching) {
         past24HoursSwapFees = parseFloat(past30DaysData[29].totalSwapFee) - parseFloat(past30DaysData[28].totalSwapFee);
@@ -150,7 +153,7 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
 
         past24HoursSwapFees = numeral(past24HoursSwapFees).format('($0.00a)');
         past24HoursSwapVolume = numeral(past24HoursSwapVolume).format('($0.00a)');
-        analytics();
+        // analytics();
     }
 
     return {
@@ -233,6 +236,13 @@ const Dashboard: FC<any> = ({ children }) => {
         past24HoursRevenueRatio,
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
+    console.log({
+        past24HoursSwapFees,
+        past24HoursSwapVolume,
+        past24HoursLiquidityUtilisation,
+        past24HoursRevenueRatio,
+    })
+
     const {
         isLoading: isSingleFigureLoading,
         totalLiquidity,
@@ -241,13 +251,11 @@ const Dashboard: FC<any> = ({ children }) => {
         totalSwapVolume,
         finalizedPoolCount,
         balancerPrice,
-        ethPrice,
     } = useSingleFigureStatistics();
 
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
-    const { historicalEthPrices, historicalEthTimestamps, isLoading: isLoadingHistoricalEthPrices } = useHistoricalEthPrice();
 
-    const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices || isLoadingHistoricalEthPrices;
+    const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices;
     if (isLoading)
         return (
             <StyledDashboard paddingY='large'>
@@ -279,6 +287,12 @@ const Dashboard: FC<any> = ({ children }) => {
 
     return (
         <StyledDashboard paddingY='large'>
+            <Feedback emotion='negative' spanX={12}>
+                Please note that this dashboard is still under heavy development. This means
+                there is a high likelihood of you encountering a bug or wrong information.
+                Please bear with us while we complete this project and if you notice any bugs,
+                reporting them is appreciated!
+            </Feedback>
             <Box spanX={12}>
                 <Heading level='2'>Balancer Statistics</Heading>
             </Box>
