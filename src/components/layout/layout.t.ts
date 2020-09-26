@@ -128,3 +128,38 @@ export const resolveSpacing = (t: 'm' | 'p') => (props: any) => {
         return css;
     }, ``);
 };
+
+export const resolveResponsiveCSSProperty = (cssProperty: string, nickname = '', valuePrefix = '') => (props: any) => {
+    const propertyValue = props[cssProperty] || props[nickname];
+    if (!propertyValue) return '';
+    
+    if (!Array.isArray(propertyValue)) return `${cssProperty}: ${valuePrefix} ${propertyValue};`;
+
+    const responsiveValues = propertyValue.reduce(
+        (style, value: string[] | number[], i) => {
+            const _value = `${cssProperty}: ${valuePrefix} ${value};`;
+            i === 0 && style.all.push(_value);
+            i === 1 && style.tablet.push(_value);
+            i === 2 && style.landscape.push(_value);
+            i === 3 && style.smallDesktop.push(_value);
+            i === 4 && style.largeDesktop.push(_value);
+            return style;
+        },
+        {
+            all: [],
+            tablet: [],
+            landscape: [],
+            smallDesktop: [],
+            largeDesktop: [],
+        } as Record<Devices, string[]>
+    );
+
+    const css = Object.keys(responsiveValues).reduce((css: string, device: Devices) => {
+        if (responsiveValues[device].length) {
+            css = `${css}\n${getResponsiveCss(device, responsiveValues[device])}`;
+        }
+        return css;
+    }, ``);
+    console.log(css);
+    return css;
+};

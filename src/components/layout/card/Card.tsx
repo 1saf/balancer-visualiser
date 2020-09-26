@@ -7,8 +7,9 @@ type Props = {} & BoxProps;
 const StyledCard = styled(Box)`
     position: relative;
     background-color: ${props => props.theme.foreground};
-    border-radius: 15px;
-    box-shadow: 0px 10px 40px rgba(100, 100, 100, 0.1), 0px 10px 20px rgba(100, 100, 100, 0.05);
+    border-radius: 10px;
+    // box-shadow: 0px 10px 40px rgba(100, 100, 100, 0.1), 0px 10px 20px rgba(100, 100, 100, 0.05);
+    box-shadow: 0px 2px 4px 0px ${props => props.theme.borderColor};
 `;
 
 const Card: FC<Props> = (props) => {

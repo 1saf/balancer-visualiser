@@ -1,5 +1,5 @@
 import React, { FC, forwardRef, RefObject } from 'react';
-import { Spacing, ResponsiveProp, resolveSpacing } from '../layout.t';
+import { Spacing, ResponsiveProp, resolveSpacing, resolveResponsiveCSSProperty } from '../layout.t';
 import styled from 'styled-components';
 import { motion } from 'framer-motion';
 
@@ -19,7 +19,7 @@ export type BoxProps = {
     marginX?: ResponsiveProp<Spacing>;
     marginY?: ResponsiveProp<Spacing>;
     className?: string;
-    spanX?: number;
+    spanX?: ResponsiveProp<number>;
     width?: string;
     height?: string;
     ref?: React.Ref<HTMLDivElement>;
@@ -28,15 +28,18 @@ export type BoxProps = {
     exit?: any;
     transition?: any;
     style?: any;
+    background?: string;
 };
 
 
 const StyledBox = styled(motion.div)<BoxProps>`
     ${resolveSpacing('p')}
     ${resolveSpacing('m')}
-    ${props => props.spanX && `grid-column: span ${props.spanX};`}
+    ${resolveResponsiveCSSProperty('width')}
+    ${resolveResponsiveCSSProperty('grid-column', 'spanX', 'span')}
     ${props => props.width && `width: ${props.width};`}
     ${props => props.height && `height: ${props.height};`}
+    ${props => props.background && `background: ${props.background};`}
 `;
 
 const Box: FC<BoxProps> = forwardRef((props, ref) => {

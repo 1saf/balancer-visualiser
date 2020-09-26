@@ -69,7 +69,7 @@ const Statistic = (props: Props) => {
     const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
-        <NoOverflowCard withGraph={!!(data && data?.length)} spanX={span}>
+        <NoOverflowCard withGraph={!!(data && data?.length)} spanX={[12, span]}>
             {description && (
                 <Tooltip tip={description}>
                     <WhatsThis>

@@ -1,7 +1,6 @@
 import React, { FC, useMemo } from 'react';
 import Box from '../../components/layout/box/Box';
 import styled from 'styled-components';
-import query from './query/pools.graphql';
 import blocksQuery from './query/blocks.graphql';
 import historicalPoolsQuery from './query/historical.graphql';
 import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, GraphQLResponse, EthBlocksResponse } from '../../api/graphql';
@@ -26,61 +25,21 @@ import Ethereum from '../../assets/ethereum.svg';
 import Percent from '../../assets/percent.svg';
 import Lock from '../../assets/lock-solid.svg';
 
-import { tokens } from '../../style/Theme';
+import Theme, { tokens } from '../../style/Theme';
 import Heading from '../../components/design/heading/Heading';
 import Skeleton from '../../components/design/skeleton/Skeleton';
 import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 
 import { analytics } from './analytics/analytics';
 import Feedback from '../../components/design/feedback/Feedback';
+import { useSingleFigureStatistics } from './state/hooks';
+import Grid from '../../components/layout/grid/Grid';
 
 const today = new Date();
-
-const StyledDashboard = styled(Box)`
-    width: 100%;
-    background: ${props => props.theme.background};
-    display: grid;
-    grid-template-columns: repeat(12, 75px);
-    grid-column-gap: 1.5rem;
-    grid-row-gap: 1.5rem;
-    justify-content: center;
-`;
 
 const EmphasizedText = styled.em`
     color: ${props => props.theme.emphasizedText};
 `;
-
-const useSingleFigureStatistics = () => {
-    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
-    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
-    // const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
-
-    const balancerStats = balancerStatsResponse?.data?.balancer;
-
-    const totalPools = balancerStats?.poolCount; //
-    const totalLiquidity = numeral(balancerStats?.totalLiquidity).format('($0.00a)');
-    const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).format('($0.00a)');
-    const totalSwapFeeVolume = numeral(balancerStats?.totalSwapFee).format('($0.00a)');
-    const finalizedPoolCount = balancerStats?.finalizedPoolCount;
-    const privatePools = totalPools - finalizedPoolCount;
-
-    const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
-    // const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
-
-    const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
-
-    return {
-        totalPools,
-        totalLiquidity,
-        totalSwapVolume,
-        totalSwapFeeVolume,
-        privatePools,
-        isLoading,
-        finalizedPoolCount,
-        balancerPrice,
-        // ethPrice,
-    };
-};
 
 const useHistoricalBalancerData = (historicalDataQuery: string) => {
     // default to start at 24 hour
@@ -136,8 +95,6 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     const historicalTotalSwapVolume = past30DaysData.map(d => parseFloat(d.totalSwapVolume));
     const historicalSwapFee = past30DaysData.map(d => parseFloat(d.totalSwapFee));
     const historicalValueLocked = past30DaysData.map(d => parseFloat(d.totalLiquidity));
-
-    console.log('render');
 
     let past24HoursSwapFees = 0;
     let past24HoursSwapVolume = 0;
@@ -236,13 +193,6 @@ const Dashboard: FC<any> = ({ children }) => {
         past24HoursRevenueRatio,
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
-    console.log({
-        past24HoursSwapFees,
-        past24HoursSwapVolume,
-        past24HoursLiquidityUtilisation,
-        past24HoursRevenueRatio,
-    })
-
     const {
         isLoading: isSingleFigureLoading,
         totalLiquidity,
@@ -258,7 +208,7 @@ const Dashboard: FC<any> = ({ children }) => {
     const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices;
     if (isLoading)
         return (
-            <StyledDashboard paddingY='large'>
+            <Grid paddingY='large'>
                 <Box spanX={12}>
                     <Heading level='2'>Loading...</Heading>
                 </Box>
@@ -282,20 +232,17 @@ const Dashboard: FC<any> = ({ children }) => {
                         <StatisticSkeleton />
                     </Skeleton>
                 </Box>
-            </StyledDashboard>
+            </Grid>
         );
 
     return (
-        <StyledDashboard paddingY='large'>
-            <Feedback emotion='negative' spanX={12}>
+        <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'none']}>
+             <Feedback emotion='negative' spanX={12}>
                 Please note that this dashboard is still under heavy development. This means
                 there is a high likelihood of you encountering a bug or wrong information.
                 Please bear with us while we complete this project and if you notice any bugs,
                 reporting them is appreciated!
             </Feedback>
-            <Box spanX={12}>
-                <Heading level='2'>Balancer Statistics</Heading>
-            </Box>
             <Box spanX={12}>
                 <Heading level='4'>Past 24 Hours</Heading>
             </Box>
@@ -342,7 +289,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Lock color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalLiquidity}
+                value={numeral(totalLiquidity).format('$(0.00a)')}
                 heading='Total Value Locked'
                 data={historicalValueLocked}
                 timestamps={timestamps}
@@ -351,7 +298,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalSwapVolume}
+                value={numeral(totalSwapVolume).format('$(0.00a)')}
                 heading='Total Swap Volume'
                 data={historicalTotalSwapVolume}
                 timestamps={timestamps}
@@ -360,7 +307,7 @@ const Dashboard: FC<any> = ({ children }) => {
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
                 icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={totalSwapFeeVolume}
+                value={numeral(totalSwapFeeVolume).format('$(0.00a)')}
                 heading='Total Fees'
                 data={historicalSwapFee}
                 timestamps={timestamps}
@@ -392,19 +339,11 @@ const Dashboard: FC<any> = ({ children }) => {
                 data={historicalBalPrices}
                 timestamps={historicalBalTimestamps}
             />
-            {/* <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Ethereum color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={`$${ethPrice}`}
-                heading='Ethereum Price (USD)'
-                data={historicalEthPrices}
-                timestamps={historicalEthTimestamps}
-            /> */}
             <Box spanX={12}>
                 <Heading level='2'>In-Depth Statistics</Heading>
             </Box>
             <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
-        </StyledDashboard>
+        </Grid>
     );
 };
 

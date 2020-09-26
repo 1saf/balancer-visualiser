@@ -59,15 +59,21 @@ export const tokens = {
 };
 
 export default {
-    background: tokens.colors.background,
+    primary: tokens.colors.ultramarine,
+
     foreground: tokens.colors.white,
+    background: tokens.colors.background,
+
+    headerBg: tokens.colors.raisin_black,
     borderColor: tokens.colors.gray400,
-    emphasizedBorder: tokens.colors.gray400,
+    emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     fontWeight: tokens.fontWeight,
     subheadingColor: tokens.colors.gray700,
     emphasizedText: tokens.colors.congo_pink,
+
+    balancerLogoFill: tokens.colors.white,
 
     cardBackgroundColor: tokens.colors.gray100,
 

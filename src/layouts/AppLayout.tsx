@@ -101,12 +101,10 @@ const App: FC<Props> = props => {
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
             <AppLayout>
-                <Box width='100%'>
-                    <FullWidthStack>
-                        <Header />
-                        <RouteRenderer route={route} />
-                    </FullWidthStack>
-                </Box>
+                <FullWidthStack>
+                    <Header />
+                    <RouteRenderer route={route} />
+                </FullWidthStack>
             </AppLayout>
         </ReactQueryConfigProvider>
     );

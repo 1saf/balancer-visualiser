@@ -29,27 +29,27 @@ const StyledGraphInfo = styled(Stack)`
 
 export const graphOptions = [
     {
-        value: 'tvl',
+        value: 'totalLiquidity',
         label: 'Total Value Locked',
     },
     {
-        value: 'tsv',
+        value: 'totalSwapVolume',
         label: 'Total Swap Volume',
     },
     {
-        value: 'tsfv',
+        value: 'totalSwapFeeVolume',
         label: 'Total Swap Fee Volume',
     },
     {
-        value: 'balancer_usd',
+        value: 'balancerPrice',
         label: 'BAL Price (USD)',
     },
     {
-        value: 'public_pools',
+        value: 'finalizedPoolCount',
         label: 'Public Pools',
     },
     {
-        value: 'private_pools',
+        value: 'privatePools',
         label: 'Private Pools',
     },
 ];

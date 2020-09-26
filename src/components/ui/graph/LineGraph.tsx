@@ -82,12 +82,18 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         },
         formatter: (series: any) => {
             const [data, volume] = series;
+            let _data = data;
+            let _volume = volume;
+            if (data?.seriesType === 'bar') {
+                _data = volume;
+                _volume = data;
+            }
             return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
                 new Date(data?.name * 1000),
                 'PP p'
             )}</span>
-            <br/>${data?.marker} ${data?.seriesName}: ${numeral(data?.value).format(dataFormat)}
-            <br/>${volume?.marker} ${volume?.seriesName}: ${numeral(volume?.value[1] * volume?.value[2]).format(dataFormat)}
+            <br/>${_data?.marker} ${_data?.seriesName}: ${numeral(_data?.value).format(dataFormat)}
+            <br/>${_volume?.marker} ${_volume?.seriesName}: ${numeral(_volume?.value[1] * _volume?.value[2]).format(dataFormat)}
             `;
         },
         axisPointer: {
@@ -96,9 +102,6 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 show: false,
             },
         },
-    },
-    legend: {
-        data: (data?.series || []).map((s: any) => s?.name),
     },
     axisPointer: {
         type: 'shadow',
