@@ -25,16 +25,10 @@ const StyledCrumbs = styled(Grid)`
     border-bottom: 1px solid ${props => props.theme.borderColor};
 `;
 
-const StickyTop = styled(Stack)`
-    // position: sticky;
-    // top: 0;
-    // z-index: 5;
-`;
-
 const Header: FC<Props> = props => {
     const {} = props;
     return (
-        <StickyTop>
+        <Stack>
             <StyledHeader paddingY='medium' paddingX={['base', 'none']}>
                 <Box spanX={12}>
                     <StyledPebbles />
@@ -43,7 +37,7 @@ const Header: FC<Props> = props => {
             <StyledCrumbs background={tokens.colors.white} paddingBottom='large' paddingTop='base' paddingX={['base', 'none']}>
                 <Heading level='3'>Dashboard</Heading>
             </StyledCrumbs>
-        </StickyTop>
+        </Stack>
     );
 };
 
