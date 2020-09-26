@@ -13,6 +13,7 @@ import Tooltip from '../../design/tooltip/Tooltip';
 
 import QuestionMark from '../../../assets/question-circle-solid.svg';
 import { tokens } from '../../../style/Theme';
+import { ResponsiveProp } from '../../layout/layout.t';
 
 type Props = {
     heading: string;
@@ -63,13 +64,13 @@ const Statistic = (props: Props) => {
 
     // Large or small card
     const percentage = (data && data?.length) ? (last(data) - data[0]) / data[0] : 0;
-    const span = (data && data?.length) ? 4 : 3;
+    const span: ResponsiveProp<number> = (data && data?.length) ? [12, 6, 6, 4] : [12, 6, 6, 3];
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
     const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
-        <NoOverflowCard withGraph={!!(data && data?.length)} spanX={[12, span]}>
+        <NoOverflowCard withGraph={!!(data && data?.length)} spanX={span}>
             {description && (
                 <Tooltip tip={description}>
                     <WhatsThis>

@@ -236,7 +236,7 @@ const Dashboard: FC<any> = ({ children }) => {
         );
 
     return (
-        <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'none']}>
+        <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
              <Feedback emotion='negative' spanX={12}>
                 Please note that this dashboard is still under heavy development. This means
                 there is a high likelihood of you encountering a bug or wrong information.

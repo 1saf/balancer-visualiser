@@ -29,12 +29,12 @@ const Header: FC<Props> = props => {
     const {} = props;
     return (
         <Stack>
-            <StyledHeader paddingY='medium' paddingX={['base', 'none']}>
+            <StyledHeader paddingY='medium' paddingX={['base', 'base', 'base', 'none']}>
                 <Box spanX={12}>
                     <StyledPebbles />
                 </Box>
             </StyledHeader>
-            <StyledCrumbs background={tokens.colors.white} paddingBottom='large' paddingTop='base' paddingX={['base', 'none']}>
+            <StyledCrumbs background={tokens.colors.white} paddingBottom='large' paddingTop='base' paddingX={['base', 'base', 'base', 'none']}>
                 <Heading level='3'>Dashboard</Heading>
             </StyledCrumbs>
         </Stack>

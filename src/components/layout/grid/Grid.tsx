@@ -10,7 +10,7 @@ const StyledGrid = styled(Box)<Props>`
     grid-row-gap: 1rem;
     grid-column-gap: 1.5rem;
 
-    @media (min-width: 640px) {
+    @media (min-width: 1024px) {
         grid-template-columns: repeat(12, 75px);
         grid-column-gap: 1.5rem;
         grid-row-gap: 1.5rem;
