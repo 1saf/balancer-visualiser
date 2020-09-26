@@ -45,8 +45,7 @@ const AppLayout = styled(Box)`
     background-color: ${props => props.theme.background};
     width: 100%;
     height: 100%;
-    display: flex;
-    justify-content: center;
+    display: block;
     @font-face {
         font-family: SegoeUI;
         src: local('Segoe UI Light'), url(//c.s-microsoft.com/static/fonts/segoe-ui/west-european/light/latest.woff2) format('woff2'),
