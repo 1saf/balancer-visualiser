@@ -212,22 +212,22 @@ const Dashboard: FC<any> = ({ children }) => {
                 <Box spanX={12}>
                     <Heading level='2'>Loading...</Heading>
                 </Box>
-                <Box spanX={4}>
+                <Box spanX={[12, 6, 6, 3]}>
                     <Skeleton width={372} height={225} viewBox='0 0 372 225'>
                         <StatisticSkeleton />
                     </Skeleton>
                 </Box>
-                <Box spanX={4}>
+                <Box spanX={[12, 6, 6, 3]}>
                     <Skeleton width={372} height={225} viewBox='0 0 372 225'>
                         <StatisticSkeleton />
                     </Skeleton>
                 </Box>
-                <Box spanX={4}>
+                <Box spanX={[12, 6, 6, 3]}>
                     <Skeleton width={372} height={225} viewBox='0 0 372 225'>
                         <StatisticSkeleton />
                     </Skeleton>
                 </Box>
-                <Box spanX={4}>
+                <Box spanX={[12, 6, 6, 3]}>
                     <Skeleton width={372} height={225} viewBox='0 0 372 225'>
                         <StatisticSkeleton />
                     </Skeleton>
