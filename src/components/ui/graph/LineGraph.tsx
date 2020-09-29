@@ -36,6 +36,9 @@ const lineChartConfig = {
             },
         ]) as any,
     },
+    lineStyle: {
+        width: 3,
+    },
 };
 
 const barChartConfig = {
@@ -56,11 +59,9 @@ export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[],
 };
 
 const StyledLineGraphContainer = styled(Card)`
-    min-height: 700px;
-    height: 700px;
+    min-height: 600px;
+    height: 600px;
     position: relative;
-    border-radius: 15px;
-    background: ${props => props.theme.cardBackgroundColor};
 `;
 
 const option = (data: LineChartData, dataFormat: string): echarts.EChartOption => ({
@@ -140,7 +141,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
             show: true,
             xAxisIndex: [0, 1],
             type: 'slider',
-            top: '85%',
+            top: '87.5%',
             labelFormatter: (value: any, valueStr: any) => {
                 return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy');
             },
@@ -162,21 +163,20 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 show: false,
             },
             axisLabel: {
-                formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy p'),
-                fontFamily: 'SegoeUI',
+                formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
+                fontFamily: 'Inter',
                 fontSize: 12,
-                color: tokens.colors.gray600,
-                fontWeight: 700 as any,
+                color: tokens.colors.gray700,
+                fontWeight: '600',
             },
         },
         {
-            show: false,
             type: 'category',
             gridIndex: 1,
             data: data.axis,
             scale: true,
             boundaryGap: false,
-            axisLine: { onZero: false },
+            axisLine: { onZero: false, lineStyle: { color: tokens.colors.gray500 } },
             axisTick: { show: false },
             splitLine: { show: false },
             axisLabel: { show: false },
@@ -188,10 +188,9 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         {
             axisLabel: {
                 formatter: (v: number, i: number) => numeral(v).format(dataFormat),
-                fontFamily: 'SegoeUI',
+                fontFamily: 'Inter',
                 fontSize: 14,
-                color: tokens.colors.gray600,
-                fontWeight: 700 as any,
+                color: tokens.colors.gray800,
             },
             axisLine: {
                 show: false,
@@ -200,6 +199,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 show: false,
             },
             splitLine: {
+                show: false,
                 lineStyle: {
                     color: tokens.colors.gray300,
                 },
@@ -220,14 +220,14 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
     series: data?.series,
     grid: [
         {
-            right: '12.5%',
-            left: '7.5%',
+            right: '7%',
+            left: '3.5%',
             height: '50%',
         },
         {
-            left: '7.5%',
+            left: '3.5%',
             top: '70%',
-            width: '80%',
+            width: '90%',
             height: '15%',
         },
     ],
@@ -266,7 +266,7 @@ const LineGraph: FC<Props> = props => {
     return (
         <StyledLineGraphContainer spanX={12}>
             {headerRenderer(graphHighlightRef)}
-            <Box padding='large' width='100%' height='600px' ref={chartContainerRef} />
+            <Box paddingX='large' width='100%' height='500px' ref={chartContainerRef} />
             {isLoading && (
                 <StyledLoadingOverlay>
                     Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes

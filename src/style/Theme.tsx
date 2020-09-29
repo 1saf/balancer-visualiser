@@ -1,6 +1,6 @@
 export const tokens = {
     colors: {
-        ultramarine: '#536dfe',
+        ultramarine: '#3f5bf6',
         raisin_black: '#21222c',
         cultured: '#fafafa',
         mellow_apricot: '#F7C27D',
@@ -18,10 +18,10 @@ export const tokens = {
         yellow500: '#F7C27D',
 
         blue100: '#eef0fe',
-        blue200: '#cbd2fb',
+        blue200: '#c9d1fd',
         blue300: '#97a6f6',
-        blue400: '#7488f3',
-        blue500: '#536dfe',
+        blue400: '#677df8',
+        blue500: '#3f5bf6',
         blue600: '#394aa8',
         blue700: '#293578',
         blue800: '#101530',
@@ -65,12 +65,12 @@ export default {
     background: tokens.colors.background,
 
     headerBg: tokens.colors.raisin_black,
-    borderColor: tokens.colors.gray400,
+    borderColor: tokens.colors.gray600,
     emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     fontWeight: tokens.fontWeight,
-    subheadingColor: tokens.colors.gray700,
+    subheadingColor: tokens.colors.gray800,
     emphasizedText: tokens.colors.congo_pink,
 
     balancerLogoFill: tokens.colors.white,

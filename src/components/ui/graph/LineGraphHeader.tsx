@@ -24,7 +24,6 @@ const StyledGraphInfo = styled(Stack)`
     align-items: flex-end;
     border-top-right-radius 15px;
     border-top-left-radius: 15px;
-    background: #FFFFFF;
 `;
 
 export const graphOptions = [
@@ -86,7 +85,7 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
 
     return (
         <React.Fragment>
-            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='x-large'>
+            <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='large'>
                 <Stack justify='between' orientation='horizontal' width='100%'>
                     <Stack>
                         <Dropdown silent options={graphOptions} onSelected={onDataKeyChange} menuWidth='225px' />

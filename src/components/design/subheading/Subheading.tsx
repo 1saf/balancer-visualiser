@@ -4,10 +4,9 @@ import styled from 'styled-components';
 type Props = {}
 
 const StyledSubheading = styled.h5`
-    font-size: 0.87rem;
+    font-size: 1rem;
     color: ${props => props.theme.subheadingColor};
-    text-transform: uppercase;
-    font-weight: 700;
+    font-weight: 500;
     user-select: none;
 `;
 

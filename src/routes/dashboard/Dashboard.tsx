@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import blocksQuery from './query/blocks.graphql';
 import historicalPoolsQuery from './query/historical.graphql';
 import { useGraphQuery, ETH_BLOCKS_SUBGRAPH_URL, GraphQLResponse, EthBlocksResponse } from '../../api/graphql';
-import Statistic from '../../components/ui/statistic/Statistic';
+import Statistic, { SharedStatistic } from '../../components/ui/statistic/Statistic';
 
 import numeral from 'numeral';
 import { useQuery } from 'react-query';
@@ -37,21 +37,19 @@ import Grid from '../../components/layout/grid/Grid';
 
 const today = new Date();
 
-const EmphasizedText = styled.em`
-    color: ${props => props.theme.emphasizedText};
-`;
-
 const useHistoricalBalancerData = (historicalDataQuery: string) => {
     // default to start at 24 hour
     const requests = useMemo(() => getDates({ value: 'daily', label: 'Daily' }), []);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
+    // remember these queries get cached so calling them again will not cause
+    // any overhead
     const {
         data: blockTimestampsResponses,
         isLoading: isEthTimestampResponseLoading,
         isFetching: isEthTimestampResponseFetching,
     } = useGraphQuery<EthBlocksResponse>(['blockTimestamps', { requests }], blocksQuery, {
-        loop: true, 
+        loop: true,
         graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
     });
 
@@ -69,6 +67,8 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     );
 
     // retrieve the data from balancer subgraph
+    // remember these queries get cached so calling them again will not cause
+    // any overhead
     const {
         data: historicalBalancerResponses,
         isLoading: isHistoricalBalancerResponseLoading,
@@ -237,54 +237,22 @@ const Dashboard: FC<any> = ({ children }) => {
 
     return (
         <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
-             <Feedback emotion='negative' spanX={12}>
-                Please note that this dashboard is still under heavy development. This means
-                there is a high likelihood of you encountering a bug or wrong information.
-                Please bear with us while we complete this project and if you notice any bugs,
-                reporting them is appreciated!
-            </Feedback>
             <Box spanX={12}>
-                <Heading level='4'>Past 24 Hours</Heading>
+                <Heading level='4'>Overview - 24H</Heading>
             </Box>
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<HoldingCash color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursSwapFees}
-                heading='Total Fees'
-                data={null}
-                timestamps={timestamps}
-                description='Past 24 hours'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Exchange color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursSwapVolume}
-                heading='Total Swap Volume'
-                data={null}
-                timestamps={timestamps}
-                description='Past 24 hours'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursLiquidityUtilisation}
-                heading='Liquidity Utilisation'
-                data={null}
-                timestamps={timestamps}
-                description='Trading volume from past 24 hours divided by TVL'
-            />
-            <Statistic
-                colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
-                icon={<Percent color='#3C3E4D' width='1.75rem' height='1.75rem' />}
-                value={past24HoursRevenueRatio}
-                heading='Revenue Ratio'
-                data={null}
-                timestamps={timestamps}
-                description='Fees from past 24 hours divided by TVL'
-            />
+            <Box spanX={12}>
+                <SharedStatistic
+                    statistics={[
+                        { name: 'Total Fees', value: past24HoursSwapFees },
+                        { name: 'Total Swap Volume', value: past24HoursSwapVolume },
+                        { name: 'Liquidity Utilisation', value: past24HoursLiquidityUtilisation },
+                        { name: 'Revenue Ratio', value: past24HoursRevenueRatio },
+                    ]}
+                />
+            </Box>
 
             <Box spanX={12}>
-                <Heading level='4'>30 day glance</Heading>
+                <Heading level='4'>30 days</Heading>
             </Box>
             <Statistic
                 colors={[tokens.colors.congo_pink, tokens.colors.ultramarine]}
@@ -340,7 +308,7 @@ const Dashboard: FC<any> = ({ children }) => {
                 timestamps={historicalBalTimestamps}
             />
             <Box spanX={12}>
-                <Heading level='2'>In-Depth Statistics</Heading>
+                <Heading level='4'>In Depth</Heading>
             </Box>
             <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
         </Grid>

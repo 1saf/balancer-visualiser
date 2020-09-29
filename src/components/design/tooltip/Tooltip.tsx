@@ -13,7 +13,7 @@ const StyledTippy = styled(Box)`
     color: ${props => props.theme.tooltipTextColor};
     border-radius: 4px;
     box-shadow: 0px 10px 40px rgba(100, 100, 100, 0.1), 0px 10px 20px rgba(100, 100, 100, 0.2);
-    font-family: SegoeUI;
+    font-family: Inter;
     font-size: 0.875rem;
 `;
 

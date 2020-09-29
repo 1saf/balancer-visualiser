@@ -21,8 +21,8 @@ type Props = {
 
 function hexToRgb(hex: string) {
     var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-    return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}`: '';
-  }
+    return result ? `${parseInt(result[1], 16)},${parseInt(result[2], 16)},${parseInt(result[3], 16)}` : '';
+}
 
 const option = (data: LineChartData, colors?: [string, string]): echarts.EChartOption => ({
     title: {
@@ -55,15 +55,24 @@ const option = (data: LineChartData, colors?: [string, string]): echarts.EChartO
         snap: true,
     },
     xAxis: {
-        show: false,
-        type: 'category',
         data: data.axis,
+        type: 'category',
         boundaryGap: false,
         axisLine: {
             show: false,
         },
         axisTick: {
-            alignWithLabel: true,
+            show: false,
+        },
+        axisLabel: {
+            show: false,
+            formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'd'),
+            fontFamily: 'Inter',
+            interval: 5,
+            fontSize: 12,
+            color: tokens.colors.gray900,
+            fontWeight: '600' as any,
+            showMaxLabel: true,
         },
     },
     yAxis: {
@@ -78,37 +87,30 @@ const option = (data: LineChartData, colors?: [string, string]): echarts.EChartO
             smooth: true,
             showSymbol: false,
             areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1.5, [
                     {
                         offset: 0,
-                        color: `rgba(${hexToRgb(colors[0] || tokens.colors.blue400)}, 0.4)`,
+                        color: tokens.colors.ultramarine,
                     },
                     {
                         offset: 1,
-                        color: `rgba(${hexToRgb(colors[1] || tokens.colors.congo_pink)}, 0.4)`,
+                        color: tokens.colors.white,
                     },
                 ]) as any,
             },
             lineStyle: {
                 width: 3,
-                color: new echarts.graphic.LinearGradient(0, 0, 1, 0, [
-                    {
-                        offset: 0,
-                        color: colors[0] || tokens.colors.blue400,
-                    },
-                    {
-                        offset: 1,
-                        color: colors[1] || tokens.colors.congo_pink,
-                    },
-                ]) as any,
-            }
+            },
         },
     ],
     grid: {
+        // left: '7.5%',
+        // right: '7.5%',
+        // bottom: '20%',
         left: 0,
         right: 0,
-        bottom: 0
-    }
+        bottom: 0,
+    },
 });
 
 const GlanceLineGraph: FC<Props> = props => {

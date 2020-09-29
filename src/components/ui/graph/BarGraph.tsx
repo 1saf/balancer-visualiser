@@ -87,7 +87,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
         },
         axisLabel: {
             formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
-            fontFamily: 'SegoeUI',
+            fontFamily: 'Inter',
             fontSize: 12,
             color: tokens.colors.gray600,
             fontWeight: 700 as any,
@@ -96,7 +96,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
     yAxis: {
         axisLabel: {
             formatter: (v: number, i: number) => numeral(v).format(dataFormat),
-            fontFamily: 'SegoeUI',
+            fontFamily: 'Inter',
             fontSize: 14,
             color: tokens.colors.gray600,
             fontWeight: 700 as any,

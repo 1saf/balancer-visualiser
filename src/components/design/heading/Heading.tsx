@@ -4,12 +4,15 @@ import styled from 'styled-components';
 type Props = {
     level: '1' | '2' | '3' | '4' | '5' | '6';
     className?: string;
+    weight?: string;
+    color?: string;
 };
 
 const StyledHeading = styled.div<Props>`
     font-size: ${props => `${props.theme.typography[`heading_${props.level}`]}rem`};
-    font-weight: ${props => `${props.theme.fontWeight[`heading_${props.level}`]}`};
-    color: ${props => props.theme.headingColor};
+    font-weight: ${props => `${props.weight || props.theme.fontWeight[`heading_${props.level}`]}`};
+    color: ${props => `${props.color || props.theme.headingColor}`};
+    letter-spacing: -1px;
     user-select: none;
 `
 

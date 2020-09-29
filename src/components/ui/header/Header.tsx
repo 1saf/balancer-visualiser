@@ -12,17 +12,17 @@ type Props = {};
 const StyledPebbles = styled(Pebbles)`
     height: 40px;
     width: 40px;
-    color: ${props => props.theme.primary};
+    color: ${props => tokens.colors.white};
 `;
 
 const StyledHeader = styled(Grid)`
     background: #fff;
     background: ${props => props.theme.headerBg};
-    border-bottom: 1px solid ${props => props.theme.borderColor};
+    border-bottom: 2px solid ${props => props.theme.borderColor};
 `;
 
 const StyledCrumbs = styled(Grid)`
-    border-bottom: 1px solid ${props => props.theme.borderColor};
+    border-bottom: 2px solid ${props => props.theme.borderColor};
 `;
 
 const Header: FC<Props> = props => {
@@ -35,7 +35,7 @@ const Header: FC<Props> = props => {
                 </Box>
             </StyledHeader>
             <StyledCrumbs background={tokens.colors.white} paddingBottom='large' paddingTop='base' paddingX={['base', 'base', 'base', 'none']}>
-                <Heading level='3'>Dashboard</Heading>
+                <Heading level='4'>Analytics</Heading>
             </StyledCrumbs>
         </Stack>
     );
