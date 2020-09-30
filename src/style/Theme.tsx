@@ -79,7 +79,7 @@ export default {
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,
     fontWeight: tokens.fontWeight,
-    subheadingColor: tokens.colors.gray800,
+    subheadingColor: tokens.colors.gray600,
     emphasizedText: tokens.colors.congo_pink,
 
     balancerLogoFill: tokens.colors.white,
