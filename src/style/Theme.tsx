@@ -71,7 +71,7 @@ export default {
     primary: tokens.colors.ultramarine,
 
     foreground: tokens.colors.white,
-    background: tokens.colors.white,
+    background: tokens.colors.background,
 
     headerBg: tokens.colors.raisin_black,
     borderColor: tokens.colors.gray500,
