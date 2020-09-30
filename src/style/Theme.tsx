@@ -8,10 +8,19 @@ export const tokens = {
         white: '#FFFFFF',
         medium_aquamarine: '#47E5BC',
 
-        green100: '#d4f3e8',
-        green200: '#8ae9cb',
-        green300: '#4cd2ae',
-        green400: '#4eb497',
+        green100: '#c1efdf',
+        green200: '#53e5be',
+        green300: '#4dc5a3',
+        green400: '#4da58a',
+        green500: '#488874',
+        green600: '#0e664f',
+
+        red100: '#f4e0e5',
+        red200: '#efc2ce',
+        red300: '#ec9ab1',
+        red400: '#e96b94',
+        red500: '#bd5d7b',
+        red600: '#c01d52',
 
         yellow300: '#fce7cb',
         yellow400: '#f9ce97',
@@ -62,10 +71,10 @@ export default {
     primary: tokens.colors.ultramarine,
 
     foreground: tokens.colors.white,
-    background: tokens.colors.background,
+    background: tokens.colors.white,
 
     headerBg: tokens.colors.raisin_black,
-    borderColor: tokens.colors.gray600,
+    borderColor: tokens.colors.gray500,
     emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,

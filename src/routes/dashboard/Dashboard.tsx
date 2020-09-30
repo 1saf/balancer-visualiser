@@ -32,7 +32,7 @@ import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 
 import { analytics } from './analytics/analytics';
 import Feedback from '../../components/design/feedback/Feedback';
-import { useSingleFigureStatistics } from './state/hooks';
+import { use24HourStatistics, useCurrentBalancerStatistics } from './state/hooks';
 import Grid from '../../components/layout/grid/Grid';
 
 const today = new Date();
@@ -187,25 +187,26 @@ const Dashboard: FC<any> = ({ children }) => {
         historicalSwapFee,
         historicalTotalSwapVolume,
         historicalValueLocked,
-        past24HoursSwapFees,
-        past24HoursSwapVolume,
-        past24HoursLiquidityUtilisation,
-        past24HoursRevenueRatio,
     } = useHistoricalBalancerData(historicalPoolsQuery);
 
+    const currentBalancerState = useCurrentBalancerStatistics();
     const {
-        isLoading: isSingleFigureLoading,
+        isLoading: isLoadingCurrentBalancerState,
         totalLiquidity,
         privatePools,
         totalSwapFeeVolume,
         totalSwapVolume,
         finalizedPoolCount,
         balancerPrice,
-    } = useSingleFigureStatistics();
+    } = currentBalancerState;
+
+
+    const { feeVolume, swapVolume, utilisation, revenueRatio } = use24HourStatistics(currentBalancerState as any);
+    console.log('esh', revenueRatio)
 
     const { historicalBalPrices, historicalBalTimestamps, isLoading: isLoadingHistoricalBalPrices } = useHistoricalBalancePrice();
 
-    const isLoading = isHistoricalDataLoading || isSingleFigureLoading || isLoadingHistoricalBalPrices;
+    const isLoading = isHistoricalDataLoading || isLoadingCurrentBalancerState || isLoadingHistoricalBalPrices;
     if (isLoading)
         return (
             <Grid paddingY='large'>
@@ -243,10 +244,30 @@ const Dashboard: FC<any> = ({ children }) => {
             <Box spanX={12}>
                 <SharedStatistic
                     statistics={[
-                        { name: 'Total Fees', value: past24HoursSwapFees },
-                        { name: 'Total Swap Volume', value: past24HoursSwapVolume },
-                        { name: 'Liquidity Utilisation', value: past24HoursLiquidityUtilisation },
-                        { name: 'Revenue Ratio', value: past24HoursRevenueRatio },
+                        {
+                            name: 'Total Fees',
+                            value: numeral(feeVolume?.today).format('$0.00a'),
+                            previousValue: numeral(feeVolume?.yesterday).format('$0.00a'),
+                            change: feeVolume?.change,
+                        },
+                        {
+                            name: 'Total Swap Volume',
+                            value: numeral(swapVolume?.today).format('$0.00a'),
+                            previousValue: numeral(swapVolume?.yesterday).format('$0.00a'),
+                            change: swapVolume?.change,
+                        },
+                        {
+                            name: 'Liquidity Utilisation',
+                            value: numeral(utilisation?.today).format('0.000%'),
+                            previousValue: numeral(utilisation?.yesterday).format('0.000%'),
+                            change: utilisation?.change,
+                        },
+                        {
+                            name: 'Revenue Ratio',
+                            value: numeral(revenueRatio?.today).format('0.0000000000%'),
+                            previousValue: numeral(revenueRatio?.today).format('0.0000000000%'),
+                            change: revenueRatio?.change,
+                        },
                     ]}
                 />
             </Box>

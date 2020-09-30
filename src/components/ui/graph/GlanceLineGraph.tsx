@@ -87,7 +87,7 @@ const option = (data: LineChartData, colors?: [string, string]): echarts.EChartO
             smooth: true,
             showSymbol: false,
             areaStyle: {
-                color: new echarts.graphic.LinearGradient(0, 0, 0, 1.5, [
+                color: new echarts.graphic.LinearGradient(0, 0, 0, 1.25, [
                     {
                         offset: 0,
                         color: tokens.colors.ultramarine,

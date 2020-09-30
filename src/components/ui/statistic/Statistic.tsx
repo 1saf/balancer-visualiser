@@ -39,9 +39,48 @@ const IconContainer = styled(Box)`
     border-radius: 4px;
 `;
 
-const Change = styled(Heading)<{ type: 'positive' | 'negative' }>`
-    color: ${props => (props.type === 'positive' ? '#47E5BC' : '#E96B94')};
+const changeBackground = {
+    'positive': tokens.colors.green100,
+    'negative': tokens.colors.red100,
+    'neutral': tokens.colors.red100,
+}
+
+const changeTextColor = {
+    'positive': tokens.colors.green600,
+    'negative': tokens.colors.red600,
+    'neutral': tokens.colors.red600,
+}
+
+const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
+    font-size: 0.75rem;
+    font-weight: 700;
+    background: ${props => changeBackground[props.type]};
+    color: ${props => changeTextColor[props.type]};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 40px;
 `;
+
+type ChangeProps = {
+    change: number;
+};
+
+const Change = ({ change }: ChangeProps) => {
+    let type = 'neutral';
+    let ascii = '';
+    if (change > 0) {
+        type = 'positive';
+        ascii = '↑';
+    };
+    if (change < 0) {
+        type = 'negative'
+        ascii = '↓';
+    };
+
+    return <StyledChange type={type}>{ascii} {numeral(change).format('0.00%')}</StyledChange>;
+};
 
 const WhatsThis = styled(Box)`
     position: absolute;
@@ -68,7 +107,6 @@ const Statistic = (props: Props) => {
     const span: ResponsiveProp<number> = data && data?.length ? [12, 6, 6, 4] : [12, 6, 6, 3];
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
-    const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
         <NoOverflowCard withGraph={!!(data && data?.length)} spanX={span}>
@@ -81,7 +119,7 @@ const Statistic = (props: Props) => {
             )}
             <Stack>
                 <Stack orientation='horizontal' paddingX='large' paddingTop='large' align='center' gap='base'>
-                    {/* {icon && <IconContainer padding='small'>{icon}</IconContainer>} */}
+                    {icon && <IconContainer padding='small'>{icon}</IconContainer>}
                     <Stack gap='small'>
                         <Subheading>{heading}</Subheading>
                         <Stack orientation='horizontal' align='end' gap='small'>
@@ -89,9 +127,7 @@ const Statistic = (props: Props) => {
                             {data && (
                                 <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
                                     <Box>
-                                        <Change type={changeType} level='6'>
-                                            {formattedPercentage}
-                                        </Change>
+                                        <Change change={percentage} />
                                     </Box>
                                 </Tooltip>
                             )}
@@ -110,7 +146,9 @@ const Statistic = (props: Props) => {
 
 type Statistic = {
     name: string;
-    value: number;
+    value: string | number;
+    previousValue: string | number;
+    change: string | number;
 };
 
 export type SharedStatisticProps = {
@@ -128,7 +166,6 @@ const StyledSharedStatistic = styled(Grid)`
 const DividedBox = styled(Box)`
     &:not(:last-child) {
         border-right: 1.5px solid ${props => props.theme.borderColor};
-
     }
     &:not(:first-child) {
         padding-left: 0 !important;
@@ -143,7 +180,7 @@ export const SharedStatistic = (props: SharedStatisticProps) => {
         <StyledSharedStatistic>
             {statistics.map(statistic => {
                 return (
-                    <DividedBox spanX={spanX} padding='large'>
+                    <DividedBox key={statistic?.name} spanX={spanX} padding='large'>
                         {description && (
                             <Tooltip tip={description}>
                                 <WhatsThis>
@@ -152,12 +189,16 @@ export const SharedStatistic = (props: SharedStatisticProps) => {
                             </Tooltip>
                         )}
                         <Stack>
-                            <Stack orientation='horizontal' align='center' gap='base'>
+                            <Stack orientation='horizontal' width='100%' align='center' gap='base'>
                                 {icon && <IconContainer padding='small'>{icon}</IconContainer>}
-                                <Stack gap='small'>
+                                <Stack gap='small' width='100%'>
                                     <Subheading>{statistic?.name}</Subheading>
                                     <Stack orientation='horizontal' align='end' gap='small'>
                                         <Heading level='4'>{statistic?.value}</Heading>
+                                    </Stack>
+                                    <Stack orientation='horizontal' width='100%' justify='between'>
+                                        <Subheading>From {statistic?.previousValue}</Subheading>
+                                        <Change change={statistic?.change} />
                                     </Stack>
                                 </Stack>
                             </Stack>
