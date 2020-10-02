@@ -24,4 +24,9 @@ export type HistoricalCGMarketChart = {
     total_volumes: [number, number][],
 }
 
+export type EthereumBlock = {
+    blockNumber: number;
+    blockTimestamp: number;
+}
+
 export type DataType = 'currency' | 'number';

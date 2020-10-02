@@ -2,10 +2,13 @@ import React, { FC, useState, useCallback, useRef } from 'react';
 import styled from 'styled-components';
 import Stack from '../../layout/stack/Stack';
 import { AnimatePresence } from 'framer-motion';
+import { createPopper } from '@popperjs/core';
 
 import { UisAngleDown } from '@iconscout/react-unicons-solid';
 import Box from '../../layout/box/Box';
 import { useOnClickOutside } from '../../../utils';
+import { usePopper } from 'react-popper';
+import { omit } from 'lodash';
 
 export type DropdownOption = {
     label: string;
@@ -68,7 +71,7 @@ const DropdownItem: FC<DropdownItemProps> = props => {
 
 const StyledDropdownButton = styled.button<Partial<DropdownProps>>`
     position: relative;
-    background: white;
+    background: transparent;
     border-radius: 3px;
     border: none;
     ${props => !props.silent && `box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.3), 0px 0px 3px rgba(24, 25, 33, 0.02);`}
@@ -110,6 +113,9 @@ const Dropdown: FC<DropdownProps> = props => {
     const { icon, options, onSelected, menuWidth, silent } = props;
     const [optionsVisible, setOptionsVisible] = useState(false);
     const [currentOption, setCurrentOption] = useState<DropdownOption>(options[0]);
+
+    const [referenceElement, setReferenceElement] = React.useState(null);
+    const [popperElement, setPopperElement] = React.useState(null);
     const dropdownRef = useRef();
 
     const toggleVisibility = () => {
@@ -123,9 +129,14 @@ const Dropdown: FC<DropdownProps> = props => {
     };
 
     useOnClickOutside(dropdownRef, () => setOptionsVisible(false));
+
+    const { styles, attributes } = usePopper(referenceElement, popperElement, {
+        placement: 'bottom-start'
+    });
+
     return (
         <StyledDropdownContainer gap='none' ref={dropdownRef}>
-            <StyledDropdownButton onClick={toggleVisibility} silent={silent}>
+            <StyledDropdownButton ref={setReferenceElement} onClick={toggleVisibility} silent={silent}>
                 <Stack align='center' orientation='horizontal' gap='x-small'>
                     <Stack orientation='horizontal' gap='x-small'>
                         {icon}
@@ -134,13 +145,15 @@ const Dropdown: FC<DropdownProps> = props => {
                     <UisAngleDown size='18' />
                 </Stack>
             </StyledDropdownButton>
-            <AnimatePresence>
+            {/* <AnimatePresence> */}
                 {optionsVisible && (
                     <StyledDropdownMenu
+                        ref={setPopperElement}
+                        style={styles.popper}
                         transition={springConfig}
-                        initial={{ opacity: 0, transformOrigin: 'top', transform: 'scale(0.95)' }}
-                        animate={{ opacity: 1, transformOrigin: 'top', transform: 'scale(1.0001)' }}
-                        exit={{ opacity: 0, transformOrigin: 'top', transform: 'scale(0.95)' }}
+                        // initial={{ opacity: 0, transform: `scale(0.95) ${styles.popper.transform || ''}` }}
+                        // animate={{ opacity: 1, transform: `scale(1) ${styles.popper.transform || ''}` }}
+                        // exit={{ opacity: 0,  transform: `scale(0.95) ${styles.popper.transform || ''}` }}
                         gap='x-small'
                         minWidth={menuWidth}
                     >
@@ -149,7 +162,7 @@ const Dropdown: FC<DropdownProps> = props => {
                         ))}
                     </StyledDropdownMenu>
                 )}
-            </AnimatePresence>
+            {/* </AnimatePresence> */}
         </StyledDropdownContainer>
     );
 };

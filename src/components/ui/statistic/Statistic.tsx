@@ -14,6 +14,7 @@ import Tooltip from '../../design/tooltip/Tooltip';
 import QuestionMark from '../../../assets/question-circle-solid.svg';
 import { tokens } from '../../../style/Theme';
 import { ResponsiveProp } from '../../layout/layout.t';
+import Grid from '../../layout/grid/Grid';
 
 type Props = {
     heading: string;
@@ -38,9 +39,48 @@ const IconContainer = styled(Box)`
     border-radius: 4px;
 `;
 
-const Change = styled(Heading)<{ type: 'positive' | 'negative' }>`
-    color: ${props => (props.type === 'positive' ? '#47E5BC' : '#E96B94')};
+const changeBackground = {
+    'positive': tokens.colors.green100,
+    'negative': tokens.colors.red100,
+    'neutral': tokens.colors.red100,
+}
+
+const changeTextColor = {
+    'positive': tokens.colors.green600,
+    'negative': tokens.colors.red600,
+    'neutral': tokens.colors.red600,
+}
+
+const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
+    font-size: 0.75rem;
+    font-weight: 600;
+    background: ${props => changeBackground[props.type]};
+    color: ${props => changeTextColor[props.type]};
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 0.25rem 0.5rem;
+    border-radius: 40px;
 `;
+
+type ChangeProps = {
+    change: number;
+};
+
+const Change = ({ change }: ChangeProps) => {
+    let type = 'neutral';
+    let ascii = '';
+    if (change > 0) {
+        type = 'positive';
+        ascii = '↑';
+    };
+    if (change < 0) {
+        type = 'negative'
+        ascii = '↓';
+    };
+
+    return <StyledChange type={type}>{ascii} {numeral(change).format('0.00%')}</StyledChange>;
+};
 
 const WhatsThis = styled(Box)`
     position: absolute;
@@ -50,7 +90,7 @@ const WhatsThis = styled(Box)`
 
 const NoOverflowCard = styled(Card)<{ withGraph?: boolean }>`
     overflow: hidden;
-    min-height: ${props => props.withGraph ? '225px' : '100px'};
+    min-height: ${props => (props.withGraph ? '225px' : '100px')};
     position: relative;
 `;
 
@@ -63,11 +103,10 @@ const Statistic = (props: Props) => {
     };
 
     // Large or small card
-    const percentage = (data && data?.length) ? (last(data) - data[0]) / data[0] : 0;
-    const span: ResponsiveProp<number> = (data && data?.length) ? [12, 6, 6, 4] : [12, 6, 6, 3];
+    const percentage = data && data?.length ? (last(data) - data[0]) / data[0] : 0;
+    const span: ResponsiveProp<number> = data && data?.length ? [12, 6, 6, 4] : [12, 6, 6, 3];
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
-    const changeType = percentage > 0 ? 'positive' : 'negative';
 
     return (
         <NoOverflowCard withGraph={!!(data && data?.length)} spanX={span}>
@@ -84,13 +123,11 @@ const Statistic = (props: Props) => {
                     <Stack gap='small'>
                         <Subheading>{heading}</Subheading>
                         <Stack orientation='horizontal' align='end' gap='small'>
-                            <Heading level='3'>{value}</Heading>
+                            <Heading level='4'>{value}</Heading>
                             {data && (
                                 <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
                                     <Box>
-                                        <Change type={changeType} level='6'>
-                                            {formattedPercentage}
-                                        </Change>
+                                        <Change change={percentage} />
                                     </Box>
                                 </Tooltip>
                             )}
@@ -104,6 +141,72 @@ const Statistic = (props: Props) => {
                 )}
             </Stack>
         </NoOverflowCard>
+    );
+};
+
+type Statistic = {
+    name: string;
+    value: string | number;
+    previousValue: string | number;
+    change: string | number;
+};
+
+export type SharedStatisticProps = {
+    icon?: React.ReactNode;
+    description?: string;
+    statistics: Statistic[];
+};
+
+const StyledSharedStatistic = styled(Grid)`
+    background: #fff;
+    border-radius: 10px;
+    box-shadow: 0 0 0 1px ${props => props.theme.borderColor};
+`;
+
+const DividedBox = styled(Box)`
+    &:not(:last-child) {
+        border-right: 1.5px solid ${props => props.theme.borderColor};
+    }
+    &:not(:first-child) {
+        padding-left: 0 !important;
+    }
+`;
+
+export const SharedStatistic = (props: SharedStatisticProps) => {
+    const { icon, description, statistics = [] } = props;
+
+    const spanX = 12 / statistics.length;
+    return (
+        <StyledSharedStatistic>
+            {statistics.map(statistic => {
+                return (
+                    <DividedBox key={statistic?.name} spanX={spanX} padding='large'>
+                        {description && (
+                            <Tooltip tip={description}>
+                                <WhatsThis>
+                                    <QuestionMark width='16' height='16' color={tokens.colors.ultramarine} />
+                                </WhatsThis>
+                            </Tooltip>
+                        )}
+                        <Stack>
+                            <Stack orientation='horizontal' width='100%' align='center' gap='base'>
+                                {icon && <IconContainer padding='small'>{icon}</IconContainer>}
+                                <Stack gap='small' width='100%'>
+                                    <Subheading>{statistic?.name}</Subheading>
+                                    <Stack orientation='horizontal' align='end' gap='small'>
+                                        <Heading level='4'>{statistic?.value}</Heading>
+                                    </Stack>
+                                    <Stack orientation='horizontal' width='100%' justify='between'>
+                                        <Subheading>From {statistic?.previousValue}</Subheading>
+                                        <Change change={statistic?.change} />
+                                    </Stack>
+                                </Stack>
+                            </Stack>
+                        </Stack>
+                    </DividedBox>
+                );
+            })}
+        </StyledSharedStatistic>
     );
 };
 

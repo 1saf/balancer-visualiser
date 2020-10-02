@@ -1,6 +1,6 @@
 export const tokens = {
     colors: {
-        ultramarine: '#536dfe',
+        ultramarine: '#3f5bf6',
         raisin_black: '#21222c',
         cultured: '#fafafa',
         mellow_apricot: '#F7C27D',
@@ -8,20 +8,29 @@ export const tokens = {
         white: '#FFFFFF',
         medium_aquamarine: '#47E5BC',
 
-        green100: '#d4f3e8',
-        green200: '#8ae9cb',
-        green300: '#4cd2ae',
-        green400: '#4eb497',
+        green100: '#c1efdf',
+        green200: '#53e5be',
+        green300: '#4dc5a3',
+        green400: '#4da58a',
+        green500: '#488874',
+        green600: '#0e664f',
+
+        red100: '#f4e0e5',
+        red200: '#efc2ce',
+        red300: '#ec9ab1',
+        red400: '#e96b94',
+        red500: '#bd5d7b',
+        red600: '#c01d52',
 
         yellow300: '#fce7cb',
         yellow400: '#f9ce97',
         yellow500: '#F7C27D',
 
         blue100: '#eef0fe',
-        blue200: '#cbd2fb',
+        blue200: '#c9d1fd',
         blue300: '#97a6f6',
-        blue400: '#7488f3',
-        blue500: '#536dfe',
+        blue400: '#677df8',
+        blue500: '#3f5bf6',
         blue600: '#394aa8',
         blue700: '#293578',
         blue800: '#101530',
@@ -65,7 +74,7 @@ export default {
     background: tokens.colors.background,
 
     headerBg: tokens.colors.raisin_black,
-    borderColor: tokens.colors.gray400,
+    borderColor: tokens.colors.gray600,
     emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,
     typography: tokens.typography,

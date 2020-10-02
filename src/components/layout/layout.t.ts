@@ -160,6 +160,5 @@ export const resolveResponsiveCSSProperty = (cssProperty: string, nickname = '',
         }
         return css;
     }, ``);
-    console.log(css);
     return css;
 };

@@ -8,6 +8,7 @@
     },
     "dependencies": {
         "@iconscout/react-unicons-solid": "^0.0.2",
+        "@popperjs/core": "^2.5.2",
         "@tippyjs/react": "^4.1.0",
         "@types/": "iconscout/react-unicons-solid",
         "@types/bent": "^7.3.0",
@@ -29,6 +30,7 @@
         "react": "^16.13.1",
         "react-content-loader": "^5.1.2",
         "react-dom": "^16.13.1",
+        "react-popper": "^2.2.3",
         "react-query": "^2.12.1",
         "react-router5": "^8.0.1",
         "regenerator-runtime": "^0.13.7",

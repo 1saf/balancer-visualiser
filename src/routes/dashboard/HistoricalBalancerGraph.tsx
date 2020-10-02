@@ -20,8 +20,6 @@ const HistoricalBalancerGraph: FC<Props> = props => {
         dataExtractors[currentDataKey?.value]
     );
 
-    console.log('v', values, timestamps);
-
     const movementData = useBalancerMovementData(currentDataKey?.value, values, timestamps);
     const chartConfig = {
         series: [getSeries('line', name, values), getSeries('bar', `Volume Movement`, movementData?.values, 1)],
