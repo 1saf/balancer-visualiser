@@ -53,7 +53,7 @@ const changeTextColor = {
 
 const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
     font-size: 0.75rem;
-    font-weight: 700;
+    font-weight: 600;
     background: ${props => changeBackground[props.type]};
     color: ${props => changeTextColor[props.type]};
     display: flex;
