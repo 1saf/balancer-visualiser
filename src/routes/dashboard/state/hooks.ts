@@ -2,10 +2,10 @@ import { getUnixTime, subHours } from 'date-fns';
 import { dropRight, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BalancerData, BalancerResponse, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
+import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
 import { EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
 import { DropdownOption } from '../../../components/design/dropdown/Dropdown';
-import { BALANCER_CONTRACT_START_DATE, get24Change, get24HLiquidityUtilisation, get24HRevenueRatio, getDates, TODAY } from '../../../utils';
+import { BALANCER_CONTRACT_START_DATE, calculateRevenueRatio, get24Change, calculateLiquidityUtilisation, getDates, TODAY } from '../../../utils';
 import { getBalancerPrice, getHistoricalBalancerPrice } from '../query/rest';
 
 import blocksQuery from '../query/blocks.graphql';
@@ -97,8 +97,8 @@ export const use24HourStatistics = (currentBalancerState: Partial<BalancerData>)
     const privatePoolsVolume = get24Change(data)('privatePools');
     const finalizedPoolCountVolume = get24Change(data)('finalizedPoolCount');
 
-    const utilisation = get24HLiquidityUtilisation(data);
-    const revenueRatio = get24HRevenueRatio(data);
+    const utilisation = calculateLiquidityUtilisation(data);
+    const revenueRatio = calculateRevenueRatio(data);
     return {
         liquidityVolume,
         feeVolume,
@@ -173,6 +173,35 @@ export const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: Tim
     };
 };
 
+export const useCurrentBalancerStatistics = () => {
+    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
+    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
+
+    const balancerStats = balancerStatsResponse?.data?.balancer;
+
+    const poolCount = balancerStats?.poolCount; //
+    const totalLiquidity = numeral(balancerStats?.totalLiquidity).value();
+    const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).value();
+    const totalSwapFee = numeral(balancerStats?.totalSwapFee).value();
+    const finalizedPoolCount = balancerStats?.finalizedPoolCount;
+    const privatePools = poolCount - finalizedPoolCount;
+
+    const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
+
+    const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
+
+    return {
+        poolCount,
+        totalLiquidity,
+        totalSwapVolume,
+        totalSwapFee,
+        privatePools,
+        isLoading,
+        finalizedPoolCount,
+        balancerPrice,
+    };
+};
+
 export const useBalancerMovementData = (dataKey: string, data: number[] = [], timestamps: number[] = []) => {
     // use single figure stats most recent data
     // this is needed so we can calculate accurate
@@ -201,35 +230,3 @@ export const useBalancerMovementData = (dataKey: string, data: number[] = [], ti
     };
 };
 
-export const useCurrentBalancerStatistics = () => {
-    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
-    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
-    // const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
-
-    const balancerStats = balancerStatsResponse?.data?.balancer;
-
-    const totalPools = balancerStats?.poolCount; //
-    const totalLiquidity = numeral(balancerStats?.totalLiquidity).value();
-    const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).value();
-    const totalSwapFeeVolume = numeral(balancerStats?.totalSwapFee).value();
-    const finalizedPoolCount = balancerStats?.finalizedPoolCount;
-    const privatePools = totalPools - finalizedPoolCount;
-
-    const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
-    // const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
-
-    const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
-
-    return {
-        totalPools,
-        totalLiquidity,
-        totalSwapVolume,
-        totalSwapFeeVolume,
-        privatePools,
-        isLoading,
-        finalizedPoolCount,
-        balancerPrice,
-        balancerStatsResponse,
-        // ethPrice,
-    };
-};

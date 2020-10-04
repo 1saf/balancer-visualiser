@@ -5,6 +5,8 @@ import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
 import { DropdownOption } from '../../components/design/dropdown/Dropdown';
 
 import { useHistoricalGraphState, useBalancerMovementData, dataExtractors, dataFormats } from './state/hooks';
+import Box from '../../components/layout/box/Box';
+import Heading from '../../components/design/heading/Heading';
 
 type Props = {
     query: string;
@@ -28,6 +30,9 @@ const HistoricalBalancerGraph: FC<Props> = props => {
 
     return (
         <React.Fragment>
+            <Box spanX={12}>
+                <Heading level='4'>In Depth</Heading>
+            </Box>
             <LineGraph
                 headerRenderer={ref => (
                     <LineGraphHeader

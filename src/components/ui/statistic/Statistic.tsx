@@ -23,7 +23,6 @@ type Props = {
     data: number[];
     timestamps: number[];
     value: number | string;
-    colors: [string, string];
     description?: string;
 };
 
@@ -95,7 +94,7 @@ const NoOverflowCard = styled(Card)<{ withGraph?: boolean }>`
 `;
 
 const Statistic = (props: Props) => {
-    const { heading, data = [], timestamps, value, icon, colors, description } = props;
+    const { heading, data = [], timestamps, value, icon, description } = props;
     const graphData = {
         values: data,
         axis: timestamps,
@@ -136,7 +135,7 @@ const Statistic = (props: Props) => {
                 </Stack>
                 {data && (
                     <GraphContainer>
-                        <GlanceLineGraph colors={colors} data={graphData} />
+                        <GlanceLineGraph data={graphData} />
                     </GraphContainer>
                 )}
             </Stack>

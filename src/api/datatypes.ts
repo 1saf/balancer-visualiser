@@ -3,9 +3,9 @@ import { GraphQLResponse } from "./graphql";
 export type BalancerData = {
     finalizedPoolCount: number;
     poolCount: number;
-    totalLiquidity: string;
-    totalSwapFee: string;
-    totalSwapVolume: string;
+    totalLiquidity: number;
+    totalSwapFee: number;
+    totalSwapVolume: number;
 }
 
 export type BalancerResponse = GraphQLResponse<{
@@ -28,5 +28,22 @@ export type EthereumBlock = {
     blockNumber: number;
     blockTimestamp: number;
 }
+
+export type Change24H = {
+    today: number;
+    yesterday: number;
+    change: number;
+}
+
+export type DynamicChange = {
+    data: number[];
+    changes: number;
+}
+
+export type BalancerState = {
+    isLoading: boolean;
+    balancerPrice: number;
+    privatePools: number;
+} & BalancerData;
 
 export type DataType = 'currency' | 'number';

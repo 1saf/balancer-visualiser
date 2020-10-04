@@ -9,7 +9,7 @@ import {
     format as formatDate,
     startOfDay,
 } from 'date-fns';
-import { mean, take, takeRight } from 'lodash';
+import { chunk, first, last, mean, take, takeRight } from 'lodash';
 import { useEffect } from 'react';
 import { BalancerData, TimePeriod } from './api/datatypes';
 import { dataExtractors } from './routes/dashboard/state/hooks';
@@ -47,7 +47,7 @@ export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     const extractorFn = dataExtractors[statistic];
     const yesterday = extractorFn(data[24]) - extractorFn(data[0]);
     const today = extractorFn(data[47]) - extractorFn(data[24]);
-    const change = ((today - yesterday) / yesterday);
+    const change = (today - yesterday) / yesterday;
     return {
         yesterday,
         today,
@@ -55,44 +55,47 @@ export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     };
 };
 
-export const get24HLiquidityUtilisation = (data: BalancerData[]) => {
+export const calculateLiquidityUtilisation = (data: BalancerData[]) => {
     const liquidityExtractor = dataExtractors['totalLiquidity'];
     const swapVolumeExtractor = dataExtractors['totalSwapVolume'];
 
-    const yesterdayLiquidityMean = mean(take(data, 24).map(liquidityExtractor));
-    const todayLiquidityMean = mean(takeRight(data, 24).map(liquidityExtractor));
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), 24);
+    const chunkedSwapVolume = chunk(data.map(swapVolumeExtractor), 24);
 
-    const yesterdaySwapVolume = swapVolumeExtractor(data[23]) - swapVolumeExtractor(data[0]);
-    const todaySwapVolume = swapVolumeExtractor(data[47]) - swapVolumeExtractor(data[24]);
-  
-    const yesterday = (yesterdaySwapVolume / yesterdayLiquidityMean);
-    const today = (todaySwapVolume / todayLiquidityMean);
-    const change = ((today - yesterday) / yesterday);
+    const liquidityMeans = chunkedLiquidity.map(mean);
+    const volumeMovement = chunkedSwapVolume.map(chunk => last(chunk) - first(chunk));
+
+    const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
+    const changes = utilisations.map((ratio, i) => {
+        if (i === 0) return NaN;
+        return (ratio - utilisations[i - 1]) / utilisations[i - 1];
+    });
     return {
-        yesterday,
-        today,
-        change,
+        data: utilisations,
+        changes,
     };
 };
 
-export const get24HRevenueRatio = (data: BalancerData[]) => {
-  const liquidityExtractor = dataExtractors['totalLiquidity'];
-  const swapFeeVolumeExtractor = dataExtractors['totalSwapFeeVolume'];
+export const calculateRevenueRatio = (data: BalancerData[]) => {
+    const liquidityExtractor = dataExtractors['totalLiquidity'];
+    const swapFeeVolumeExtractor = dataExtractors['totalSwapFeeVolume'];
 
-  const yesterdayLiquidityMean = mean(take(data, 24).map(liquidityExtractor));
-  const todayLiquidityMean = mean(takeRight(data, 24).map(liquidityExtractor));
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), 24);
+    const chunkedSwapFeeVolume = chunk(data.map(swapFeeVolumeExtractor), 24);
 
-  const yesterdaySwapVolume = swapFeeVolumeExtractor(data[23]) - swapFeeVolumeExtractor(data[0]);
-  const todaySwapVolume = swapFeeVolumeExtractor(data[47]) - swapFeeVolumeExtractor(data[24]);
+    const liquidityMeans = chunkedLiquidity.map(mean);
+    const volumeMovement = chunkedSwapFeeVolume.map(chunk => last(chunk) - first(chunk));
 
-  const yesterday = (yesterdaySwapVolume / yesterdayLiquidityMean);
-  const today = (todaySwapVolume / todayLiquidityMean);
-  const change = ((today - yesterday) / yesterday);
-  return {
-      yesterday,
-      today,
-      change,
-  };
+    const revenueRatios = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
+    const changes = revenueRatios.map((ratio, i) => {
+        if (i === 0) return NaN;
+        return (ratio - revenueRatios[i - 1]) / revenueRatios[i - 1];
+    });
+
+    return {
+        data: revenueRatios,
+        changes,
+    };
 };
 
 export function useOnClickOutside(ref: React.Ref<any>, handler: (event: Event) => void) {
