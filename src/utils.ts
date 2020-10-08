@@ -8,6 +8,7 @@ import {
     addMinutes,
     format as formatDate,
     startOfDay,
+    eachHourOfInterval,
 } from 'date-fns';
 import { chunk, first, last, mean, take, takeRight } from 'lodash';
 import { useEffect } from 'react';
@@ -17,22 +18,21 @@ import { dataExtractors } from './routes/dashboard/state/hooks';
 export const BALANCER_CONTRACT_START_DATE = new Date(2020, 2, 29);
 export const TODAY = new Date();
 
-export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24) => {
+export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, startDate?: Date) => {
     let dates: any[] = [];
     const today = new Date();
     if (timePeriod.value === 'hourly') {
-        for (let i = 1; i <= periodLength; i++) {
-            const date = subHours(today, i);
-            // subgraph queries are faster when requested as the first block between 2 timestamps
-            dates.push({
-                first_ten: getUnixTime(date),
-                last_ten: getUnixTime(addMinutes(date, 10)),
-                date: formatDate(date, 'yyyy-MM-dd'),
-            });
-        }
+        dates = eachHourOfInterval({
+            start: startDate || subHours(today, 24),
+            end: today,
+        }).map(date => ({
+            first_ten: getUnixTime(date),
+            last_ten: getUnixTime(addMinutes(date, 10)),
+            date: formatDate(date, 'yyyy-MM-dd'),
+        }));
     } else if (timePeriod?.value === 'daily') {
         dates = eachDayOfInterval({
-            start: new Date(2020, 2, 29),
+            start: startDate || BALANCER_CONTRACT_START_DATE,
             end: today,
         }).map(date => ({
             first_ten: getUnixTime(date),
@@ -55,15 +55,15 @@ export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     };
 };
 
-export const calculateLiquidityUtilisation = (data: BalancerData[]) => {
+export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 24) => {
     const liquidityExtractor = dataExtractors['totalLiquidity'];
     const swapVolumeExtractor = dataExtractors['totalSwapVolume'];
 
-    const chunkedLiquidity = chunk(data.map(liquidityExtractor), 24);
-    const chunkedSwapVolume = chunk(data.map(swapVolumeExtractor), 24);
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), chunkSize);
+    const chunkedSwapVolume = chunk(data.map(swapVolumeExtractor), chunkSize);
 
     const liquidityMeans = chunkedLiquidity.map(mean);
-    const volumeMovement = chunkedSwapVolume.map(chunk => last(chunk) - first(chunk));
+    const volumeMovement = chunkedSwapVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
     const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
     const changes = utilisations.map((ratio, i) => {
@@ -76,15 +76,15 @@ export const calculateLiquidityUtilisation = (data: BalancerData[]) => {
     };
 };
 
-export const calculateRevenueRatio = (data: BalancerData[]) => {
+export const calculateRevenueRatio = (data: BalancerData[], chunkSize = 24) => {
     const liquidityExtractor = dataExtractors['totalLiquidity'];
     const swapFeeVolumeExtractor = dataExtractors['totalSwapFeeVolume'];
 
-    const chunkedLiquidity = chunk(data.map(liquidityExtractor), 24);
-    const chunkedSwapFeeVolume = chunk(data.map(swapFeeVolumeExtractor), 24);
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), chunkSize);
+    const chunkedSwapFeeVolume = chunk(data.map(swapFeeVolumeExtractor), chunkSize);
 
     const liquidityMeans = chunkedLiquidity.map(mean);
-    const volumeMovement = chunkedSwapFeeVolume.map(chunk => last(chunk) - first(chunk));
+    const volumeMovement = chunkedSwapFeeVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
     const revenueRatios = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
     const changes = revenueRatios.map((ratio, i) => {

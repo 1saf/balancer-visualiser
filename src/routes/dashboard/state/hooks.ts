@@ -14,7 +14,7 @@ import query from '../query/pools.graphql';
 
 import numeral from 'numeral';
 
-type DataExtractorFn = (data: BalancerData | any) => number;
+export type DataExtractorFn = (data: BalancerData | any) => number | unknown;
 
 export const dataExtractors: Record<string, DataExtractorFn> = {
     totalLiquidity: data => parseFloat(data?.totalLiquidity),
@@ -23,6 +23,8 @@ export const dataExtractors: Record<string, DataExtractorFn> = {
     finalizedPoolCount: data => data?.finalizedPoolCount,
     privatePools: data => data?.poolCount - data?.finalizedPoolCount,
     balancerPrice: data => data?.balancerPrice || data,
+    revenueRatio: data => calculateRevenueRatio(data),
+    liquidityUtilisation: data => calculateLiquidityUtilisation(data),
 };
 
 export const dataFormats: Record<string, string> = {
@@ -85,7 +87,7 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
     };
 };
 
-export const use24HourStatistics = (currentBalancerState: Partial<BalancerData>) => {
+export const use24HourStatistics = () => {
     const dates = useMemo(() => getDates({ value: 'hourly' }, 48), []);
 
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
