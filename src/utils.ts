@@ -20,20 +20,20 @@ export const TODAY = new Date();
 
 export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, startDate?: Date) => {
     let dates: any[] = [];
-    const today = new Date();
+    const now = new Date();
     if (timePeriod.value === 'hourly') {
         dates = eachHourOfInterval({
-            start: startDate || subHours(today, periodLength),
-            end: today,
+            start: startDate || subHours(now, periodLength),
+            end: now,
         }).map(date => ({
             first_ten: getUnixTime(date),
             last_ten: getUnixTime(addMinutes(date, 10)),
-            date: formatDate(date, 'yyyy-MM-dd'),
+            date: formatDate(date, 'yyyy-MM-dd H:m'),
         }));
     } else if (timePeriod?.value === 'daily') {
         dates = eachDayOfInterval({
             start: startDate || BALANCER_CONTRACT_START_DATE,
-            end: today,
+            end: now,
         }).map(date => ({
             first_ten: getUnixTime(date),
             last_ten: getUnixTime(addMinutes(date, 10)),
@@ -67,11 +67,10 @@ export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 
     const volumeMovement = chunkedSwapVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
     const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
-    const changes = utilisations.map((ratio, i) => {
-        if (i === 0) return NaN;
-        return (ratio - utilisations[i - 1]) / utilisations[i - 1];
+    const changes = utilisations.map((utilisation, i) => {
+        if (i === utilisations.length - 1) return NaN;
+        return (utilisations[i + 1] - utilisation) / utilisation;
     });
-    
     return {
         data: utilisations,
         changes,
@@ -90,8 +89,8 @@ export const calculateRevenueRatio = (data: BalancerData[], chunkSize = 24) => {
 
     const revenueRatios = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
     const changes = revenueRatios.map((ratio, i) => {
-        if (i === 0) return NaN;
-        return (ratio - revenueRatios[i - 1]) / revenueRatios[i - 1];
+        if (i === revenueRatios.length - 1) return NaN;
+        return (revenueRatios[i + 1] - ratio) / ratio;
     });
 
     return {

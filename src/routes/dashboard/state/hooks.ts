@@ -22,7 +22,7 @@ import query from '../query/pools.graphql';
 
 import numeral from 'numeral';
 
-export type DataExtractorFn = (data: BalancerData | any) => number | unknown;
+export type DataExtractorFn = (data: BalancerData | any, meta?: any) => number | unknown;
 
 export const dataExtractors: Record<string, DataExtractorFn> = {
     totalLiquidity: data => parseFloat(data?.totalLiquidity),
@@ -31,8 +31,8 @@ export const dataExtractors: Record<string, DataExtractorFn> = {
     finalizedPoolCount: data => data?.finalizedPoolCount,
     privatePools: data => data?.poolCount - data?.finalizedPoolCount,
     balancerPrice: data => data?.balancerPrice || data,
-    revenueRatio: data => calculateRevenueRatio(data),
-    liquidityUtilisation: data => calculateLiquidityUtilisation(data),
+    revenueRatio: (data, meta) => calculateRevenueRatio(data, meta?.chunkSize),
+    liquidityUtilisation: (data, meta) => calculateLiquidityUtilisation(data, meta?.chunkSize),
 };
 
 export const dataFormats: Record<string, string> = {

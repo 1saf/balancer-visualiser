@@ -46,4 +46,9 @@ export type BalancerState = {
     privatePools: number;
 } & BalancerData;
 
+export type Option = {
+    value: string;
+    label: string;
+}
+
 export type DataType = 'currency' | 'number';

@@ -1,16 +1,29 @@
 import { subDays } from 'date-fns';
 import { chunk } from 'lodash';
+import { value } from 'numeral';
 import React, { FC, useMemo, useState } from 'react';
 import { BalancerData } from '../../api/datatypes';
 import { DropdownOption } from '../../components/design/dropdown/Dropdown';
 import Heading from '../../components/design/heading/Heading';
 import Box from '../../components/layout/box/Box';
 import LineGraph, { getSeries } from '../../components/ui/graph/LineGraph';
+import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
 import { BALANCER_CONTRACT_START_DATE, calculateLiquidityUtilisation, getDates, TODAY } from '../../utils';
 
-import { useHistoricalBalancerState, DataExtractorFn, useEthTimestampBlocks } from './state/hooks';
+import { useHistoricalBalancerState, DataExtractorFn, useEthTimestampBlocks, dataExtractors } from './state/hooks';
 
 type Props = {};
+
+export const graphOptions = [
+    {
+        value: 'liquidityUtilisation',
+        label: 'Liquidity Utilisation',
+    },
+    {
+        value: 'revenueRatio',
+        label: 'Revenue Ratio',
+    },
+];
 
 export const useHistoricalUtilisationState = (name: string, extractor?: DataExtractorFn) => {
     // default to start at 24 hour
@@ -19,10 +32,11 @@ export const useHistoricalUtilisationState = (name: string, extractor?: DataExtr
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
-    const { data: historicalBalancerData, isLoading: isLoadingHistoricalBalancerData } = useHistoricalBalancerState(blocks, extractor);
+    const { data: historicalBalancerData, isLoading: isLoadingHistoricalBalancerData } = useHistoricalBalancerState(blocks);
 
-    const values = calculateLiquidityUtilisation(historicalBalancerData as BalancerData[], 24);
-    console.log('d', chunk(dates, 24));
+    const values = useMemo(() => {
+        return extractor(historicalBalancerData as BalancerData[], 24);
+    }, [extractor, isLoadingHistoricalBalancerData === false]);
 
     return {
         isLoading: isLoadingEthBlocks || isLoadingHistoricalBalancerData,
@@ -34,35 +48,36 @@ export const useHistoricalUtilisationState = (name: string, extractor?: DataExtr
 };
 
 const HistoricalUtilisationGraph: FC<Props> = props => {
-    const {} = props;
-    const {
-        isLoading,
-        timestamps,
-        values,
-    } = useHistoricalUtilisationState('Liquidity Utilisation');
+    const [dataKey, setDataKey] = useState(graphOptions[0]);
+
+    const { isLoading, timestamps, values } = useHistoricalUtilisationState('Liquidity Utilisation', dataExtractors[dataKey?.value]);
+
+    const movementData = (values?.changes || []).map((change, i) => {
+        return [i, Math.abs(change), change > 0 ? 1 : -1];
+    });
 
     const chartConfig = {
-        series: [getSeries('line', name, values.data)],
+        series: [getSeries('line', 'Liquidity Utilisation', values.data), getSeries('bar', 'Movement', movementData, 1)],
         axis: timestamps,
     };
 
-    console.log('lmao', chartConfig)
     return (
         <React.Fragment>
             <Box spanX={12}>
-                <Heading level='4'>In Depth</Heading>
+                <Heading level='4'>Utilisation</Heading>
             </Box>
             <LineGraph
-                // headerRenderer={ref => (
-                //     <LineGraphHeader
-                //         dataFormat={dataFormats[currentDataKey?.value] || '($0.00a)'}
-                //         isLoading={isLoading}
-                //         data={chartConfig}
-                //         onDataKeyChange={setCurrentDataKey}
-                //         onPeriodChange={setGraphTimePeriod}
-                //         ref={ref}
-                //     />
-                // )}
+                headerRenderer={ref => (
+                    <LineGraphHeader
+                        dataFormat='0.00%'
+                        isLoading={isLoading}
+                        data={chartConfig}
+                        onDataKeyChange={setDataKey}
+                        dataOptions={graphOptions}
+                        // onPeriodChange={setGraphTimePeriod}
+                        ref={ref}
+                    />
+                )}
                 isLoading={isLoading}
                 data={chartConfig}
                 title={'Liquidity Utilisation'}

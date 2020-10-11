@@ -13,6 +13,33 @@ type Props = {
     dataKey: string;
 };
 
+export const graphOptions = [
+    {
+        value: 'totalLiquidity',
+        label: 'Total Value Locked',
+    },
+    {
+        value: 'totalSwapVolume',
+        label: 'Total Swap Volume',
+    },
+    {
+        value: 'totalSwapFeeVolume',
+        label: 'Total Swap Fee Volume',
+    },
+    {
+        value: 'balancerPrice',
+        label: 'BAL Price (USD)',
+    },
+    {
+        value: 'finalizedPoolCount',
+        label: 'Public Pools',
+    },
+    {
+        value: 'privatePools',
+        label: 'Private Pools',
+    },
+];
+
 const HistoricalBalancerGraph: FC<Props> = props => {
     const { dataKey } = props;
     const [currentDataKey, setCurrentDataKey] = useState<DropdownOption>({ value: dataKey, label: 'Total Value Locked' });
@@ -42,6 +69,7 @@ const HistoricalBalancerGraph: FC<Props> = props => {
                         onDataKeyChange={setCurrentDataKey}
                         onPeriodChange={setGraphTimePeriod}
                         ref={ref}
+                        dataOptions={graphOptions}
                     />
                 )}
                 isLoading={isLoading}
