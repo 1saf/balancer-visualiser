@@ -1,11 +1,19 @@
-import { getUnixTime, subHours } from 'date-fns';
+import { getUnixTime, parse, subHours } from 'date-fns';
 import { dropRight, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
-import { EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
+import { EthBlockResponse, EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
 import { DropdownOption } from '../../../components/design/dropdown/Dropdown';
-import { BALANCER_CONTRACT_START_DATE, calculateRevenueRatio, get24Change, calculateLiquidityUtilisation, getDates, TODAY } from '../../../utils';
+import {
+    BALANCER_CONTRACT_START_DATE,
+    calculateRevenueRatio,
+    get24Change,
+    calculateLiquidityUtilisation,
+    getDates,
+    TODAY,
+    sortBlockKeys,
+} from '../../../utils';
 import { getBalancerPrice, getHistoricalBalancerPrice } from '../query/rest';
 
 import blocksQuery from '../query/blocks.graphql';
@@ -36,36 +44,45 @@ export const dataFormats: Record<string, string> = {
 };
 
 export const useEthTimestampBlocks = (dates: Date[]) => {
-    const { data, isLoading, isFetching } = useGraphQuery<EthBlocksResponse>(['blockTimestamps', { requests: dates }], blocksQuery, {
+    const { data: blocksResponse, isLoading, isFetching } = useGraphQuery<any>(['blockTimestamps', { requests: dates }], blocksQuery, {
         loop: true,
         graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
     });
 
     // parse the response data (its a string response) into numbers and sort
     // blocks are sorted by the timestamp they belong to
-    const sortedBlocks = sortBy(
-        (data || []).map(ethBlocks => {
-            const blockTimestamp = ethBlocks?.data?.blocks[0];
 
-            return {
-                blockNumber: parseInt(blockTimestamp?.number, 10),
-                blockTimestamp: parseInt(blockTimestamp?.timestamp, 10),
-            };
-        }),
+    // look, the complexity here isn't ideal O(n^2) but we gotta work with
+    // what we got. this code should be obsolete once this sort of
+    // data is retrieve via the subgraph completely
+    const sortedBlocks = sortBy(
+        (blocksResponse || []).reduce((data: EthereumBlock[], ethBlocks = {} as Record<string, EthBlockResponse[]>) => {
+            const blocks = sortBlockKeys(Object.keys(ethBlocks)).reduce((parsedBlocks, blockKey) => {
+                const block = ethBlocks[blockKey][0];
+                parsedBlocks.push({
+                    blockNumber: parseInt(block?.number, 10),
+                    blockTimestamp: parseInt(block?.timestamp, 10),
+                });
+                return parsedBlocks;
+            }, [] as EthereumBlock[]);
+            data.push(...blocks);
+            return data;
+        }, [] as EthereumBlock[]),
         'blockTimestamp'
     );
 
     return {
         isLoading,
         isFetching,
-        rawData: data,
+        rawData: blocksResponse,
         blocks: sortedBlocks,
     };
 };
 
 export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtractor?: DataExtractorFn | string) => {
     // retrieve historical data from the balancer subgraph
-    const { data: historicalBalancerDataResponses, isLoading } = useGraphQuery<BalancerResponse[]>(
+
+    const { data: historicalBalancerDataResponses, isLoading } = useGraphQuery<any>(
         ['historicalBlocks', { requests: blocks }],
         historicalBalancerQuery,
         {
@@ -74,12 +91,24 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
         }
     );
 
-    const historicalBalancerData = (historicalBalancerDataResponses || []).map(historicalBalancerResponse => {
-        const data = (historicalBalancerResponse?.data?.balancer as any) || {};
-        if (typeof dataExtractor === 'function' && dataExtractor) return dataExtractor(data);
-        if (typeof dataExtractor === 'string' && dataExtractor) return data[dataExtractor as string];
+    const historicalBalancerData: BalancerData[] | number[] = (historicalBalancerDataResponses || []).reduce((data: BalancerData[], balancerResponse = {} as Record<string, BalancerData[]>) => {
+        const blocks = sortBlockKeys(Object.keys(balancerResponse)).reduce((parsedBlocks, blockKey) => {
+            const block = balancerResponse[blockKey];
+            if (typeof dataExtractor === 'function' && dataExtractor) {
+                parsedBlocks.push(dataExtractor(block));
+                return parsedBlocks;
+            }
+            if (typeof dataExtractor === 'string' && dataExtractor) {
+                parsedBlocks.push((block as any)[dataExtractor as string]);
+                return parsedBlocks;
+            }
+            parsedBlocks.push(block);
+
+            return parsedBlocks;
+        }, [] as unknown[]);
+        data.push(...blocks as BalancerData[]);
         return data;
-    });
+    }, [] as unknown[]);
 
     return {
         isLoading,
@@ -101,6 +130,7 @@ export const use24HourStatistics = () => {
 
     const utilisation = calculateLiquidityUtilisation(data);
     const revenueRatio = calculateRevenueRatio(data);
+
     return {
         liquidityVolume,
         feeVolume,
@@ -231,4 +261,3 @@ export const useBalancerMovementData = (dataKey: string, data: number[] = [], ti
         axis: timestamps,
     };
 };
-

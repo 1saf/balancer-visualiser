@@ -118,7 +118,7 @@ const Statistic = (props: Props) => {
             )}
             <Stack>
                 <Stack orientation='horizontal' paddingX='large' paddingTop='large' align='center' gap='base'>
-                    {icon && <IconContainer padding='small'>{icon}</IconContainer>}
+                    {/* {icon && <IconContainer padding='small'>{icon}</IconContainer>} */}
                     <Stack gap='small'>
                         <Subheading>{heading}</Subheading>
                         <Stack orientation='horizontal' align='end' gap='small'>

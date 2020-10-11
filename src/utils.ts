@@ -23,7 +23,7 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, sta
     const today = new Date();
     if (timePeriod.value === 'hourly') {
         dates = eachHourOfInterval({
-            start: startDate || subHours(today, 24),
+            start: startDate || subHours(today, periodLength),
             end: today,
         }).map(date => ({
             first_ten: getUnixTime(date),
@@ -45,6 +45,7 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, sta
 
 export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     const extractorFn = dataExtractors[statistic];
+
     const yesterday = extractorFn(data[24]) - extractorFn(data[0]);
     const today = extractorFn(data[47]) - extractorFn(data[24]);
     const change = (today - yesterday) / yesterday;
@@ -127,3 +128,14 @@ export function useOnClickOutside(ref: React.Ref<any>, handler: (event: Event) =
         [ref, handler]
     );
 }
+
+export const sortBlockKeys = (blockKeys: string[] = []) => {
+    return blockKeys.sort((curr, next) => {
+        const currBlockIndex = parseInt(curr.split('_')[1], 10);
+        const nextBlockIndex = parseInt(next.split('_')[1], 10);
+
+        if (currBlockIndex > nextBlockIndex) return 1;
+        else if (currBlockIndex < nextBlockIndex) return -1;
+        return 0;
+    });
+};
