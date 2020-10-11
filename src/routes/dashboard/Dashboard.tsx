@@ -20,9 +20,9 @@ const Dashboard: FC<any> = ({ children }) => {
 
     return (
         <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
-            {/* <Dashboard24HMetrics balancerState={currentBalancerState} />
-            <Dashboard30DGraphs balancerState={currentBalancerState}/>
-            <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} /> */}
+            <Dashboard24HMetrics balancerState={currentBalancerState} />
+            {/* <Dashboard30DGraphs balancerState={currentBalancerState}/> */}
+            <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
             <HistoricalUtilisationGraph />
         </Grid>
     );
