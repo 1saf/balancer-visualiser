@@ -21,11 +21,11 @@ export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, 
             .pipe(
                 bufferCount(50),
                 map(async requests => {
-                    const worker = spawn(new Worker('./batchedquerybuilder.js'));
-                    const queryBuilderResult: any = await worker(literal, requests);
+                    // const worker = spawn(new Worker('./batchedquerybuilder.js'));
+                    // const queryBuilderResult: any = await worker(literal, requests);
                     const response = await request('', {
-                        query: print(queryBuilderResult?.document),
-                        variables: queryBuilderResult?.variables,
+                        query: print({}?.document),
+                        variables: {}?.variables,
                     });
                     return response;
                 }),
