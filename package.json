@@ -40,7 +40,7 @@
         "router5": "^8.0.1",
         "router5-plugin-browser": "^8.0.1",
         "router5-plugin-logger": "^8.0.1",
-        "rxjs": "^6.6.3",
+        // "rxjs": "^6.6.3",
         "styled-components": "^5.1.1",
         "typescript": "^3.9.7"
     },
