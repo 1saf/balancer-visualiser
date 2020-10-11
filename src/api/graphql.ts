@@ -1,10 +1,9 @@
 import bent from 'bent';
-import { flatMap, take } from 'lodash';
 import { useQuery, QueryKey, QueryConfig } from 'react-query';
 import { spawn } from '../threads';
 import { print } from 'graphql';
 import { from } from 'rxjs';
-import { bufferCount, map, mergeMap, toArray } from 'rxjs/operators';
+import { bufferCount, map, toArray } from 'rxjs/operators';
 
 export const BALANCER_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/balancer-labs/balancer';
 export const ETH_BLOCKS_SUBGRAPH_URL = 'https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks';
