@@ -92,8 +92,6 @@ const Dashboard30DGraphs: FC<Props> = ({ balancerState }) => {
         isLoading: isLoadingBalancerState,
     } = balancerState;
 
-    console.log('dingo', historicalPrivatePools);
-
     const isLoading = isLoadingBalancerState || isHistoricalDataLoading || isLoadingHistoricalBalPrices;
     if (isLoading) return <Skeleton30DGraphs />;
 

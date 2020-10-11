@@ -265,7 +265,7 @@ const LineGraph: FC<Props> = props => {
 
     return (
         <StyledLineGraphContainer spanX={12}>
-            {headerRenderer(graphHighlightRef)}
+            {headerRenderer && headerRenderer(graphHighlightRef)}
             <Box paddingX='large' width='100%' height='500px' ref={chartContainerRef} />
             {isLoading && (
                 <StyledLoadingOverlay>

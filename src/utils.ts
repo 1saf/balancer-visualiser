@@ -71,6 +71,7 @@ export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 
         if (i === 0) return NaN;
         return (ratio - utilisations[i - 1]) / utilisations[i - 1];
     });
+    
     return {
         data: utilisations,
         changes,
