@@ -26,6 +26,7 @@
         "framer-motion": "^2.6.6",
         "graphql": "^15.3.0",
         "graphql-combine-query": "^1.2.2",
+        "graphql-import-macro": "^1.0.0",
         "graphql-tag": "^2.11.0",
         "lodash": "^4.17.19",
         "numeral": "^2.0.6",
@@ -45,10 +46,9 @@
         "typescript": "^3.9.7"
     },
     "devDependencies": {
-        "@parcel/transformer-svg-react": "^2.0.0-nightly.1739",
-        "@parcel/transformer-svgo": "^2.0.0-nightly.1739",
+        "@parcel/transformer-svg-react": "^2.0.0-beta.1",
+        "@parcel/transformer-svgo": "^2.0.0-beta.1",
         "@parcel/transformer-typescript-tsc": "^2.0.0-beta.1",
-        "@parcel/validator-typescript": "^2.0.0-beta.1",
-        "graphql-import-macro": "^1.0.0"
+        "@parcel/validator-typescript": "^2.0.0-beta.1"
     }
 }
