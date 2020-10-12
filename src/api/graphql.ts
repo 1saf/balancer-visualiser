@@ -19,7 +19,7 @@ export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, 
     if (loop) {
         const promises = from(variables?.requests)
             .pipe(
-                bufferCount(50),
+                bufferCount(325),
                 map(async requests => {
                     const worker = spawn(new Worker('./batchedquerybuilder.js'));
                     const queryBuilderResult: any = await worker(literal, requests);
