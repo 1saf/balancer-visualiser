@@ -30,7 +30,7 @@
         "graphql-tag": "^2.11.0",
         "lodash": "^4.17.19",
         "numeral": "^2.0.6",
-        "parcel": "^2.0.0-nightly.420",
+        "parcel": "^2.0.0-nightly.424",
         "react": "^16.13.1",
         "react-content-loader": "^5.1.2",
         "react-dom": "^16.13.1",

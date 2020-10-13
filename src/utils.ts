@@ -46,8 +46,8 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, sta
 export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     const extractorFn = dataExtractors[statistic];
 
-    const yesterday = extractorFn(data[24]) - extractorFn(data[0]);
-    const today = extractorFn(data[47]) - extractorFn(data[24]);
+    const yesterday = extractorFn(data[24]) as number;
+    const today = extractorFn(data[47]) as number;
     const change = (today - yesterday) / yesterday;
     return {
         yesterday,
@@ -67,10 +67,13 @@ export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 
     const volumeMovement = chunkedSwapVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
     const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
+    console.log('oonz', utilisations);
     const changes = utilisations.map((utilisation, i) => {
         if (i === utilisations.length - 1) return NaN;
         return (utilisations[i + 1] - utilisation) / utilisation;
     });
+    console.log('ch', changes);
+
     return {
         data: utilisations,
         changes,
@@ -139,3 +142,7 @@ export const sortBlockKeys = (blockKeys: string[] = []) => {
         return 0;
     });
 };
+
+export const calculateChange = (originalValue: number, newValue: number) => {
+    return (newValue - originalValue) / originalValue;
+}

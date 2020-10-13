@@ -1,5 +1,5 @@
 import { getUnixTime, parse, subHours } from 'date-fns';
-import { dropRight, sortBy, times } from 'lodash';
+import { dropRight, last, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
@@ -13,6 +13,7 @@ import {
     getDates,
     TODAY,
     sortBlockKeys,
+    calculateChange,
 } from '../../../utils';
 import { getBalancerPrice, getHistoricalBalancerPrice } from '../query/rest';
 
@@ -91,24 +92,27 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
         }
     );
 
-    const historicalBalancerData: BalancerData[] | number[] = (historicalBalancerDataResponses || []).reduce((data: BalancerData[], balancerResponse = {} as Record<string, BalancerData[]>) => {
-        const blocks = sortBlockKeys(Object.keys(balancerResponse)).reduce((parsedBlocks, blockKey) => {
-            const block = balancerResponse[blockKey];
-            if (typeof dataExtractor === 'function' && dataExtractor) {
-                parsedBlocks.push(dataExtractor(block));
-                return parsedBlocks;
-            }
-            if (typeof dataExtractor === 'string' && dataExtractor) {
-                parsedBlocks.push((block as any)[dataExtractor as string]);
-                return parsedBlocks;
-            }
-            parsedBlocks.push(block);
+    const historicalBalancerData: BalancerData[] | number[] = (historicalBalancerDataResponses || []).reduce(
+        (data: BalancerData[], balancerResponse = {} as Record<string, BalancerData[]>) => {
+            const blocks = sortBlockKeys(Object.keys(balancerResponse)).reduce((parsedBlocks, blockKey) => {
+                const block = balancerResponse[blockKey];
+                if (typeof dataExtractor === 'function' && dataExtractor) {
+                    parsedBlocks.push(dataExtractor(block));
+                    return parsedBlocks;
+                }
+                if (typeof dataExtractor === 'string' && dataExtractor) {
+                    parsedBlocks.push((block as any)[dataExtractor as string]);
+                    return parsedBlocks;
+                }
+                parsedBlocks.push(block);
 
-            return parsedBlocks;
-        }, [] as unknown[]);
-        data.push(...blocks as BalancerData[]);
-        return data;
-    }, [] as unknown[]);
+                return parsedBlocks;
+            }, [] as unknown[]);
+            data.push(...(blocks as BalancerData[]));
+            return data;
+        },
+        [] as unknown[]
+    );
 
     return {
         isLoading,
@@ -121,24 +125,36 @@ export const use24HourStatistics = () => {
 
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
     const { data, isLoading: isLoadingHistoricalData } = useHistoricalBalancerState(blocks);
+    const {
+        values: historicalBalPrices,
+        timestamps: historicalBalTimestamps,
+        isLoading: isLoadingHistoricalBalPrices,
+    } = useHistoricalBalancePrice(true, subHours(TODAY, 24));
 
-    const liquidityVolume = get24Change(data)('totalLiquidity');
-    const feeVolume = get24Change(data)('totalSwapFeeVolume');
-    const swapVolume = get24Change(data)('totalSwapVolume');
-    const privatePoolsVolume = get24Change(data)('privatePools');
-    const finalizedPoolCountVolume = get24Change(data)('finalizedPoolCount');
+    const balancerPrice = {
+        yesterday: historicalBalPrices[0],
+        today: last(historicalBalPrices),
+        change: calculateChange(historicalBalPrices[0], last(historicalBalPrices)),
+    } 
 
-    const utilisation = calculateLiquidityUtilisation(data);
-    const revenueRatio = calculateRevenueRatio(data);
+    const totalLiquidity = get24Change(data as BalancerData[])('totalLiquidity');
+    const feeVolume = get24Change(data as BalancerData[])('totalSwapFeeVolume');
+    const swapVolume = get24Change(data as BalancerData[])('totalSwapVolume');
+    const privatePools = get24Change(data as BalancerData[])('privatePools');
+    const finalizedPoolCount = get24Change(data as BalancerData[])('finalizedPoolCount');
+
+    const utilisation = calculateLiquidityUtilisation(data as BalancerData[]);
+    const revenueRatio = calculateRevenueRatio(data as BalancerData[]);
 
     return {
-        liquidityVolume,
+        totalLiquidity,
         feeVolume,
         swapVolume,
-        privatePoolsVolume,
-        finalizedPoolCountVolume,
+        privatePools,
+        finalizedPoolCount,
         utilisation,
         revenueRatio,
+        balancerPrice,
     };
 };
 
@@ -178,9 +194,7 @@ export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, e
 };
 
 // retrieves balancer price in USD from the coingecko api
-export const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: TimePeriod) => {
-    let fromDate = BALANCER_CONTRACT_START_DATE;
-    if (graphTimePeriod?.value === 'hourly') fromDate = subHours(TODAY, 24);
+export const useHistoricalBalancePrice = (enabled: boolean, fromDate: Date) => {
     const { data: historicalBalPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
         [
             'historicalBalPrice',

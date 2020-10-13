@@ -39,16 +39,16 @@ const IconContainer = styled(Box)`
 `;
 
 const changeBackground = {
-    'positive': tokens.colors.green100,
-    'negative': tokens.colors.red100,
-    'neutral': tokens.colors.red100,
-}
+    positive: tokens.colors.green100,
+    negative: tokens.colors.red100,
+    neutral: tokens.colors.red100,
+};
 
 const changeTextColor = {
-    'positive': tokens.colors.green600,
-    'negative': tokens.colors.red600,
-    'neutral': tokens.colors.red600,
-}
+    positive: tokens.colors.green600,
+    negative: tokens.colors.red600,
+    neutral: tokens.colors.red600,
+};
 
 const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
     font-size: 0.75rem;
@@ -72,13 +72,17 @@ const Change = ({ change }: ChangeProps) => {
     if (change > 0) {
         type = 'positive';
         ascii = '↑';
-    };
+    }
     if (change < 0) {
-        type = 'negative'
+        type = 'negative';
         ascii = '↓';
-    };
+    }
 
-    return <StyledChange type={type}>{ascii} {numeral(change).format('0.00%')}</StyledChange>;
+    return (
+        <StyledChange type={type}>
+            {ascii} {numeral(change).format('0.00%')}
+        </StyledChange>
+    );
 };
 
 const WhatsThis = styled(Box)`
@@ -160,26 +164,68 @@ const StyledSharedStatistic = styled(Grid)`
     background: #fff;
     border-radius: 10px;
     box-shadow: 0 0 0 1px ${props => props.theme.borderColor};
+    grid-column-gap: 0;
+    grid-row-gap: 0;
+    grid-template-columns: repeat(12, 1fr);
 `;
 
 const DividedBox = styled(Box)`
-    &:not(:last-child) {
-        border-right: 1.5px solid ${props => props.theme.borderColor};
+    @media (max-width: 640px) {
+        &:not(:last-child) {
+            border-bottom: 1.5px solid ${props => props.theme.borderColor};
+        }
     }
-    &:not(:first-child) {
-        padding-left: 0 !important;
+
+    @media (min-width: 640px) and (max-width: 768px) {
+        &:not(:last-child) {
+            border-bottom: 1.5px solid ${props => props.theme.borderColor};
+        }
+        &:nth-last-child(2) {
+            border-bottom: none;
+        }
+        &:not(:nth-child(2n)) {
+            border-right: 1.5px solid ${props => props.theme.borderColor};
+        }
+    }
+
+    @media (min-width: 768px) and (max-width: 1024px) {
+        &:nth-child(4n) {
+            border-right: none;
+        }
+        &:not(:last-child) {
+            border-bottom: 1.5px solid ${props => props.theme.borderColor};
+        }
+        &:nth-last-child(2) {
+            border-bottom: none;
+        }
+        &:not(:nth-child(3n)) {
+            border-right: 1.5px solid ${props => props.theme.borderColor};
+        }
+    }
+
+    @media (min-width: 1024px) {
+        border-right: 1.5px solid ${props => props.theme.borderColor};
+        &:nth-child(4n) {
+            border-right: none;
+        }
+        &:nth-child(n + 5) {
+            border-top: 1.5px solid ${props => props.theme.borderColor};
+        }
+        &:nth-child(4) {
+            border-bottom: 1.5px solid ${props => props.theme.borderColor};
+            margin-bottom: -1px;
+        }
     }
 `;
 
 export const SharedStatistic = (props: SharedStatisticProps) => {
     const { icon, description, statistics = [] } = props;
 
-    const spanX = 12 / statistics.length;
     return (
         <StyledSharedStatistic>
             {statistics.map(statistic => {
                 return (
-                    <DividedBox key={statistic?.name} spanX={spanX} padding='large'>
+                    <DividedBox key={statistic?.name} spanX={[12, 6, 4, 4, 3]} padding='large'>
                         {description && (
                             <Tooltip tip={description}>
                                 <WhatsThis>
