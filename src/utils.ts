@@ -67,12 +67,10 @@ export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 
     const volumeMovement = chunkedSwapVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
     const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
-    console.log('oonz', utilisations);
     const changes = utilisations.map((utilisation, i) => {
         if (i === utilisations.length - 1) return NaN;
         return (utilisations[i + 1] - utilisation) / utilisation;
     });
-    console.log('ch', changes);
 
     return {
         data: utilisations,

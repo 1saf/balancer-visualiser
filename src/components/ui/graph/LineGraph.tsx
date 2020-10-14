@@ -6,6 +6,8 @@ import echarts from 'echarts';
 import { tokens } from '../../../style/Theme';
 import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
+import 'echarts/lib/component/markLine';
+import { last } from 'lodash';
 
 export type LineChartData = {
     series: any;
@@ -45,7 +47,7 @@ const barChartConfig = {
     type: 'bar',
 };
 
-export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[], index?: number) => {
+export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[] = [], index?: number) => {
     const commonConfig: any = {
         name,
         data: values,
@@ -54,7 +56,26 @@ export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[],
         commonConfig.xAxisIndex = index;
         commonConfig.yAxisIndex = index;
     }
-    if (type === 'line') return { ...commonConfig, ...lineChartConfig };
+    if (type === 'line')
+        return {
+            ...commonConfig,
+            ...lineChartConfig,
+            markLine: {
+                data: [{ name: 'Latest Day Start Value', yAxis: last(values) || 0 }],
+                symbol: 'circle',
+                lineStyle: {
+                    width: 2,
+                    type: 'dotted',
+                },
+                label: {
+                    position: 'insideStartTop',
+                    fontSize: 16,
+                    formatter: (params: any) => {
+                        return numeral(params?.data?.yAxis).format('0.00000');
+                    },
+                },
+            },
+        };
     if (type === 'bar') return { ...commonConfig, ...barChartConfig };
 };
 
@@ -89,10 +110,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 _data = volume;
                 _volume = data;
             }
-            return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(
-                new Date(data?.name * 1000),
-                'PP p'
-            )}</span>
+            return `<span style='font-weight: 600; text-transform: uppercase;'>${formatDate(new Date(data?.name * 1000), 'PP p')}</span>
             <br/>${_data?.marker} ${_data?.seriesName}: ${numeral(_data?.value).format(dataFormat)}
             <br/>${_volume?.marker} ${_volume?.seriesName}: ${numeral(_volume?.value[1] * _volume?.value[2]).format(dataFormat)}
             `;
