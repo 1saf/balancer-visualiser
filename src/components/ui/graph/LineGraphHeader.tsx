@@ -30,12 +30,12 @@ const StyledGraphInfo = styled(Stack)`
 
 const timePeriods = [
     {
-        value: 'daily',
+        value: 'day',
         label: 'All Time',
         description: 'Daily data since the inception of the Balancer smart contract.',
     },
     {
-        value: 'hourly',
+        value: 'hour',
         label: 'Last 24 Hours',
         description: 'Hourly data starting 24 hours from the current minute.',
     },
@@ -43,8 +43,8 @@ const timePeriods = [
 
 const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
     const { data, onPeriodChange, onDataKeyChange, dataFormat, dataOptions = [] } = props;
-    const [hoveredValue, setHoveredValue] = useState<string>(numeral(last(data?.series?.data) as number).format(dataFormat));
-    const [hoveredDate, setHoveredDate] = useState<string>(formatDate(new Date(((last(data.axis) as number) || null) * 1000), 'PP'));
+    const [hoveredValue, setHoveredValue] = useState<string>('$ - . -');
+    const [hoveredDate, setHoveredDate] = useState<string>('-');
     const axisMouseIndex = useRef<number>();
 
     useImperativeHandle(ref, () => ({
@@ -58,19 +58,28 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
         },
     }));
 
+    const _onDataKeyChange = (option: DropdownOption) => {
+        setHoveredValue('$ - . -');
+        setHoveredDate('-')
+        onDataKeyChange(option);
+    }
+
     return (
         <React.Fragment>
             <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='large'>
                 <Stack justify='between' orientation='horizontal' width='100%'>
                     <Stack>
-                        <Dropdown silent options={dataOptions} onSelected={onDataKeyChange} menuWidth='225px' />
+                        <Dropdown silent options={dataOptions} onSelected={_onDataKeyChange} menuWidth='225px' />
                         <Stack gap='x-small' paddingLeft='x-small'>
                             <Heading level='4'>{hoveredValue}</Heading>
                             <Subheading>{hoveredDate}</Subheading>
                         </Stack>
                     </Stack>
                     <Box>
-                        <Dropdown silent options={timePeriods} onSelected={onPeriodChange} menuWidth='225px' />
+                        {
+                            onPeriodChange &&
+                            <Dropdown silent options={timePeriods} onSelected={onPeriodChange} menuWidth='225px' />
+                        }
                     </Box>
                 </Stack>
             </StyledGraphInfo>

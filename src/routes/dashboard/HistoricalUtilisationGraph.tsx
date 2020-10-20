@@ -27,7 +27,7 @@ export const graphOptions = [
 
 export const useHistoricalUtilisationState = (name: string, extractor?: DataExtractorFn) => {
     // default to start at 24 hour
-    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'hourly', label: 'Hourly' });
+    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'hour', label: 'hour' });
     const dates = useMemo(() => getDates(graphTimePeriod, 24, BALANCER_CONTRACT_START_DATE), [graphTimePeriod.value]);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
@@ -57,7 +57,7 @@ const HistoricalUtilisationGraph: FC<Props> = props => {
     });
 
     const chartConfig = {
-        series: [getSeries('line', 'Liquidity Utilisation', values.data), getSeries('bar', 'Movement', movementData, 1)],
+        series: [getSeries('line', 'Liquidity Utilisation', values.data, 0, '0.00%'), getSeries('bar', 'Movement', movementData, 1)],
         axis: timestamps,
     };
 
@@ -74,7 +74,6 @@ const HistoricalUtilisationGraph: FC<Props> = props => {
                         data={chartConfig}
                         onDataKeyChange={setDataKey}
                         dataOptions={graphOptions}
-                        // onPeriodChange={setGraphTimePeriod}
                         ref={ref}
                     />
                 )}

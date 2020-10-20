@@ -8,6 +8,7 @@ import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
 import 'echarts/lib/component/markLine';
 import { last } from 'lodash';
+import Skeleton from '../../design/skeleton/Skeleton';
 
 export type LineChartData = {
     series: any;
@@ -47,7 +48,7 @@ const barChartConfig = {
     type: 'bar',
 };
 
-export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[] = [], index?: number) => {
+export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[] = [], index?: number, dataFormat?: string) => {
     const commonConfig: any = {
         name,
         data: values,
@@ -68,10 +69,12 @@ export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[] 
                     type: 'dotted',
                 },
                 label: {
-                    position: 'insideStartTop',
-                    fontSize: 16,
+                    fontSize: 12,
+                    backgroundColor: tokens.colors.ultramarine,
+                    color: 'white',
+                    padding: 8,
                     formatter: (params: any) => {
-                        return numeral(params?.data?.yAxis).format('0.00000');
+                        return numeral(params?.data?.yAxis).format(dataFormat || '0,00');
                     },
                 },
             },
@@ -238,14 +241,14 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
     series: data?.series,
     grid: [
         {
-            right: '7%',
+            right: '10%',
             left: '3.5%',
             height: '50%',
         },
         {
             left: '3.5%',
             top: '70%',
-            width: '90%',
+            width: '86.5%',
             height: '15%',
         },
     ],
@@ -255,12 +258,7 @@ const StyledLoadingOverlay = styled(Box)`
     position: absolute;
     top: 150px;
     left: 0;
-    height: 300px;
     width: 100%;
-    background-color: #f3f3f5;
-    display: flex;
-    justify-content: center;
-    align-items: center;
 `;
 
 const LineGraph: FC<Props> = props => {
@@ -287,7 +285,9 @@ const LineGraph: FC<Props> = props => {
             <Box paddingX='large' width='100%' height='500px' ref={chartContainerRef} />
             {isLoading && (
                 <StyledLoadingOverlay>
-                    Loading data from the subgrah...(This loading indicator is a WIP), non-hourly data is refetched every 5 minutes
+                    <Skeleton width='100%' height={300} viewBox='0 0 100% 300'>
+                        <rect x='0' y='0' rx='0' ry='0' width='100%' height='300' />
+                    </Skeleton>
                 </StyledLoadingOverlay>
             )}
         </StyledLineGraphContainer>

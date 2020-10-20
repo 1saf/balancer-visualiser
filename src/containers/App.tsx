@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import { RouterProvider } from 'react-router5';
 import AppLayout from '../layouts/AppLayout';
 
@@ -10,6 +10,10 @@ type Props = {
 };
 
 const AppContainer: FC<Props> = ({ router }) => {
+    useEffect(() => {
+        
+    }, []);
+
     return (
         <RouterProvider router={router}>
             <ThemeProvider theme={Theme}>

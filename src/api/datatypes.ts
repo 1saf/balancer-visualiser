@@ -14,7 +14,8 @@ export type BalancerResponse = GraphQLResponse<{
 
 export type TimeType = 'hour' | 'days' | 'months' | 'years';
 export type TimePeriod = {
-    value: 'hourly' | 'daily' | string,
+    value: 'hour' | 'day' | string,
+    units?: number,
     label: string,
 };
 

@@ -28,7 +28,7 @@ type Props = {
 
 const useHistoricalBalancerData = (historicalDataQuery: string) => {
     // default to start at 24 hour
-    const dates = useMemo(() => getDates({ value: 'daily', label: 'Daily' }), []);
+    const dates = useMemo(() => getDates({ value: 'day', label: 'day' }), []);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     // remember these queries get cached so calling them again will not cause
@@ -80,7 +80,7 @@ const Dashboard30DGraphs: FC<Props> = ({ balancerState }) => {
         values: historicalBalPrices,
         timestamps: historicalBalTimestamps,
         isLoading: isLoadingHistoricalBalPrices,
-    } = useHistoricalBalancePrice(true, { value: 'daily', label: 'Daily' });
+    } = useHistoricalBalancePrice(true, { value: 'day', label: 'day' });
 
     const {
         totalLiquidity,

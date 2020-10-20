@@ -1,19 +1,19 @@
-import { getUnixTime, parse, subHours } from 'date-fns';
+import { getUnixTime, parse, subDays, subHours } from 'date-fns';
 import { dropRight, last, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
+import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, Option, TimePeriod } from '../../../api/datatypes';
 import { EthBlockResponse, EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
 import { DropdownOption } from '../../../components/design/dropdown/Dropdown';
 import {
     BALANCER_CONTRACT_START_DATE,
     calculateRevenueRatio,
-    get24Change,
     calculateLiquidityUtilisation,
     getDates,
     TODAY,
     sortBlockKeys,
     calculateChange,
+    getDynamicChange,
 } from '../../../utils';
 import { getBalancerPrice, getHistoricalBalancerPrice } from '../query/rest';
 
@@ -120,8 +120,17 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
     };
 };
 
-export const use24HourStatistics = () => {
-    const dates = useMemo(() => getDates({ value: 'hourly' }, 48), []);
+export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: number }) => {
+    const dates = useMemo(() => {
+        // this piece of code is not the best, as the function getDates 
+        // requires you to provide a period length or a start date
+        // due to the internals of getDates, when the value is 'day'
+        // a start date is required, making the 2nd periodlength arg kind of useless
+        // for that scenario
+        let startDate;
+        if (overviewPeriod.value === 'day') startDate = subDays(TODAY, overviewPeriod.periodLength);
+        return getDates({ value: overviewPeriod.value }, overviewPeriod?.periodLength, startDate);
+    }, [overviewPeriod?.label]);
 
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
     const { data, isLoading: isLoadingHistoricalData } = useHistoricalBalancerState(blocks);
@@ -135,14 +144,16 @@ export const use24HourStatistics = () => {
         yesterday: historicalBalPrices[0],
         today: last(historicalBalPrices),
         change: calculateChange(historicalBalPrices[0], last(historicalBalPrices)),
-    } 
+    }
 
-    const totalLiquidity = get24Change(data as BalancerData[])('totalLiquidity');
-    const feeVolume = get24Change(data as BalancerData[])('totalSwapFeeVolume');
-    const swapVolume = get24Change(data as BalancerData[])('totalSwapVolume');
-    const privatePools = get24Change(data as BalancerData[])('privatePools');
-    const finalizedPoolCount = get24Change(data as BalancerData[])('finalizedPoolCount');
+    const totalLiquidity = getDynamicChange(data as BalancerData[])('totalLiquidity', overviewPeriod?.periodLength / 2);
+    const feeVolume = getDynamicChange(data as BalancerData[])('totalSwapFeeVolume', overviewPeriod?.periodLength / 2);
+    const swapVolume = getDynamicChange(data as BalancerData[])('totalSwapVolume', overviewPeriod?.periodLength / 2);
+    const privatePools = getDynamicChange(data as BalancerData[])('privatePools', overviewPeriod?.periodLength / 2);
+    const finalizedPoolCount = getDynamicChange(data as BalancerData[])('finalizedPoolCount', overviewPeriod?.periodLength / 2);
 
+    // we request for double the actual amount of data for these 2 figures 
+    // the chunk size is simply that total period divided 2.
     const utilisation = calculateLiquidityUtilisation(data as BalancerData[]);
     const revenueRatio = calculateRevenueRatio(data as BalancerData[]);
 
@@ -155,19 +166,21 @@ export const use24HourStatistics = () => {
         utilisation,
         revenueRatio,
         balancerPrice,
+        isLoading: isLoadingHistoricalBalPrices || isLoadingHistoricalData || isLoadingEthBlocks,
     };
 };
 
 export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, extractor?: DataExtractorFn) => {
     // default to start at 24 hour
-    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'daily', label: 'Daily' });
+    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'day', label: 'day' });
     const dates = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value]);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
 
+    let fromDate = graphTimePeriod?.value === 'day' ? BALANCER_CONTRACT_START_DATE : subHours(TODAY, 24);
     // get balancer usd prices, query disabled until till the datakey is balancer_usd
-    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey?.value === 'balancerPrice', graphTimePeriod);
+    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey?.value === 'balancerPrice', fromDate);
 
     // retrieve historical data from the balancer subgraph
     const { data: historicalBalancerData, isLoading: isLoadingHistoricalBalancerData } = useHistoricalBalancerState(
@@ -197,7 +210,7 @@ export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, e
 export const useHistoricalBalancePrice = (enabled: boolean, fromDate: Date) => {
     const { data: historicalBalPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
         [
-            'historicalBalPrice',
+            'historicalBalPrices',
             {
                 from: getUnixTime(fromDate),
                 to: getUnixTime(TODAY),

@@ -1,26 +1,53 @@
-import React, { FC, Fragment } from 'react';
-import { BalancerData, BalancerState, Change24H } from '../../api/datatypes';
+import React, { FC, Fragment, useCallback, useState } from 'react';
+import { BalancerData, BalancerState, Change24H, Option } from '../../api/datatypes';
 import Box from '../../components/layout/box/Box';
 import { SharedStatistic } from '../../components/ui/statistic/Statistic';
-import { use24HourStatistics } from './state/hooks';
+import { useOverviewStatistics } from './state/hooks';
 import numeral from 'numeral';
 import Heading from '../../components/design/heading/Heading';
+import ButtonGroup from '../../components/design/button_group/ButtonGroup';
+import Stack from '../../components/layout/stack/Stack';
+import { last, over } from 'lodash';
 
 type Props = {
     balancerState: BalancerState;
 };
 
+const OverviewOptions = [
+    { value: 'hour', label: '24H', periodLength: 48 },
+    { value: 'hour', label: '7 Days', periodLength: 336 },
+    { value: 'hour', label: '30 Days', periodLength: 1440 },
+];
+
 const Dashboard24HMetrics: FC<Props> = props => {
-    const { balancerState } = props;
-    const { feeVolume, swapVolume, utilisation, revenueRatio, totalLiquidity, privatePools, finalizedPoolCount, balancerPrice } = use24HourStatistics(balancerState);
+    const [overviewPeriod, _setOverviewPeriod] = useState(OverviewOptions[0]);
+    const {
+        feeVolume,
+        swapVolume,
+        utilisation,
+        revenueRatio,
+        totalLiquidity,
+        privatePools,
+        finalizedPoolCount,
+        balancerPrice,
+        isLoading,
+    } = useOverviewStatistics(overviewPeriod);
+
+    const setOverviewPeriod = useCallback((option: Option) => {
+        _setOverviewPeriod(option);
+    }, []);
 
     return (
         <Fragment>
             <Box spanX={12}>
-                <Heading level='4'>Overview - 24H</Heading>
+                <Stack align='start' gap='base'>
+                    <Heading level='4'>Overview</Heading>
+                    <ButtonGroup options={OverviewOptions} value={`${overviewPeriod?.value}-${overviewPeriod.label}`} setValue={setOverviewPeriod} />
+                </Stack>
             </Box>
-            <Box spanX={12}>
+            <Box spanX={12} style={{ marginTop: '-0.5rem' }}>
                 <SharedStatistic
+                    isLoading={isLoading}
                     statistics={[
                         {
                             name: 'Total Value Locked',
@@ -54,13 +81,13 @@ const Dashboard24HMetrics: FC<Props> = props => {
                         },
                         {
                             name: 'Liquidity Utilisation',
-                            value: numeral(utilisation?.data[1]).format('0.000%'),
+                            value: numeral(utilisation?.data[utilisation?.data.length - 2]).format('0.000%'),
                             previousValue: numeral(utilisation?.data[0]).format('0.000%'),
                             change: utilisation?.changes[0],
                         },
                         {
                             name: 'Revenue Ratio',
-                            value: numeral(revenueRatio?.data[1]).format('0.000%'),
+                            value: numeral(revenueRatio?.data[revenueRatio?.data.length - 2]).format('0.000%'),
                             previousValue: numeral(revenueRatio?.data[0]).format('0.000%'),
                             change: revenueRatio?.changes[0],
                         },

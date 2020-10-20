@@ -15,6 +15,8 @@ import QuestionMark from '../../../assets/question-circle-solid.svg';
 import { tokens } from '../../../style/Theme';
 import { ResponsiveProp } from '../../layout/layout.t';
 import Grid from '../../layout/grid/Grid';
+import Skeleton from '../../design/skeleton/Skeleton';
+import StatisticSkeleton from './StatisticSkeleton';
 
 type Props = {
     heading: string;
@@ -77,10 +79,11 @@ const Change = ({ change }: ChangeProps) => {
         type = 'negative';
         ascii = '↓';
     }
+    if (change === 0) return null;
 
     return (
         <StyledChange type={type}>
-            {ascii} {numeral(change).format('0.00%')}
+            {ascii} {numeral(change).format('0.000%')}
         </StyledChange>
     );
 };
@@ -158,6 +161,7 @@ export type SharedStatisticProps = {
     icon?: React.ReactNode;
     description?: string;
     statistics: Statistic[];
+    isLoading;
 };
 
 const StyledSharedStatistic = styled(Grid)`
@@ -219,11 +223,20 @@ const DividedBox = styled(Box)`
 `;
 
 export const SharedStatistic = (props: SharedStatisticProps) => {
-    const { icon, description, statistics = [] } = props;
+    const { icon, description, statistics = [], isLoading } = props;
 
     return (
         <StyledSharedStatistic>
             {statistics.map(statistic => {
+                if (isLoading) {
+                    return (
+                        <DividedBox key={statistic?.name} spanX={[12, 6, 4, 4, 3]} padding='large'>
+                            <Skeleton width={249} height={75} viewBox='0 0 249 75'>
+                                <StatisticSkeleton />
+                            </Skeleton>
+                        </DividedBox>
+                    );
+                }
                 return (
                     <DividedBox key={statistic?.name} spanX={[12, 6, 4, 4, 3]} padding='large'>
                         {description && (

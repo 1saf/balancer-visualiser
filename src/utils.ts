@@ -21,7 +21,7 @@ export const TODAY = new Date();
 export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, startDate?: Date) => {
     let dates: any[] = [];
     const now = new Date();
-    if (timePeriod.value === 'hourly') {
+    if (timePeriod.value === 'hour') {
         dates = eachHourOfInterval({
             start: startDate || subHours(now, periodLength),
             end: now,
@@ -30,7 +30,7 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, sta
             last_ten: getUnixTime(addMinutes(date, 10)),
             date: formatDate(date, 'yyyy-MM-dd H:m'),
         }));
-    } else if (timePeriod?.value === 'daily') {
+    } else if (timePeriod?.value === 'day') {
         dates = eachDayOfInterval({
             start: startDate || BALANCER_CONTRACT_START_DATE,
             end: now,
@@ -43,11 +43,11 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, sta
     return dates;
 };
 
-export const get24Change = (data: BalancerData[]) => (statistic: string) => {
+export const getDynamicChange = (data: BalancerData[]) => (statistic: string, periodLength?: number) => {
     const extractorFn = dataExtractors[statistic];
 
-    const yesterday = extractorFn(data[24]) as number;
-    const today = extractorFn(data[47]) as number;
+    const yesterday = extractorFn(data[data.length - periodLength]) as number;
+    const today = extractorFn(last(data)) as number;
     const change = (today - yesterday) / yesterday;
     return {
         yesterday,

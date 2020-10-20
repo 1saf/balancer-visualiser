@@ -1,18 +1,13 @@
 import React, { FC } from 'react';
-import Box from '../../components/layout/box/Box';
 import historicalPoolsQuery from './query/historical.graphql';
 
 import HistoricalBalancerGraph from './HistoricalBalancerGraph';
 
 import Theme from '../../style/Theme';
-import Heading from '../../components/design/heading/Heading';
-import Skeleton from '../../components/design/skeleton/Skeleton';
-import StatisticSkeleton from '../../components/ui/statistic/StatisticSkeleton';
 import Grid from '../../components/layout/grid/Grid';
 
 import { useCurrentBalancerStatistics } from './state/hooks';
 import Dashboard24HMetrics from './Dashboard24HMetrics';
-import Dashboard30DGraphs from './Dashboard30DGraphs';
 import HistoricalUtilisationGraph from './HistoricalUtilisationGraph';
 
 const Dashboard: FC<any> = ({ children }) => {
