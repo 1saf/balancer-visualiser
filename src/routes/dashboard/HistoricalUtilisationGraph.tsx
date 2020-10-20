@@ -50,14 +50,14 @@ export const useHistoricalUtilisationState = (name: string, extractor?: DataExtr
 const HistoricalUtilisationGraph: FC<Props> = props => {
     const [dataKey, setDataKey] = useState(graphOptions[0]);
 
-    const { isLoading, timestamps, values } = useHistoricalUtilisationState('Liquidity Utilisation', dataExtractors[dataKey?.value]);
+    const { isLoading, timestamps, values } = useHistoricalUtilisationState(dataKey.label, dataExtractors[dataKey?.value]);
 
     const movementData = (values?.changes || []).map((change, i) => {
         return [i, Math.abs(change), change > 0 ? 1 : -1];
     });
 
     const chartConfig = {
-        series: [getSeries('line', 'Liquidity Utilisation', values.data, 0, '0.00%'), getSeries('bar', 'Movement', movementData, 1)],
+        series: [getSeries('line', dataKey.label, values.data, 0, '0.00%'), getSeries('bar', 'Movement', movementData, 1)],
         axis: timestamps,
     };
 
@@ -79,7 +79,7 @@ const HistoricalUtilisationGraph: FC<Props> = props => {
                 )}
                 isLoading={isLoading}
                 data={chartConfig}
-                title={'Liquidity Utilisation'}
+                title={dataKey.label}
                 dataFormat='0.00%'
             />
         </React.Fragment>
