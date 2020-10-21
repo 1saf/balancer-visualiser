@@ -1,5 +1,5 @@
 import { getUnixTime, parse, subDays, subHours } from 'date-fns';
-import { dropRight, last, sortBy, times } from 'lodash';
+import { dropRight, last, over, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
 import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, Option, TimePeriod } from '../../../api/datatypes';
@@ -121,16 +121,16 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
 };
 
 export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: number }) => {
+    const startDate = subHours(TODAY, overviewPeriod?.periodLength / 2);
+
     const dates = useMemo(() => {
         // this piece of code is not the best, as the function getDates 
         // requires you to provide a period length or a start date
         // due to the internals of getDates, when the value is 'day'
         // a start date is required, making the 2nd periodlength arg kind of useless
         // for that scenario
-        let startDate;
-        if (overviewPeriod.value === 'day') startDate = subDays(TODAY, overviewPeriod.periodLength);
         return getDates({ value: overviewPeriod.value }, overviewPeriod?.periodLength, startDate);
-    }, [overviewPeriod?.label]);
+    }, [startDate]);
 
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
     const { data, isLoading: isLoadingHistoricalData } = useHistoricalBalancerState(blocks);
@@ -138,7 +138,7 @@ export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: n
         values: historicalBalPrices,
         timestamps: historicalBalTimestamps,
         isLoading: isLoadingHistoricalBalPrices,
-    } = useHistoricalBalancePrice(true, subHours(TODAY, 24));
+    } = useHistoricalBalancePrice(true, startDate);
 
     const balancerPrice = {
         yesterday: historicalBalPrices[0],
