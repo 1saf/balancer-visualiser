@@ -5,11 +5,40 @@ import LineGraphHeader from '../../components/ui/graph/LineGraphHeader';
 import { DropdownOption } from '../../components/design/dropdown/Dropdown';
 
 import { useHistoricalGraphState, useBalancerMovementData, dataExtractors, dataFormats } from './state/hooks';
+import Box from '../../components/layout/box/Box';
+import Heading from '../../components/design/heading/Heading';
 
 type Props = {
     query: string;
     dataKey: string;
 };
+
+export const graphOptions = [
+    {
+        value: 'totalLiquidity',
+        label: 'Total Value Locked',
+    },
+    {
+        value: 'totalSwapVolume',
+        label: 'Total Swap Volume',
+    },
+    {
+        value: 'totalSwapFeeVolume',
+        label: 'Total Swap Fee Volume',
+    },
+    {
+        value: 'balancerPrice',
+        label: 'BAL Price (USD)',
+    },
+    {
+        value: 'finalizedPoolCount',
+        label: 'Public Pools',
+    },
+    {
+        value: 'privatePools',
+        label: 'Private Pools',
+    },
+];
 
 const HistoricalBalancerGraph: FC<Props> = props => {
     const { dataKey } = props;
@@ -28,6 +57,9 @@ const HistoricalBalancerGraph: FC<Props> = props => {
 
     return (
         <React.Fragment>
+            <Box spanX={12}>
+                <Heading level='4'>In Depth</Heading>
+            </Box>
             <LineGraph
                 headerRenderer={ref => (
                     <LineGraphHeader
@@ -37,6 +69,7 @@ const HistoricalBalancerGraph: FC<Props> = props => {
                         onDataKeyChange={setCurrentDataKey}
                         onPeriodChange={setGraphTimePeriod}
                         ref={ref}
+                        dataOptions={graphOptions}
                     />
                 )}
                 isLoading={isLoading}

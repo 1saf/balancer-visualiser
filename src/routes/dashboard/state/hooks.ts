@@ -1,11 +1,20 @@
-import { getUnixTime, subHours } from 'date-fns';
-import { dropRight, sortBy, times } from 'lodash';
+import { getUnixTime, parse, subDays, subHours } from 'date-fns';
+import { dropRight, last, over, sortBy, times } from 'lodash';
 import { useMemo, useState } from 'react';
 import { useQuery } from 'react-query';
-import { BalancerData, BalancerResponse, EthereumBlock, HistoricalCGMarketChart, TimePeriod } from '../../../api/datatypes';
-import { EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
+import { BalancerData, BalancerResponse, BalancerState, EthereumBlock, HistoricalCGMarketChart, Option, TimePeriod } from '../../../api/datatypes';
+import { EthBlockResponse, EthBlocksResponse, ETH_BLOCKS_SUBGRAPH_URL, useGraphQuery } from '../../../api/graphql';
 import { DropdownOption } from '../../../components/design/dropdown/Dropdown';
-import { BALANCER_CONTRACT_START_DATE, get24Change, get24HLiquidityUtilisation, get24HRevenueRatio, getDates, TODAY } from '../../../utils';
+import {
+    BALANCER_CONTRACT_START_DATE,
+    calculateRevenueRatio,
+    calculateLiquidityUtilisation,
+    getDates,
+    TODAY,
+    sortBlockKeys,
+    calculateChange,
+    getDynamicChange,
+} from '../../../utils';
 import { getBalancerPrice, getHistoricalBalancerPrice } from '../query/rest';
 
 import blocksQuery from '../query/blocks.graphql';
@@ -14,7 +23,7 @@ import query from '../query/pools.graphql';
 
 import numeral from 'numeral';
 
-type DataExtractorFn = (data: BalancerData | any) => number;
+export type DataExtractorFn = (data: BalancerData | any, meta?: any) => number | unknown;
 
 export const dataExtractors: Record<string, DataExtractorFn> = {
     totalLiquidity: data => parseFloat(data?.totalLiquidity),
@@ -23,6 +32,8 @@ export const dataExtractors: Record<string, DataExtractorFn> = {
     finalizedPoolCount: data => data?.finalizedPoolCount,
     privatePools: data => data?.poolCount - data?.finalizedPoolCount,
     balancerPrice: data => data?.balancerPrice || data,
+    revenueRatio: (data, meta) => calculateRevenueRatio(data, meta?.chunkSize),
+    liquidityUtilisation: (data, meta) => calculateLiquidityUtilisation(data, meta?.chunkSize),
 };
 
 export const dataFormats: Record<string, string> = {
@@ -34,36 +45,45 @@ export const dataFormats: Record<string, string> = {
 };
 
 export const useEthTimestampBlocks = (dates: Date[]) => {
-    const { data, isLoading, isFetching } = useGraphQuery<EthBlocksResponse>(['blockTimestamps', { requests: dates }], blocksQuery, {
+    const { data: blocksResponse, isLoading, isFetching } = useGraphQuery<any>(['blockTimestamps', { requests: dates }], blocksQuery, {
         loop: true,
         graphEndpoint: ETH_BLOCKS_SUBGRAPH_URL,
     });
 
     // parse the response data (its a string response) into numbers and sort
     // blocks are sorted by the timestamp they belong to
-    const sortedBlocks = sortBy(
-        (data || []).map(ethBlocks => {
-            const blockTimestamp = ethBlocks?.data?.blocks[0];
 
-            return {
-                blockNumber: parseInt(blockTimestamp?.number, 10),
-                blockTimestamp: parseInt(blockTimestamp?.timestamp, 10),
-            };
-        }),
+    // look, the complexity here isn't ideal O(n^2) but we gotta work with
+    // what we got. this code should be obsolete once this sort of
+    // data is retrieve via the subgraph completely
+    const sortedBlocks = sortBy(
+        (blocksResponse || []).reduce((data: EthereumBlock[], ethBlocks = {} as Record<string, EthBlockResponse[]>) => {
+            const blocks = sortBlockKeys(Object.keys(ethBlocks)).reduce((parsedBlocks, blockKey) => {
+                const block = ethBlocks[blockKey][0];
+                parsedBlocks.push({
+                    blockNumber: parseInt(block?.number, 10),
+                    blockTimestamp: parseInt(block?.timestamp, 10),
+                });
+                return parsedBlocks;
+            }, [] as EthereumBlock[]);
+            data.push(...blocks);
+            return data;
+        }, [] as EthereumBlock[]),
         'blockTimestamp'
     );
 
     return {
         isLoading,
         isFetching,
-        rawData: data,
+        rawData: blocksResponse,
         blocks: sortedBlocks,
     };
 };
 
 export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtractor?: DataExtractorFn | string) => {
     // retrieve historical data from the balancer subgraph
-    const { data: historicalBalancerDataResponses, isLoading } = useGraphQuery<BalancerResponse[]>(
+
+    const { data: historicalBalancerDataResponses, isLoading } = useGraphQuery<any>(
         ['historicalBlocks', { requests: blocks }],
         historicalBalancerQuery,
         {
@@ -72,12 +92,27 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
         }
     );
 
-    const historicalBalancerData = (historicalBalancerDataResponses || []).map(historicalBalancerResponse => {
-        const data = (historicalBalancerResponse?.data?.balancer as any) || {};
-        if (typeof dataExtractor === 'function' && dataExtractor) return dataExtractor(data);
-        if (typeof dataExtractor === 'string' && dataExtractor) return data[dataExtractor as string];
-        return data;
-    });
+    const historicalBalancerData: BalancerData[] | number[] = (historicalBalancerDataResponses || []).reduce(
+        (data: BalancerData[], balancerResponse = {} as Record<string, BalancerData[]>) => {
+            const blocks = sortBlockKeys(Object.keys(balancerResponse)).reduce((parsedBlocks, blockKey) => {
+                const block = balancerResponse[blockKey];
+                if (typeof dataExtractor === 'function' && dataExtractor) {
+                    parsedBlocks.push(dataExtractor(block));
+                    return parsedBlocks;
+                }
+                if (typeof dataExtractor === 'string' && dataExtractor) {
+                    parsedBlocks.push((block as any)[dataExtractor as string]);
+                    return parsedBlocks;
+                }
+                parsedBlocks.push(block);
+
+                return parsedBlocks;
+            }, [] as unknown[]);
+            data.push(...(blocks as BalancerData[]));
+            return data;
+        },
+        [] as unknown[]
+    );
 
     return {
         isLoading,
@@ -85,41 +120,67 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
     };
 };
 
-export const use24HourStatistics = (currentBalancerState: Partial<BalancerData>) => {
-    const dates = useMemo(() => getDates({ value: 'hourly' }, 48), []);
+export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: number }) => {
+    const startDate = subHours(TODAY, overviewPeriod?.periodLength);
+
+    const dates = useMemo(() => {
+        // this piece of code is not the best, as the function getDates 
+        // requires you to provide a period length or a start date
+        // due to the internals of getDates, when the value is 'day'
+        // a start date is required, making the 2nd periodlength arg kind of useless
+        // for that scenario
+        return getDates({ value: overviewPeriod.value }, overviewPeriod?.periodLength, startDate);
+    }, [startDate]);
 
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
     const { data, isLoading: isLoadingHistoricalData } = useHistoricalBalancerState(blocks);
+    const {
+        values: historicalBalPrices,
+        timestamps: historicalBalTimestamps,
+        isLoading: isLoadingHistoricalBalPrices,
+    } = useHistoricalBalancePrice(true, startDate);
 
-    const liquidityVolume = get24Change(data)('totalLiquidity');
-    const feeVolume = get24Change(data)('totalSwapFeeVolume');
-    const swapVolume = get24Change(data)('totalSwapVolume');
-    const privatePoolsVolume = get24Change(data)('privatePools');
-    const finalizedPoolCountVolume = get24Change(data)('finalizedPoolCount');
+    const balancerPrice = {
+        yesterday: historicalBalPrices[0],
+        today: last(historicalBalPrices),
+        change: calculateChange(historicalBalPrices[0], last(historicalBalPrices)),
+    }
 
-    const utilisation = get24HLiquidityUtilisation(data);
-    const revenueRatio = get24HRevenueRatio(data);
+    const totalLiquidity = getDynamicChange(data as BalancerData[])('totalLiquidity', overviewPeriod?.periodLength / 2);
+    const feeVolume = getDynamicChange(data as BalancerData[])('totalSwapFeeVolume', overviewPeriod?.periodLength / 2);
+    const swapVolume = getDynamicChange(data as BalancerData[])('totalSwapVolume', overviewPeriod?.periodLength / 2);
+    const privatePools = getDynamicChange(data as BalancerData[])('privatePools', overviewPeriod?.periodLength / 2);
+    const finalizedPoolCount = getDynamicChange(data as BalancerData[])('finalizedPoolCount', overviewPeriod?.periodLength / 2);
+
+    // we request for double the actual amount of data for these 2 figures 
+    // the chunk size is simply that total period divided 2.
+    const utilisation = calculateLiquidityUtilisation(data as BalancerData[]);
+    const revenueRatio = calculateRevenueRatio(data as BalancerData[]);
+
     return {
-        liquidityVolume,
+        totalLiquidity,
         feeVolume,
         swapVolume,
-        privatePoolsVolume,
-        finalizedPoolCountVolume,
+        privatePools,
+        finalizedPoolCount,
         utilisation,
         revenueRatio,
+        balancerPrice,
+        isLoading: isLoadingHistoricalBalPrices || isLoadingHistoricalData || isLoadingEthBlocks,
     };
 };
 
 export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, extractor?: DataExtractorFn) => {
     // default to start at 24 hour
-    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'daily', label: 'Daily' });
+    const [graphTimePeriod, setGraphTimePeriod] = useState({ value: 'day', label: 'day' });
     const dates = useMemo(() => getDates(graphTimePeriod), [graphTimePeriod.value]);
 
     // retrieve the ethereum blocks to get the timestamps for the data we need
     const { isLoading: isLoadingEthBlocks, blocks } = useEthTimestampBlocks(dates);
 
+    let fromDate = graphTimePeriod?.value === 'day' ? BALANCER_CONTRACT_START_DATE : subHours(TODAY, 24);
     // get balancer usd prices, query disabled until till the datakey is balancer_usd
-    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey?.value === 'balancerPrice', graphTimePeriod);
+    const historicalBalancerPriceChartData = useHistoricalBalancePrice(dataKey?.value === 'balancerPrice', fromDate);
 
     // retrieve historical data from the balancer subgraph
     const { data: historicalBalancerData, isLoading: isLoadingHistoricalBalancerData } = useHistoricalBalancerState(
@@ -146,12 +207,10 @@ export const useHistoricalGraphState = (dataKey: DropdownOption, name: string, e
 };
 
 // retrieves balancer price in USD from the coingecko api
-export const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: TimePeriod) => {
-    let fromDate = BALANCER_CONTRACT_START_DATE;
-    if (graphTimePeriod?.value === 'hourly') fromDate = subHours(TODAY, 24);
+export const useHistoricalBalancePrice = (enabled: boolean, fromDate: Date) => {
     const { data: historicalBalPriceResponse, isLoading } = useQuery<HistoricalCGMarketChart>(
         [
-            'historicalBalPrice',
+            'historicalBalPrices',
             {
                 from: getUnixTime(fromDate),
                 to: getUnixTime(TODAY),
@@ -170,6 +229,35 @@ export const useHistoricalBalancePrice = (enabled: boolean, graphTimePeriod: Tim
         timestamps: historicalBalTimestamps,
         name: 'Balancer Price (USD)',
         isLoading,
+    };
+};
+
+export const useCurrentBalancerStatistics = () => {
+    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
+    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
+
+    const balancerStats = balancerStatsResponse?.data?.balancer;
+
+    const poolCount = balancerStats?.poolCount; //
+    const totalLiquidity = numeral(balancerStats?.totalLiquidity).value();
+    const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).value();
+    const totalSwapFee = numeral(balancerStats?.totalSwapFee).value();
+    const finalizedPoolCount = balancerStats?.finalizedPoolCount;
+    const privatePools = poolCount - finalizedPoolCount;
+
+    const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
+
+    const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
+
+    return {
+        poolCount,
+        totalLiquidity,
+        totalSwapVolume,
+        totalSwapFee,
+        privatePools,
+        isLoading,
+        finalizedPoolCount,
+        balancerPrice,
     };
 };
 
@@ -198,38 +286,5 @@ export const useBalancerMovementData = (dataKey: string, data: number[] = [], ti
     return {
         values: dailyData,
         axis: timestamps,
-    };
-};
-
-export const useCurrentBalancerStatistics = () => {
-    const { data: balancerStatsResponse, isLoading: isBalancerStatsLoading } = useGraphQuery<BalancerResponse>('pools', query);
-    const { data: balPriceResponse, isLoading: isBalPriceRequestLoading } = useQuery('balPrice', getBalancerPrice);
-    // const { data: ethPriceResponse, isLoading: isEthPriceRequestLoading } = useQuery('ethPrice', getEthPrice);
-
-    const balancerStats = balancerStatsResponse?.data?.balancer;
-
-    const totalPools = balancerStats?.poolCount; //
-    const totalLiquidity = numeral(balancerStats?.totalLiquidity).value();
-    const totalSwapVolume = numeral(balancerStats?.totalSwapVolume).value();
-    const totalSwapFeeVolume = numeral(balancerStats?.totalSwapFee).value();
-    const finalizedPoolCount = balancerStats?.finalizedPoolCount;
-    const privatePools = totalPools - finalizedPoolCount;
-
-    const balancerPrice = (balPriceResponse as any)?.market_data?.current_price?.usd;
-    // const ethPrice = (ethPriceResponse as any)?.market_data?.current_price?.usd;
-
-    const isLoading = isBalPriceRequestLoading || isBalancerStatsLoading;
-
-    return {
-        totalPools,
-        totalLiquidity,
-        totalSwapVolume,
-        totalSwapFeeVolume,
-        privatePools,
-        isLoading,
-        finalizedPoolCount,
-        balancerPrice,
-        balancerStatsResponse,
-        // ethPrice,
     };
 };

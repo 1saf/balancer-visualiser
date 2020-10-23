@@ -8,8 +8,9 @@ import {
     addMinutes,
     format as formatDate,
     startOfDay,
+    eachHourOfInterval,
 } from 'date-fns';
-import { mean, take, takeRight } from 'lodash';
+import { chunk, first, last, mean, take, takeRight } from 'lodash';
 import { useEffect } from 'react';
 import { BalancerData, TimePeriod } from './api/datatypes';
 import { dataExtractors } from './routes/dashboard/state/hooks';
@@ -17,23 +18,22 @@ import { dataExtractors } from './routes/dashboard/state/hooks';
 export const BALANCER_CONTRACT_START_DATE = new Date(2020, 2, 29);
 export const TODAY = new Date();
 
-export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24) => {
+export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, startDate?: Date) => {
     let dates: any[] = [];
-    const today = new Date();
-    if (timePeriod.value === 'hourly') {
-        for (let i = 1; i <= periodLength; i++) {
-            const date = subHours(today, i);
-            // subgraph queries are faster when requested as the first block between 2 timestamps
-            dates.push({
-                first_ten: getUnixTime(date),
-                last_ten: getUnixTime(addMinutes(date, 10)),
-                date: formatDate(date, 'yyyy-MM-dd'),
-            });
-        }
-    } else if (timePeriod?.value === 'daily') {
+    const now = new Date();
+    if (timePeriod.value === 'hour') {
+        dates = eachHourOfInterval({
+            start: startDate || subHours(now, periodLength),
+            end: now,
+        }).map(date => ({
+            first_ten: getUnixTime(date),
+            last_ten: getUnixTime(addMinutes(date, 10)),
+            date: formatDate(date, 'yyyy-MM-dd H:m'),
+        }));
+    } else if (timePeriod?.value === 'day') {
         dates = eachDayOfInterval({
-            start: new Date(2020, 2, 29),
-            end: today,
+            start: startDate || BALANCER_CONTRACT_START_DATE,
+            end: now,
         }).map(date => ({
             first_ten: getUnixTime(date),
             last_ten: getUnixTime(addMinutes(date, 10)),
@@ -43,11 +43,12 @@ export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24) => 
     return dates;
 };
 
-export const get24Change = (data: BalancerData[]) => (statistic: string) => {
+export const getDynamicChange = (data: BalancerData[]) => (statistic: string, periodLength?: number) => {
     const extractorFn = dataExtractors[statistic];
-    const yesterday = extractorFn(data[24]) - extractorFn(data[0]);
-    const today = extractorFn(data[47]) - extractorFn(data[24]);
-    const change = ((today - yesterday) / yesterday);
+
+    const yesterday = extractorFn(data[data.length - periodLength]) as number;
+    const today = extractorFn(last(data)) as number;
+    const change = (today - yesterday) / yesterday;
     return {
         yesterday,
         today,
@@ -55,44 +56,48 @@ export const get24Change = (data: BalancerData[]) => (statistic: string) => {
     };
 };
 
-export const get24HLiquidityUtilisation = (data: BalancerData[]) => {
+export const calculateLiquidityUtilisation = (data: BalancerData[], chunkSize = 24) => {
     const liquidityExtractor = dataExtractors['totalLiquidity'];
     const swapVolumeExtractor = dataExtractors['totalSwapVolume'];
 
-    const yesterdayLiquidityMean = mean(take(data, 24).map(liquidityExtractor));
-    const todayLiquidityMean = mean(takeRight(data, 24).map(liquidityExtractor));
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), chunkSize);
+    const chunkedSwapVolume = chunk(data.map(swapVolumeExtractor), chunkSize);
 
-    const yesterdaySwapVolume = swapVolumeExtractor(data[23]) - swapVolumeExtractor(data[0]);
-    const todaySwapVolume = swapVolumeExtractor(data[47]) - swapVolumeExtractor(data[24]);
-  
-    const yesterday = (yesterdaySwapVolume / yesterdayLiquidityMean);
-    const today = (todaySwapVolume / todayLiquidityMean);
-    const change = ((today - yesterday) / yesterday);
+    const liquidityMeans = chunkedLiquidity.map(mean);
+    const volumeMovement = chunkedSwapVolume.map((chunk: number[]) => last(chunk) - first(chunk));
+
+    const utilisations = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
+    const changes = utilisations.map((utilisation, i) => {
+        if (i === utilisations.length - 1) return NaN;
+        return (utilisations[i + 1] - utilisation) / utilisation;
+    });
+
     return {
-        yesterday,
-        today,
-        change,
+        data: utilisations,
+        changes,
     };
 };
 
-export const get24HRevenueRatio = (data: BalancerData[]) => {
-  const liquidityExtractor = dataExtractors['totalLiquidity'];
-  const swapFeeVolumeExtractor = dataExtractors['totalSwapFeeVolume'];
+export const calculateRevenueRatio = (data: BalancerData[], chunkSize = 24) => {
+    const liquidityExtractor = dataExtractors['totalLiquidity'];
+    const swapFeeVolumeExtractor = dataExtractors['totalSwapFeeVolume'];
 
-  const yesterdayLiquidityMean = mean(take(data, 24).map(liquidityExtractor));
-  const todayLiquidityMean = mean(takeRight(data, 24).map(liquidityExtractor));
+    const chunkedLiquidity = chunk(data.map(liquidityExtractor), chunkSize);
+    const chunkedSwapFeeVolume = chunk(data.map(swapFeeVolumeExtractor), chunkSize);
 
-  const yesterdaySwapVolume = swapFeeVolumeExtractor(data[23]) - swapFeeVolumeExtractor(data[0]);
-  const todaySwapVolume = swapFeeVolumeExtractor(data[47]) - swapFeeVolumeExtractor(data[24]);
+    const liquidityMeans = chunkedLiquidity.map(mean);
+    const volumeMovement = chunkedSwapFeeVolume.map((chunk: number[]) => last(chunk) - first(chunk));
 
-  const yesterday = (yesterdaySwapVolume / yesterdayLiquidityMean);
-  const today = (todaySwapVolume / todayLiquidityMean);
-  const change = ((today - yesterday) / yesterday);
-  return {
-      yesterday,
-      today,
-      change,
-  };
+    const revenueRatios = liquidityMeans.map((meanLiquidity, i) => volumeMovement[i] / meanLiquidity);
+    const changes = revenueRatios.map((ratio, i) => {
+        if (i === revenueRatios.length - 1) return NaN;
+        return (revenueRatios[i + 1] - ratio) / ratio;
+    });
+
+    return {
+        data: revenueRatios,
+        changes,
+    };
 };
 
 export function useOnClickOutside(ref: React.Ref<any>, handler: (event: Event) => void) {
@@ -123,4 +128,19 @@ export function useOnClickOutside(ref: React.Ref<any>, handler: (event: Event) =
         // ... passing it into this hook.
         [ref, handler]
     );
+}
+
+export const sortBlockKeys = (blockKeys: string[] = []) => {
+    return blockKeys.sort((curr, next) => {
+        const currBlockIndex = parseInt(curr.split('_')[1], 10);
+        const nextBlockIndex = parseInt(next.split('_')[1], 10);
+
+        if (currBlockIndex > nextBlockIndex) return 1;
+        else if (currBlockIndex < nextBlockIndex) return -1;
+        return 0;
+    });
+};
+
+export const calculateChange = (originalValue: number, newValue: number) => {
+    return (newValue - originalValue) / originalValue;
 }
