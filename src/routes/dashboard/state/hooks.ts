@@ -121,7 +121,7 @@ export const useHistoricalBalancerState = (blocks: EthereumBlock[], dataExtracto
 };
 
 export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: number }) => {
-    const startDate = subHours(TODAY, overviewPeriod?.periodLength / 2);
+    const startDate = subHours(TODAY, overviewPeriod?.periodLength);
 
     const dates = useMemo(() => {
         // this piece of code is not the best, as the function getDates 
