@@ -62,8 +62,8 @@ export const tokens = {
         heading_2: 600,
         heading_3: 600,
         heading_4: 600,
-        heading_5: 700,
-        heading_6: 700,  
+        heading_5: 600,
+        heading_6: 600,  
     }
 };
 

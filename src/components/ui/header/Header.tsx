@@ -18,7 +18,6 @@ const StyledPebbles = styled(Pebbles)`
 const StyledHeader = styled(Grid)`
     background: #fff;
     background: ${props => props.theme.headerBg};
-    border-bottom: 2px solid ${props => props.theme.borderColor};
 `;
 
 const StyledCrumbs = styled(Grid)`
@@ -34,7 +33,7 @@ const Header: FC<Props> = props => {
                     <StyledPebbles />
                 </Box>
             </StyledHeader>
-            <StyledCrumbs background={tokens.colors.white} paddingBottom='large' paddingTop='base' paddingX={['base', 'base', 'base', 'none']}>
+            <StyledCrumbs background={tokens.colors.white} paddingBottom='base' paddingTop='base' paddingX={['base', 'base', 'base', 'none']}>
                 <Heading level='4'>Analytics</Heading>
             </StyledCrumbs>
         </Stack>

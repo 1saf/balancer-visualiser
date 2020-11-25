@@ -14,7 +14,7 @@ const Dashboard: FC<any> = ({ children }) => {
     const currentBalancerState = useCurrentBalancerStatistics();
 
     return (
-        <Grid background={Theme.background} width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
+        <Grid width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
             <Dashboard24HMetrics balancerState={currentBalancerState} />
             <HistoricalBalancerGraph dataKey='totalLiquidity' query={historicalPoolsQuery} />
             <HistoricalUtilisationGraph />
