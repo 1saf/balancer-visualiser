@@ -1,5 +1,6 @@
 import Dashboard from '../routes/dashboard/Dashboard';
 import DashboardItem from '../routes/dashboard/DashboardItem';
+import TokensView from '../routes/tokens/TokensView';
 
 export default [
     {
@@ -7,11 +8,13 @@ export default [
         path: '/',
         component: Dashboard,
         children: [
-            {
-                name: 'id',
-                path: '/:id',
-                component: DashboardItem,
-            },
+        ],
+    },
+    {
+        name: 'tokens',
+        path: '/tokens',
+        component: TokensView,
+        children: [
         ],
     }
 ];
