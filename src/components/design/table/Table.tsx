@@ -104,7 +104,7 @@ const Table: FC<Props> = props => {
                                     {
                                         // Loop over the rows cells
                                         row.cells.map(cell => {
-                                            // Apply the cell props
+                                            // Apply the cell props 
                                             return (
                                                 <StyledCell {...cell.getCellProps()} isNumerical={(cell?.column as any).isNumerical}>
                                                     {
