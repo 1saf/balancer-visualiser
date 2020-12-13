@@ -50,7 +50,11 @@ const StyledCell = styled.td<{ isNumerical?: boolean }>`
     vertical-align: middle;
 `;
 
-const StyledSortIndicator = styled(Box)``;
+const StyledSortIndicator = styled(Box)<{ active?: boolean }>`
+    line-height: 0.85;
+    font-size: 0.75rem;
+    color: ${props => (props.active ? tokens.colors.ultramarine : tokens.colors.gray400)};
+`;
 
 const Table: FC<Props> = props => {
     const { columns, data } = props;
@@ -69,20 +73,31 @@ const Table: FC<Props> = props => {
                                     // Loop over the headers in each row
                                     headerGroup.headers.map(column => {
                                         // Apply the header cell props
-                                        const justify = (column as any)?.isNumerical ? 'end': 'start';
+                                        const justify = (column as any)?.isNumerical ? 'end' : 'start';
                                         return (
                                             <StyledHeaderCell
                                                 {...column.getHeaderProps((column as any).getSortByToggleProps())}
                                                 isNumerical={(column as any).isNumerical}
                                             >
-                                                <Stack orientation='horizontal' width='100%' justify={justify}>
+                                                <Stack orientation='horizontal' width='100%' justify={justify} gap='base' align='center'>
                                                     {
                                                         // Render the header
                                                         column.render('Header')
                                                     }
-                                                    <StyledSortIndicator>
-                                                        {(column as any).isSorted ? ((column as any).isSortedDesc ? ' 🔽' : ' 🔼') : ''}
-                                                    </StyledSortIndicator>
+                                                    <Stack>
+                                                        <StyledSortIndicator
+                                                            active={(column as any).isSorted && !(column as any).isSortedDesc}
+                                                        >
+                                                            &nbsp;▲
+                                                            {/* { ? '▼' : '▲') : ''} */}
+                                                        </StyledSortIndicator>
+                                                        <StyledSortIndicator
+                                                            active={(column as any).isSorted && (column as any).isSortedDesc}
+                                                        >
+                                                            &nbsp;▼
+                                                            {/* {(column as any).isSorted ? ((column as any).isSortedDesc ? '▼' : '▲') : ''} */}
+                                                        </StyledSortIndicator>
+                                                    </Stack>
                                                 </Stack>
                                             </StyledHeaderCell>
                                         );
@@ -104,7 +119,7 @@ const Table: FC<Props> = props => {
                                     {
                                         // Loop over the rows cells
                                         row.cells.map(cell => {
-                                            // Apply the cell props 
+                                            // Apply the cell props
                                             return (
                                                 <StyledCell {...cell.getCellProps()} isNumerical={(cell?.column as any).isNumerical}>
                                                     {
