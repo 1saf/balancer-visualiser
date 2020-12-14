@@ -1,5 +1,5 @@
-import React, { FC } from 'react';
-import { useTable, useSortBy } from 'react-table';
+import React, { FC, useEffect, useImperativeHandle } from 'react';
+import { useTable, useSortBy, useAsyncDebounce } from 'react-table';
 import styled from 'styled-components';
 import { tokens } from '../../../style/Theme';
 import Box from '../../layout/box/Box';
@@ -16,6 +16,7 @@ export type ColumnDefinition = {
 type Props = {
     columns: ColumnDefinition[];
     data: Record<string, unknown>[];
+    setTableState: any;
 };
 
 const StyledTable = styled.table`
@@ -57,9 +58,19 @@ const StyledSortIndicator = styled(Box)<{ active?: boolean }>`
 `;
 
 const Table: FC<Props> = props => {
-    const { columns, data } = props;
+    const { columns, data, setTableState } = props;
+    const skipPageResetRef = React.useRef();
 
-    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } = useTable({ columns: columns as any, data }, useSortBy);
+    const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
+        { columns: columns as any, data, autoResetSortBy: false } as any,
+        useSortBy
+    );
+    const sortBy = (state as any)?.sortBy[0];
+
+    useEffect(() => {
+        setTableState({ sortBy });
+    }, [sortBy?.id, sortBy?.desc]);
+
     return (
         <Box padding='small'>
             <StyledTable {...getTableProps()}>
