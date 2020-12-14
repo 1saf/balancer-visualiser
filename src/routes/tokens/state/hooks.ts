@@ -6,6 +6,7 @@ import firebase from 'firebase';
 import tokensQuery from '../query/tokens.graphql';
 import { da } from 'date-fns/locale';
 import { flatten, last } from 'lodash';
+import { format } from 'date-fns';
 
 type TokenPrice = {
     name: string;
@@ -26,10 +27,13 @@ type SortAndPaginationOptions = {
 };
 
 const getTokenData = async (key: string, { orderDesc, orderKey }: SortAndPaginationOptions, cursor: any) => {
+    const today = new Date();
+    const dateKey = format(today, 'yyyyMMdd');
+
     let hourlyTokenRef: any = firebase
         .firestore()
         .collection('dailydata')
-        .doc('20201214')
+        .doc(dateKey)
         .collection('hourlytokendata')
         .orderBy(orderKey || 'liquidity', 'desc');
 
