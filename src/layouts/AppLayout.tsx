@@ -51,6 +51,7 @@ const AppLayout = styled(Box)`
 
 const FullWidthStack = styled(Stack)`
     width: 100%;
+    height: 100%;
 `;
 
 const App: FC<Props> = props => {

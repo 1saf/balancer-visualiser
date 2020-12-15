@@ -6,7 +6,8 @@ import firebase from 'firebase';
 import tokensQuery from '../query/tokens.graphql';
 import { da } from 'date-fns/locale';
 import { flatten, last } from 'lodash';
-import { format } from 'date-fns';
+import { format, getUnixTime, startOfHour } from 'date-fns';
+import { order } from 'styled-system';
 
 type TokenPrice = {
     name: string;
@@ -27,15 +28,19 @@ type SortAndPaginationOptions = {
 };
 
 const getTokenData = async (key: string, { orderDesc, orderKey }: SortAndPaginationOptions, cursor: any) => {
-    const today = new Date();
-    const dateKey = format(today, 'yyyyMMdd');
+    const now = new Date();
+    const hourlySnapshotTimestamp = getUnixTime(startOfHour(now));
+    const dateKey = format(now, 'yyyyMMdd');
+    let orderDirection: firebase.firestore.OrderByDirection = 'desc';
+    if (!orderDesc) orderDirection = 'asc';
 
     let hourlyTokenRef: any = firebase
         .firestore()
         .collection('dailydata')
         .doc(dateKey)
         .collection('hourlytokendata')
-        .orderBy(orderKey || 'liquidity', 'desc');
+        .where('timestamp', '==', hourlySnapshotTimestamp)
+        .orderBy(orderKey || 'liquidity', orderDirection);
 
     if (cursor) {
         hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(50).get();
@@ -60,7 +65,6 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
         isFetchingMore: isFetchingMoreTokens,
     } = useInfiniteQuery<{ tokens: any[]; cursor: any }>(['tokendata', sortAndOrderOpts], getTokenData, {
         getFetchMore: lastPage => {
-            console.log('oos', lastPage);
             return lastPage.cursor;
         },
     });

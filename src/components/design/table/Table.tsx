@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useImperativeHandle } from 'react';
-import { useTable, useSortBy, useAsyncDebounce } from 'react-table';
+import { useTable, useSortBy, useAsyncDebounce, useBlockLayout, useFlexLayout } from 'react-table';
 import styled from 'styled-components';
 import { tokens } from '../../../style/Theme';
 import Box from '../../layout/box/Box';
@@ -63,7 +63,8 @@ const Table: FC<Props> = props => {
 
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         { columns: columns as any, data, autoResetSortBy: false } as any,
-        useSortBy
+        useSortBy,
+        useFlexLayout,
     );
     const sortBy = (state as any)?.sortBy[0];
 

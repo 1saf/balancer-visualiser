@@ -1,4 +1,4 @@
-import React, { FC, useEffect, useState } from 'react';
+import React, { FC, useEffect, useRef, useState } from 'react';
 import Table from '../../components/design/table/Table';
 import Box from '../../components/layout/box/Box';
 import Grid from '../../components/layout/grid/Grid';
@@ -17,6 +17,12 @@ const StyledTokenSymbol = styled.span`
     color: ${tokens.colors.blue400};
 `;
 
+const StyledTokensView = styled(Box)`
+    display: flex;
+    flex-grow: 1;
+    overflow: hidden;
+`;
+
 const columns = [
     {
         Header: 'Token',
@@ -27,39 +33,41 @@ const columns = [
                 <StyledTokenSymbol>{String(row?.original?.symbol)}</StyledTokenSymbol>
             </Stack>
         ),
+        minWidth: 400,
+        width: 400,
+        maxWidth: 400,
     },
     {
         Header: 'Price',
         accessor: 'price',
         isNumerical: true,
-        Cell: ({ value }: any) => numeral(value).format('$0.00a'),
+        Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
     },
     {
         Header: 'Total Liquidity',
         accessor: 'liquidity',
         isNumerical: true,
-        Cell: ({ value }: any) => numeral(value).format('$0.00a'),
+        Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
     },
     {
         Header: 'Units',
         accessor: 'balance',
         isNumerical: true,
-        Cell: ({ value }: any) => numeral(value).format('0.00a'),
+        Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
     },
 ];
 
 const TokensView: FC<Props> = props => {
     const {} = props;
+    const tableContainerRef = useRef(null);
     const [tableState, setTableState] = useState({} as { sortBy: { id: string; desc: boolean } });
-    const [offset, setOffset] = useState(0);
     const { tokenPrices, fetchMoreTokens, isFetchingMoreTokens, isFetchingTokens } = useTokensViewState({
         orderDesc: tableState?.sortBy?.desc,
         orderKey: tableState?.sortBy?.id,
-        offset,
     });
 
     const loadMore = useDebouncedCallback(() => {
-        if (window.innerHeight + document.documentElement.scrollTop >= document.documentElement.scrollHeight - 50) {
+        if (tableContainerRef && tableContainerRef.current.offsetHeight + tableContainerRef.current.scrollTop >= tableContainerRef.current.scrollHeight - 50) {
             // ensure that server doesn't get spammed while its already attempting
             // a request to fetch more data if the user scrolls up and back down
             if (!isFetchingTokens || !isFetchingMoreTokens) {
@@ -69,16 +77,21 @@ const TokensView: FC<Props> = props => {
     }, 100);
 
     useEffect(() => {
-        window.onscroll = loadMore.callback;
-    }, []);
+        if (tableContainerRef) {
+
+            tableContainerRef.current.onscroll = loadMore.callback;
+        }
+    }, [tableContainerRef]);
 
     if (!tokenPrices) return null;
     return (
-        <Grid width='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
-            <Box spanX={12}>
-                <Table setTableState={setTableState} columns={columns} data={tokenPrices}></Table>
-            </Box>
-        </Grid>
+        <StyledTokensView>
+            <Grid width='100%' height='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
+                <Box ref={tableContainerRef} spanX={12} overflowY='scroll'>
+                    <Table setTableState={setTableState} columns={columns} data={tokenPrices}></Table>
+                </Box>
+            </Grid>
+        </StyledTokensView>
     );
 };
 
