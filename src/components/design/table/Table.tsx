@@ -1,3 +1,4 @@
+import { AnimatePresence, motion } from 'framer-motion';
 import React, { FC, MouseEvent, useCallback, useEffect, useImperativeHandle } from 'react';
 import { useTable, useSortBy, useAsyncDebounce, useBlockLayout, useFlexLayout } from 'react-table';
 import styled from 'styled-components';
@@ -18,6 +19,7 @@ type Props = {
     data: Record<string, unknown>[];
     setTableState: any;
     isLoading?: boolean;
+    isFetchingMore?: boolean;
     skeletonHeight?: number;
 };
 
@@ -29,11 +31,11 @@ const StyledHead = styled.thead`
     width: 100%;
 `;
 
-const StyledBody = styled.tbody`
+const StyledBody = styled(motion.tbody)`
     width: 100%;
 `;
 
-const StyledCellRow = styled.tr`
+const StyledCellRow = styled(motion.tr)`
     border-top: 1px ${tokens.colors.gray400} solid;
 `;
 
@@ -109,7 +111,7 @@ const StyledSkeletonCell = styled.td<{ skeletonHeight?: number }>`
 `;
 
 const Table: FC<Props> = props => {
-    const { columns, data, setTableState, isLoading, skeletonHeight } = props;
+    const { columns, data, setTableState, isLoading, skeletonHeight, isFetchingMore } = props;
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         { columns: columns as any, data, autoResetSortBy: false } as any,
         useSortBy,
@@ -199,16 +201,22 @@ const Table: FC<Props> = props => {
                         ))}
                     </StyledBody>
                 )}
-                {!isLoading && (
+
+                {!isLoading && rows.length && (
+                    // <AnimatePresence>
                     <StyledBody {...getTableBodyProps()}>
                         {
                             // Loop over the table rows
-                            rows.map(row => {
+                            rows.map((row, rowNumber) => {
                                 // Prepare the row for display
                                 prepareRow(row);
                                 return (
                                     // Apply the row props
-                                    <StyledCellRow {...row.getRowProps()}>
+                                    <StyledCellRow
+                                        {...row.getRowProps()}
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1, transition: { delay: 0.01 * rowNumber } }}
+                                    >
                                         {
                                             // Loop over the rows cells
                                             row.cells.map(cell => {
@@ -228,6 +236,7 @@ const Table: FC<Props> = props => {
                             })
                         }
                     </StyledBody>
+                    // </AnimatePresence>
                 )}
             </StyledTable>
         </Box>

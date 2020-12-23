@@ -28,6 +28,21 @@ const StyledTokensView = styled(Box)`
     overflow: hidden;
 `;
 
+const StyledScrollBarContainer = styled(Box)`
+    &::-webkit-scrollbar {
+        width: 6px;
+        padding: 1px;
+    }
+
+    &::-webkit-scrollbar-track {
+        background: ${tokens.colors.blue100};
+    }
+
+    &::-webkit-scrollbar-thumb {
+        background-color: ${tokens.colors.ultramarine};
+        border-radius: 25px;
+    }
+`;
 const TokensView: FC<Props> = props => {
     const {} = props;
     const tableContainerRef = useRef(null);
@@ -39,6 +54,7 @@ const TokensView: FC<Props> = props => {
         isFetchingTokens,
         setTokenSearchText,
         tokenSearchText,
+        isLoading,
     } = useTokensViewState({
         orderDesc: tableState?.sortBy?.desc,
         orderKey: tableState?.sortBy?.id,
@@ -48,8 +64,6 @@ const TokensView: FC<Props> = props => {
         const searchText = (event.target as any).value as string;
         setTokenSearchText(searchText);
     }, 250);
-
-    console.log('si', { isFetchingMoreTokens, isFetchingTokens })
 
     const columns = useMemo(
         () => [
@@ -102,7 +116,7 @@ const TokensView: FC<Props> = props => {
             // a request to fetch more data if the user scrolls up and back down
             // also do not perform a search when there is search text as it goes
             // through algolia and we want to preserve those expensive ass queries
-            if (!isFetchingTokens || !isFetchingMoreTokens && !tokenSearchText) {
+            if (!isFetchingTokens || (!isFetchingMoreTokens && !tokenSearchText)) {
                 fetchMoreTokens();
             }
         }
@@ -118,9 +132,15 @@ const TokensView: FC<Props> = props => {
     return (
         <StyledTokensView>
             <Grid width='100%' height='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
-                <Box ref={tableContainerRef} spanX={12} overflowY='scroll'>
-                    <Table setTableState={setTableState} isLoading={isFetchingTokens} skeletonHeight={75} columns={columns} data={tokenPrices}></Table>
-                </Box>
+                <StyledScrollBarContainer ref={tableContainerRef} spanX={12} overflowY='scroll'>
+                    <Table
+                        setTableState={setTableState}
+                        isLoading={isLoading}
+                        skeletonHeight={75}
+                        columns={columns}
+                        data={tokenPrices}
+                    ></Table>
+                </StyledScrollBarContainer>
             </Grid>
         </StyledTokensView>
     );
