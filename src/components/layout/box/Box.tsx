@@ -29,7 +29,7 @@ export type BoxProps = {
     transition?: any;
     style?: any;
     background?: string;
-    overflowY?: 'auto' | 'scroll' | 'none';
+    overflowY?: 'auto' | 'scroll' | 'none' | 'hidden';
 };
 
 

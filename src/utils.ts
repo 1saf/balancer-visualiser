@@ -15,8 +15,13 @@ import { useEffect } from 'react';
 import { BalancerData, TimePeriod } from './api/datatypes';
 import { dataExtractors } from './routes/dashboard/state/hooks';
 
+import bent from 'bent';
+
 export const BALANCER_CONTRACT_START_DATE = new Date(2020, 2, 29);
 export const TODAY = new Date();
+
+export const POST = (url: string) => bent(url, 'POST', 'json', [200, 400, 404, 401, 500]);
+export const GET = (url: string) => bent(url, 'GET', 'json', [200, 400, 404, 401, 500])('');
 
 export const getDates = (timePeriod: Partial<TimePeriod>, periodLength = 24, startDate?: Date) => {
     let dates: any[] = [];

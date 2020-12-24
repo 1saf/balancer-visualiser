@@ -1,0 +1,5 @@
+query PoolCountQuery {
+    balancer(id: "1") {
+        finalizedPoolCount
+    }
+}

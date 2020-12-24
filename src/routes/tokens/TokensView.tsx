@@ -10,6 +10,10 @@ import styled from 'styled-components';
 import { tokens } from '../../style/Theme';
 import { useDebouncedCallback } from 'use-debounce/lib';
 
+import Web3Utils from 'web3-utils';
+import { useAppContext } from '../../layouts/AppLayout';
+import Feedback from '../../components/design/feedback/Feedback';
+
 type Props = {};
 
 const StyledTokenSymbol = styled.span`
@@ -22,43 +26,61 @@ const StyledTokenName = styled.span`
     color: ${tokens.colors.raisin_black};
 `;
 
-const StyledTokensView = styled(Box)`
+const StyledTokensView = styled(Stack)`
     display: flex;
-    flex-grow: 1;
     overflow: hidden;
-`;
 
-const StyledScrollBarContainer = styled(Box)`
-    &::-webkit-scrollbar {
-        width: 6px;
-        padding: 1px;
-    }
-
-    &::-webkit-scrollbar-track {
-        background: ${tokens.colors.blue100};
-    }
-
-    &::-webkit-scrollbar-thumb {
-        background-color: ${tokens.colors.ultramarine};
-        border-radius: 25px;
+    @media (min-width: 1024px) {
+        justify-content: center;
+        width: 1164px;
+        margin: 0 auto;
+        max-width: 1164px;
     }
 `;
+
+const StyledTokenIcon = styled(Box)`
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    & > img {
+        width: 24px;
+        height: 24px;
+
+        &:before {
+            content: ' ';
+            display: block;
+            position: absolute;
+            height: 24px;
+            width: 24px;
+            background: #FFF;
+    }
+`;
+
 const TokensView: FC<Props> = props => {
     const {} = props;
     const tableContainerRef = useRef(null);
     const [tableState, setTableState] = useState({} as { sortBy: { id: string; desc: boolean } });
     const {
-        tokenPrices,
+        cachedTokenData,
         fetchMoreTokens,
         isFetchingMoreTokens,
         isFetchingTokens,
         setTokenSearchText,
         tokenSearchText,
         isLoading,
+        isLoadingTokenPrices,
+        tokenPrices,
     } = useTokensViewState({
         orderDesc: tableState?.sortBy?.desc,
         orderKey: tableState?.sortBy?.id,
     });
+    const { setHeading } = useAppContext();
+
+    useEffect(() => {
+        setHeading('Tokens')
+    }, []);
 
     const handleTokenSearch = useDebouncedCallback(async (event: SyntheticEvent) => {
         const searchText = (event.target as any).value as string;
@@ -68,7 +90,24 @@ const TokensView: FC<Props> = props => {
     const columns = useMemo(
         () => [
             {
-                Header: 'Token',
+                Header: '',
+                accessor: 'icon',
+                width: 48,
+                Cell: ({ row, value }: any) => {
+                    return (
+                        <StyledTokenIcon>
+                            <img
+                                src={`https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${Web3Utils.toChecksumAddress(
+                                    row?.original?.contract_address
+                                )}/logo.png`}
+                            />
+                        </StyledTokenIcon>
+                    );
+                },
+                disableSortBy: true,
+            },
+            {
+                Header: 'TOKEN',
                 accessor: 'name', // accessor is the "key" in the data
                 Cell: ({ row, value }: any) => (
                     <Stack gap='small'>
@@ -76,7 +115,6 @@ const TokensView: FC<Props> = props => {
                         <StyledTokenSymbol>{String(row?.original?.symbol)}</StyledTokenSymbol>
                     </Stack>
                 ),
-                minWidth: 400,
                 width: 400,
                 maxWidth: 400,
                 isSearchable: true,
@@ -86,25 +124,44 @@ const TokensView: FC<Props> = props => {
                 },
             },
             {
-                Header: 'Price',
+                Header: 'PRICE',
+                accessor: (row: any) => (tokenPrices || {})[row?.contract_address]?.usd,
+                width: 100,
+                maxWidth: 100,
+                isNumerical: true,
+                Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
+                disableSortBy: true,
+            },
+            {
+                Header: 'CALCULATED PRICE',
                 accessor: 'price',
+                width: 120,
+                maxWidth: 120,
                 isNumerical: true,
                 Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
+                disableSortBy: true,
+                helpText: 'The price that was used to calculate total liquidity as a product of the number of units.',
             },
             {
-                Header: 'Total Liquidity',
+                Header: 'TOTAL LIQUIDITY',
                 accessor: 'liquidity',
+                width: 120,
+                maxWidth: 120,
                 isNumerical: true,
                 Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
             },
             {
-                Header: 'Units',
+                Header: 'UNITS',
                 accessor: 'balance',
+                width: 100,
+                maxWidth: 100,
                 isNumerical: true,
                 Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
+                disableSortBy: true,
+                helpText: 'The total amount of tokens in circulation across all pools.'
             },
         ],
-        [handleTokenSearch]
+        [handleTokenSearch, isLoadingTokenPrices]
     );
 
     const loadMore = useDebouncedCallback(() => {
@@ -128,20 +185,29 @@ const TokensView: FC<Props> = props => {
         }
     }, [tableContainerRef]);
 
-    if (!tokenPrices) return null;
+    if (!cachedTokenData) return null;
     return (
-        <StyledTokensView>
-            <Grid width='100%' height='100%' paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
-                <StyledScrollBarContainer ref={tableContainerRef} spanX={12} overflowY='scroll'>
-                    <Table
-                        setTableState={setTableState}
-                        isLoading={isLoading}
-                        skeletonHeight={75}
-                        columns={columns}
-                        data={tokenPrices}
-                    ></Table>
-                </StyledScrollBarContainer>
-            </Grid>
+        <StyledTokensView paddingY='base'>
+            <Feedback paddingY='small' emotion='neutral'>
+                Please note that token Liquidity is calculated every hour against the price of the token at that hour.
+            </Feedback>
+            <Table
+                setTableState={setTableState}
+                ref={tableContainerRef}
+                isLoading={isLoading || isLoadingTokenPrices}
+                skeletonHeight={75}
+                columns={columns}
+                data={cachedTokenData}
+                isFetchingMore={isFetchingTokens}
+                initialState={{
+                    sortBy: [
+                        {
+                            id: 'liquidity',
+                            desc: true,
+                        },
+                    ],
+                }}
+            ></Table>
         </StyledTokensView>
     );
 };
