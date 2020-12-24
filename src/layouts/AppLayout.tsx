@@ -1,4 +1,4 @@
-import React, { FC } from 'react';
+import React, { FC, useContext, useState } from 'react';
 import { useRouteNode } from 'react-router5';
 import { keyBy } from 'lodash';
 import routes from '../router/routes';
@@ -42,7 +42,6 @@ const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
 };
 
 const AppLayout = styled(Box)`
-    background-color: ${props => props.theme.background};
     width: 100%;
     height: 100%;
     display: block;
@@ -52,19 +51,26 @@ const AppLayout = styled(Box)`
 
 const FullWidthStack = styled(Stack)`
     width: 100%;
+    height: 100%;
 `;
+
+const AppContext = React.createContext({} as any);
+export const useAppContext = () => useContext(AppContext);
 
 const App: FC<Props> = props => {
     const { route } = useRouteNode('');
+    const [heading, setHeading] = useState('');
 
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
-            <AppLayout>
-                <FullWidthStack>
-                    <Header />
-                    <RouteRenderer route={route} />
-                </FullWidthStack>
-            </AppLayout>
+            <AppContext.Provider value={{ heading, setHeading }}>
+                <AppLayout>
+                    <FullWidthStack>
+                        <Header heading={heading} />
+                        <RouteRenderer route={route} />
+                    </FullWidthStack>
+                </AppLayout>
+            </AppContext.Provider>
         </ReactQueryConfigProvider>
     );
 };

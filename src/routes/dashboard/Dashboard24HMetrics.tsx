@@ -41,7 +41,7 @@ const Dashboard24HMetrics: FC<Props> = props => {
         <Fragment>
             <Box spanX={12}>
                 <Stack align='start' gap='base'>
-                    <Heading level='4'>Overview</Heading>
+                    <Heading level='5'>Overview</Heading>
                     <ButtonGroup options={OverviewOptions} value={`${overviewPeriod?.value}-${overviewPeriod.label}`} setValue={setOverviewPeriod} />
                 </Stack>
             </Box>

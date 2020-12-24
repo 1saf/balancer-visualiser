@@ -1,0 +1,8 @@
+query TokensQuery {
+    tokenPrices(orderBy: poolLiquidity, orderDirection: desc, first: 50) {
+        name
+        poolLiquidity
+        price
+        symbol
+    }
+}

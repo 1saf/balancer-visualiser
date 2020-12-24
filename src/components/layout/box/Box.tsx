@@ -29,6 +29,7 @@ export type BoxProps = {
     transition?: any;
     style?: any;
     background?: string;
+    overflowY?: 'auto' | 'scroll' | 'none' | 'hidden';
 };
 
 
@@ -40,6 +41,7 @@ const StyledBox = styled(motion.div)<BoxProps>`
     ${props => props.width && `width: ${props.width};`}
     ${props => props.height && `height: ${props.height};`}
     ${props => props.background && `background: ${props.background};`}
+    ${props => props.overflowY && `overflow-y: ${props.overflowY};`}
 `;
 
 const Box: FC<BoxProps> = forwardRef((props, ref) => {
