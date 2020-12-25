@@ -62,7 +62,7 @@ const StyledTable = styled.div`
     &::-webkit-scrollbar {
         width: 3px;
         height: 3px;
-        padding: 1px;
+        paddingRight: 20px;
     }
 
     &::-webkit-scrollbar-track {
@@ -93,14 +93,16 @@ const StyledCellRow = styled(motion.div)``;
 const StyledHeaderCell = styled.div<{ isNumerical?: boolean }>`
     font-weight: 500;
     color: ${tokens.colors.gray800};
-    padding: 1rem 1rem;
+    padding-top: 1rem;
+    padding-bottom: 0.5rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
     text-align: ${props => (props.isNumerical ? 'right' : 'left')};
     position: sticky;
     top: 0;
     border-bottom: 2px ${tokens.colors.gray400} solid;
     background: #fff;
-    font-size: 0.75rem;
-    letter-spacing: 0.75px;
+    font-size: 0.85rem;
     font-weight: 500;
 `;
 

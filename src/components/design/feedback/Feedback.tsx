@@ -24,7 +24,7 @@ const StyledFeedback = styled(Stack)<Props>`
     background: #fff;
     border-radius: 8px;
     font-size: 0.75rem;
-    font-color: ${tokens.colors.gray800};
+    color: ${tokens.colors.gray700};
     font-weight: 500;
 `;
 
@@ -33,9 +33,7 @@ const Feedback: FC<Props> = props => {
     return (
         <StyledFeedback orientation='horizontal' gap='small' align='center' emotion={emotion} {...props}>
             <InfoCircle style={{ width: '16px', height: '16px' }} />
-            <Box>
-            {children}
-            </Box>
+            <Box>{children}</Box>
         </StyledFeedback>
     );
 };

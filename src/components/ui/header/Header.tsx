@@ -38,7 +38,6 @@ const StyledHeaderLink = styled.a`
 `;
 
 const StyledCrumbs = styled(Grid)`
-    border-bottom: 2px solid ${props => props.theme.borderColor};
 `;
 
 const Header: FC<Props> = props => {
@@ -47,9 +46,9 @@ const Header: FC<Props> = props => {
         <Stack>
             <StyledHeader paddingY='medium' paddingX={['base', 'base', 'base', 'none']}>
                 <Box spanX={12}>
-                    <Stack orientation='horizontal'>
+                    <Stack orientation='horizontal' gap='base'>
                         <StyledPebbles />
-                        <Stack marginLeft='base' orientation='horizontal' align='center'>
+                        <Stack marginLeft='base' orientation='horizontal' align='center' gap='small'>
                             <StyledHeaderLink href='/'>Dashboard</StyledHeaderLink>
                             <StyledHeaderLink href='/tokens'>Tokens</StyledHeaderLink>
                         </Stack>
@@ -58,8 +57,7 @@ const Header: FC<Props> = props => {
             </StyledHeader>
             <StyledCrumbs
                 background={tokens.colors.white}
-                paddingBottom='base'
-                paddingTop='base'
+                paddingTop='x-large'
                 paddingX={['base', 'base', 'base', 'none']}
             >
                 <Heading level='4'>{heading}</Heading>
