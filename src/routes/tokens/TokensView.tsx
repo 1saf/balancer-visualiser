@@ -33,6 +33,7 @@ const StyledTokensView = styled(Stack)`
     padding-bottom: 0.5rem;
 
     @media (min-width: 1024px) {
+        padding: 0;
         justify-content: center;
         width: 1164px;
         margin: 0 auto;
@@ -192,7 +193,7 @@ const TokensView: FC<Props> = props => {
     if (!cachedTokenData) return null;
     return (
         <StyledTokensView paddingY='base' gap='base'>
-            <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'none']}>
+            <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
                 Please note that token Liquidity is calculated every hour against the price of the token at that hour.
             </Feedback>
             <TokenViewBorderContainer>
