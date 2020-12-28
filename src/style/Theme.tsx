@@ -37,14 +37,13 @@ export const tokens = {
         blue900: '#080b18',
 
         gray100: '#FEFEFF',
-        gray200: '#F3F3F5',
-        gray300: '#E5E6EA',
-        gray400: '#D3D4DB',
-        gray500: '#AAACB9',
-        gray600: '#72758A',
-        gray700: '#62657C',
-        gray800: '#3C3E4D',
-        gray900: '#181921',
+        gray200: '#84849A',
+        gray300: '#51576C',
+        gray400: '#353749',
+        gray500: '#2A2D3E',
+        gray600: '#242637',
+        gray700: '#1F2130',
+        gray800: '#1B1D2C',
 
         background: '#f7fafc',
     },
@@ -74,6 +73,15 @@ export default {
     background: tokens.colors.background,
 
     headerBg: tokens.colors.raisin_black,
+
+    dark: {
+        table: {
+            headerBackground: tokens.colors.gray800,
+            background: tokens.colors.gray700,
+            headerColor: tokens.colors.gray300,
+        },
+    },
+
     borderColor: tokens.colors.gray600,
     emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,

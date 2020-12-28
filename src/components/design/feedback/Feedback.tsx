@@ -23,7 +23,7 @@ const StyledFeedback = styled(Stack)<Props>`
     }
     background: #fff;
     border-radius: 8px;
-    font-size: 0.75rem;
+    font-size: 0.85rem;
     color: ${tokens.colors.gray700};
     font-weight: 500;
 `;

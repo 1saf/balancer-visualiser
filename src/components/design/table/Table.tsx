@@ -9,6 +9,8 @@ import QuestionMark from '../../../assets/question-circle-solid.svg';
 
 import Stack from '../../layout/stack/Stack';
 import Tooltip from '../tooltip/Tooltip';
+import { useAppContext } from '../../../layouts/AppLayout';
+import { ThemeProp } from '../../theme_utils';
 
 export type ColumnDefinition = {
     Header: string;
@@ -26,9 +28,9 @@ type Props = {
     initialState?: any;
 };
 
-const StyledTable = styled.div`
+const StyledTable = styled.div<ThemeProp>`
     width: 100%;
-    overflow-y: scroll;
+    background: ${props => props.theme[props.innerTheme].table.background};
 
     .header,
     .footer {
@@ -90,9 +92,9 @@ const StyledBody = styled(motion.div)`
 
 const StyledCellRow = styled(motion.div)``;
 
-const StyledHeaderCell = styled.div<{ isNumerical?: boolean }>`
+const StyledHeaderCell = styled.div<{ isNumerical?: boolean } & ThemeProp>`
     font-weight: 500;
-    color: ${tokens.colors.gray800};
+    color: ${props => props.theme[props.innerTheme].table.headerColor};
     padding-top: 1rem;
     padding-bottom: 0.5rem;
     padding-left: 1rem;
@@ -101,8 +103,8 @@ const StyledHeaderCell = styled.div<{ isNumerical?: boolean }>`
     position: sticky;
     top: 0;
     border-bottom: 2px ${tokens.colors.gray400} solid;
-    background: #fff;
-    font-size: 0.85rem;
+    background: ${props => props.theme[props.innerTheme].table.headerBackground};
+    font-size: 1rem;
     font-weight: 500;
 `;
 
@@ -173,6 +175,7 @@ const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number }>`
 `;
 
 const Table = React.forwardRef((props: Props, ref) => {
+    const { theme } = useAppContext();
     const { columns, data, setTableState, isLoading, skeletonHeight, isFetchingMore, initialState } = props;
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         { columns: columns as any, data, autoResetSortBy: false, initialState } as any,
@@ -192,7 +195,7 @@ const Table = React.forwardRef((props: Props, ref) => {
     }, []);
 
     return (
-        <StyledTable {...getTableProps()} ref={ref as any}>
+        <StyledTable {...getTableProps()} ref={ref as any} innerTheme={theme}>
             <StyledHead>
                 {
                     // Loop over the header rows
@@ -212,6 +215,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                                     console.log('elp', helpText);
                                     return (
                                         <StyledHeaderCell
+                                            innerTheme={theme}
                                             {...column.getHeaderProps((column as any).getSortByToggleProps())}
                                             isNumerical={(column as any).isNumerical}
                                         >

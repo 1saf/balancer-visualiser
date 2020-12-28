@@ -7,6 +7,7 @@ import styled, { css } from 'styled-components';
 import Box from '../components/layout/box/Box';
 import Stack from '../components/layout/stack/Stack';
 import Header from '../components/ui/header/Header';
+import Footer from '../components/ui/footer/Footer';
 
 type Props = {};
 
@@ -60,14 +61,16 @@ export const useAppContext = () => useContext(AppContext);
 const App: FC<Props> = props => {
     const { route } = useRouteNode('');
     const [heading, setHeading] = useState('');
+    const [theme, setTheme] = useState('dark');
 
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
-            <AppContext.Provider value={{ heading, setHeading }}>
+            <AppContext.Provider value={{ heading, setHeading, theme, setTheme }}>
                 <AppLayout>
                     <FullWidthStack>
                         <Header heading={heading} />
                         <RouteRenderer route={route} />
+                        <Footer />
                     </FullWidthStack>
                 </AppLayout>
             </AppContext.Provider>

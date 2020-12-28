@@ -13,6 +13,7 @@ import { useDebouncedCallback } from 'use-debounce/lib';
 import Web3Utils from 'web3-utils';
 import { useAppContext } from '../../layouts/AppLayout';
 import Feedback from '../../components/design/feedback/Feedback';
+import { Toggle } from '../../components/design/toggle/Toggle';
 
 type Props = {};
 
@@ -27,13 +28,12 @@ const StyledTokenName = styled.span`
 `;
 
 const StyledTokensView = styled(Stack)`
-    display: flex;
-    overflow: hidden;
     padding: 0 1rem;
     padding-bottom: 0.5rem;
 
     @media (min-width: 1024px) {
         padding: 0;
+        padding-bottom: 1rem;
         justify-content: center;
         width: 1164px;
         margin: 0 auto;
@@ -43,10 +43,8 @@ const StyledTokensView = styled(Stack)`
 
 const TokenViewBorderContainer = styled(Box)`
     display: flex;
-    border: 2px solid ${props => props.theme.borderColor};
     border-radius: 10px;
     width: 100%;
-    height: 100%;
     overflow: hidden;
 `;
 
@@ -191,6 +189,8 @@ const TokensView: FC<Props> = props => {
     }, [tableContainerRef]);
 
     if (!cachedTokenData) return null;
+
+    const [isActive, setIsActive] = useState(false);
     return (
         <StyledTokensView paddingY='base' gap='base'>
             <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
