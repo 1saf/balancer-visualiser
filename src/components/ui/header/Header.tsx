@@ -35,7 +35,7 @@ const StyledHeaderLink = styled.a`
 
 const Header: FC<Props> = props => {
     return (
-        <Stack>
+        <Box>
             <StyledHeader paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
                 <Box spanX={12}>
                     <Stack orientation='horizontal' gap='x-large'>
@@ -47,7 +47,7 @@ const Header: FC<Props> = props => {
                     </Stack>
                 </Box>
             </StyledHeader>
-        </Stack>
+        </Box>
     );
 };
 
