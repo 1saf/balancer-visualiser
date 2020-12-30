@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { FC, MouseEvent, useCallback, useEffect, useImperativeHandle } from 'react';
-import { useTable, useSortBy, useAsyncDebounce, useBlockLayout, useFlexLayout } from 'react-table';
+import React, { MouseEvent, useCallback, useEffect } from 'react';
+import { useTable, useSortBy, useBlockLayout } from 'react-table';
 import { useSticky } from 'react-table-sticky';
 import styled from 'styled-components';
 import { tokens } from '../../../style/Theme';
@@ -9,6 +9,7 @@ import QuestionMark from '../../../assets/question-circle-solid.svg';
 
 import Stack from '../../layout/stack/Stack';
 import Tooltip from '../tooltip/Tooltip';
+import { SkeletonText } from '../../design/skeleton/Skeleton';
 import { useAppContext } from '../../../layouts/AppLayout';
 import { ThemeProp } from '../../theme_utils';
 
@@ -153,8 +154,8 @@ const StyledInlineSearch = styled.input`
     }
 `;
 
-const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number; width: number, grow?: boolean }>`
-    flex-grow: ${props => props.grow ? 1 : 0};
+export const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number; width: number; grow?: boolean }>`
+    flex-grow: ${props => (props.grow ? 1 : 0)};
     min-width: ${props => props.width}px;
     background-color: ${tokens.colors.gray900};
     padding: 1.25rem 1rem;
@@ -162,35 +163,6 @@ const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number; width: 
 
     min-height: ${props => props.skeletonHeight}px;
     height: ${props => props.skeletonHeight}px;
-`;
-
-const SkeletonText = styled(Stack)`
-    animation: skeleton linear 2s infinite;
-    -webkit-animation: skeleton linear 2s infinite;
-    border-radius: 10px;
-    @keyframes skeleton {
-        0% {
-            background-color: ${tokens.colors.gray700};
-        }
-        50% {
-            background-color: ${tokens.colors.gray900};
-        }
-        100% {
-            background-color: ${tokens.colors.gray700};
-        }
-    }
-
-    @-webkit-keyframes skeleton {
-        0% {
-            background-color: ${tokens.colors.gray700};
-        }
-        50% {
-            background-color: ${tokens.colors.gray900};
-        }
-        100% {
-            background-color: ${tokens.colors.gray700};
-        }
-    }
 `;
 
 const SkeletonRow = () => {

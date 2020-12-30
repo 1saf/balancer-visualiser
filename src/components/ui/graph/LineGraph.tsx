@@ -8,7 +8,6 @@ import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
 import 'echarts/lib/component/markLine';
 import { last } from 'lodash';
-import Skeleton from '../../design/skeleton/Skeleton';
 import { getThemeValue } from '../../theme_utils';
 
 export type LineChartData = {
@@ -148,7 +147,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 },
                 {
                     value: -1,
-                    color: tokens.colors.congo_pink,
+                    color: tokens.colors.red400,
                 },
             ],
         },
@@ -259,8 +258,34 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
 const StyledLoadingOverlay = styled(Box)`
     position: absolute;
     top: 150px;
+    height: 300px;
     left: 0;
     width: 100%;
+    animation: skeleton linear 2s infinite;
+    -webkit-animation: skeleton linear 2s infinite;
+    @keyframes skeleton {
+        0% {
+            background-color: ${tokens.colors.gray700};
+        }
+        50% {
+            background-color: ${tokens.colors.gray900};
+        }
+        100% {
+            background-color: ${tokens.colors.gray700};
+        }
+    }
+
+    @-webkit-keyframes skeleton {
+        0% {
+            background-color: ${tokens.colors.gray700};
+        }
+        50% {
+            background-color: ${tokens.colors.gray900};
+        }
+        100% {
+            background-color: ${tokens.colors.gray700};
+        }
+    }
 `;
 
 const LineGraph: FC<Props> = props => {
@@ -285,13 +310,7 @@ const LineGraph: FC<Props> = props => {
         <StyledLineGraphContainer spanX={12}>
             {headerRenderer && headerRenderer(graphHighlightRef)}
             <Box paddingX='large' width='100%' height='500px' ref={chartContainerRef} />
-            {isLoading && (
-                <StyledLoadingOverlay>
-                    <Skeleton width='100%' height={300} viewBox='0 0 100% 300'>
-                        <rect x='0' y='0' rx='0' ry='0' width='100%' height='300' />
-                    </Skeleton>
-                </StyledLoadingOverlay>
-            )}
+            {isLoading && <StyledLoadingOverlay />}
         </StyledLineGraphContainer>
     );
 };

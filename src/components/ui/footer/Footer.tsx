@@ -26,11 +26,8 @@ export const Footer = (props: Props) => {
     };
 
     return (
-        <StyledFooter padding='large' align='end'>
-            <Stack orientation='horizontal' gap='small' align='center'>
-                <StyledFooterText>Dark Mode</StyledFooterText>
-                <Toggle isActive={theme === 'dark'} onClick={toggleTheme} />
-            </Stack>
+        <StyledFooter padding='large' align='center'>
+            <StyledFooterText>Made by the Balancer Dashboard Team &lt;@1saf and @tongnk&gt;</StyledFooterText>
         </StyledFooter>
     );
 };

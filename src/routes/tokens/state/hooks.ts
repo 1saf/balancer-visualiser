@@ -6,9 +6,8 @@ import tokensQuery from '../query/tokens.graphql';
 import poolCountQuery from '../query/pool_count.graphql';
 
 import { chunk, flatten, last } from 'lodash';
-import { format, getUnixTime, startOfHour } from 'date-fns';
+import { format, fromUnixTime, getUnixTime, startOfHour, formatDistanceToNow } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
-import { order } from 'styled-system';
 import { useState } from 'react';
 
 import algoliasearch from 'algoliasearch';
@@ -169,19 +168,20 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
         }
     );
 
-    // const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery('tokenPrices', getTokenPrices);
-
-    const cachedTokenData = (tokenDbResponses || []).map(response => response.tokens);
+    const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery('tokenPrices', getTokenPrices);
+    const cachedTokenData = flatten((tokenDbResponses || []).map(response => response.tokens));
+    const lastRefreshedAt = formatDistanceToNow((fromUnixTime(cachedTokenData[0]?.timestamp || 0)));
 
     return {
-        cachedTokenData: flatten(cachedTokenData),
+        cachedTokenData,
         isLoading,
         fetchMoreTokens,
         isFetchingTokens,
         isFetchingMoreTokens,
         setTokenSearchText,
         tokenSearchText,
-        tokenPrices: {},
-        isLoadingTokenPrices: false,
+        tokenPrices,
+        isLoadingTokenPrices,
+        lastRefreshedAt,
     };
 };

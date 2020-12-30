@@ -1,21 +1,19 @@
 import React, { FC, SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Table from '../../components/design/table/Table';
 import Box from '../../components/layout/box/Box';
-import Grid from '../../components/layout/grid/Grid';
 import { useTokensViewState } from './state/hooks';
 
 import numeral from 'numeral';
 import Stack from '../../components/layout/stack/Stack';
 import styled from 'styled-components';
-import { tokens } from '../../style/Theme';
 import { useDebouncedCallback } from 'use-debounce/lib';
 
 import Web3Utils from 'web3-utils';
 import { useAppContext } from '../../layouts/AppLayout';
 import Feedback from '../../components/design/feedback/Feedback';
-import { Toggle } from '../../components/design/toggle/Toggle';
 
 import { ThemeProp } from '../../components/theme_utils';
+import { tokens } from '../../style/Theme';
 
 type Props = {};
 
@@ -45,13 +43,6 @@ const StyledTokensView = styled(Stack)`
     }
 `;
 
-const TokenViewBorderContainer = styled(Box)`
-    display: flex;
-    border-radius: 10px;
-    width: 100%;
-    overflow: hidden;
-`;
-
 const StyledTokenIcon = styled(Box)`
     height: 100%;
     display: flex;
@@ -73,8 +64,12 @@ const StyledTokenIcon = styled(Box)`
     }
 `;
 
+const StyledPing = styled.span`
+    color: ${tokens.colors.green400};
+    font-size: 0.85rem;
+`;
+
 const TokensView: FC<Props> = props => {
-    const {} = props;
     const tableContainerRef = useRef(null);
     const [tableState, setTableState] = useState({} as { sortBy: { id: string; desc: boolean } });
     const {
@@ -87,6 +82,7 @@ const TokensView: FC<Props> = props => {
         isLoading,
         isLoadingTokenPrices,
         tokenPrices,
+        lastRefreshedAt,
     } = useTokensViewState({
         orderDesc: tableState?.sortBy?.desc,
         orderKey: tableState?.sortBy?.id,
@@ -170,9 +166,12 @@ const TokensView: FC<Props> = props => {
 
     return (
         <StyledTokensView paddingY='base' gap='base'>
-            <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
-                Please note that token Liquidity is calculated every hour against the price of the token at that hour.
-            </Feedback>
+            <Stack gap='x-small'>
+                <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
+                    Please note that token Liquidity is calculated every hour against the price of the token at that hour.
+                </Feedback>
+                {!isLoading && <StyledPing>Liquidity data is representative of {lastRefreshedAt} ago.</StyledPing>}
+            </Stack>
             <Table
                 setTableState={setTableState}
                 ref={tableContainerRef}
