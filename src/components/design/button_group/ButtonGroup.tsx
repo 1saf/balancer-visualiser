@@ -16,7 +16,7 @@ type ButtonGroupButtonProps = {
 
 const StyledButtonGroupButton = styled.button<ButtonGroupButtonProps>`
     position: relative;
-    background: ${getThemeValue('buttonGroup.background')};
+    background: ${props => (props.active ? getThemeValue('buttonGroup.activeBackground')(props) : getThemeValue('buttonGroup.background')(props))};
     box-shadow: none;
     border: none;
     outline: none;
@@ -43,7 +43,7 @@ const StyledButtonGroupButton = styled.button<ButtonGroupButtonProps>`
 const StyledButtonGroup = styled(Stack)`
     box-shadow: ${getThemeValue('shadow')};
     border-radius: 10px;
-    border: 2px solid ${getThemeValue('buttonGroup.borderColor')};
+    border: 1px solid ${getThemeValue('buttonGroup.borderColor')};
 `;
 
 const ButtonGroup: FC<Props> = props => {

@@ -1,6 +1,7 @@
 export const tokens = {
     colors: {
         ultramarine: '#3f5bf6',
+        supermarine: '#3044FA',
         raisin_black: '#21222c',
         cultured: '#fafafa',
         mellow_apricot: '#F7C27D',
@@ -87,14 +88,15 @@ export default {
 
         buttonGroup: {
             background: tokens.colors.gray700,
-            activeColor: tokens.colors.ultramarine,
+            activeColor: tokens.colors.white,
+            activeBackground: tokens.colors.ultramarine,
             inactiveColor: tokens.colors.gray200,
             borderColor: tokens.colors.gray400,
         },
 
         dropdown: {
             background: tokens.colors.gray500,
-            hoverColor: tokens.colors.ultramarine,
+            hoverColor: tokens.colors.supermarine,
             color: tokens.colors.gray100,
         },
 
