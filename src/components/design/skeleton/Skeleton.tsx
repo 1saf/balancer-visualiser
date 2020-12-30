@@ -3,9 +3,6 @@ import { tokens } from '../../../style/Theme';
 import Stack from '../../layout/stack/Stack';
 
 export const SkeletonText = styled(Stack)`
-    animation: skeleton linear 2s infinite;
-    -webkit-animation: skeleton linear 2s infinite;
-    border-radius: 200px;
     @keyframes skeleton {
         0% {
             background-color: ${tokens.colors.gray700};
@@ -29,4 +26,7 @@ export const SkeletonText = styled(Stack)`
             background-color: ${tokens.colors.gray700};
         }
     }
+    animation: skeleton linear 2s infinite;
+    -webkit-animation: skeleton linear 2s infinite;
+    border-radius: 200px;
 `;

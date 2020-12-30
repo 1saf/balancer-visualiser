@@ -47,7 +47,7 @@ const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
 
 const AppLayout = styled(Box)<ThemeProp>`
     width: 100%;
-    height: auto;
+    height: 100%;
     display: block;
     // background-color: ${props => props.theme[props.innerTheme].background};
     background: rgb(27,29,44);
@@ -60,7 +60,7 @@ const AppLayout = styled(Box)<ThemeProp>`
 
 const FullWidthStack = styled(Stack)`
     width: 100%;
-    height: 100%;
+    height: auto;
 `;
 
 const AppContext = React.createContext({} as any);
