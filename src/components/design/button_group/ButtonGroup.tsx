@@ -2,6 +2,7 @@ import React, { FC } from 'react';
 import styled from 'styled-components';
 import { Option } from '../../../api/datatypes';
 import Stack from '../../layout/stack/Stack';
+import { getThemeValue } from '../../theme_utils';
 
 type Props = {
     value: string;
@@ -15,33 +16,34 @@ type ButtonGroupButtonProps = {
 
 const StyledButtonGroupButton = styled.button<ButtonGroupButtonProps>`
     position: relative;
-    background: ${props => props.active ? props.theme.silentdropdownButtonHover : 'white'};
-    border: ${props => props.active ? `2px solid ${props.theme.primary}`: '2px solid transparent'};
+    background: ${getThemeValue('buttonGroup.background')};
+    box-shadow: none;
+    border: none;
     outline: none;
-    padding: 0.35rem 0.35rem;
-    font-size: 1rem;
-    color: ${props => props.active ? props.theme.silentdropdownHover : props.theme.actionButtonTextColor};
+    padding: 0.5rem 0.5rem;
+    font-size: 0.95rem;
+    color: ${props => (props.active ? getThemeValue('buttonGroup.activeColor')(props) : getThemeValue('buttonGroup.inactiveColor')(props))};
     font-weight: 700;
     cursor: pointer;
 
     min-width: 100px;
     &:hover {
-        color: ${props => props.theme.silentdropdownHover};
-        background: ${props => props.theme.silentdropdownButtonHover};
+        color: ${getThemeValue('buttonGroup.activeColor')};
     }
     &:first-child {
-        border-top-left-radius: 20px;
-        border-bottom-left-radius: 20px;
+        border-top-left-radius: 8px;
+        border-bottom-left-radius: 8px;
     }
     &:last-child {
-        border-top-right-radius: 20px;
-        border-bottom-right-radius: 20px;
+        border-top-right-radius: 8px;
+        border-bottom-right-radius: 8px;
     }
 `;
 
 const StyledButtonGroup = styled(Stack)`
-    box-shadow: 0 1px 5px 0 rgba(22, 29, 37, 0.09);
-    border-radius: 20px;
+    box-shadow: ${getThemeValue('shadow')};
+    border-radius: 10px;
+    border: 2px solid ${getThemeValue('buttonGroup.borderColor')};
 `;
 
 const ButtonGroup: FC<Props> = props => {
@@ -50,7 +52,11 @@ const ButtonGroup: FC<Props> = props => {
     return (
         <StyledButtonGroup orientation='horizontal'>
             {options.map(option => (
-                <StyledButtonGroupButton key={`btn-grp-op-${option?.value}-${option?.label}`} onClick={() => setValue(option)} active={value === `${option?.value}-${option?.label}`}>
+                <StyledButtonGroupButton
+                    key={`btn-grp-op-${option?.value}-${option?.label}`}
+                    onClick={() => setValue(option)}
+                    active={value === `${option?.value}-${option?.label}`}
+                >
                     {option?.label}
                 </StyledButtonGroupButton>
             ))}

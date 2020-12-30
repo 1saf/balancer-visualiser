@@ -58,7 +58,7 @@ const HistoricalBalancerGraph: FC<Props> = props => {
     return (
         <React.Fragment>
             <Box spanX={12}>
-                <Heading level='5'>In Depth</Heading>
+                <Heading level='5'>Balancer Statistics</Heading>
             </Box>
             <LineGraph
                 headerRenderer={ref => (

@@ -9,6 +9,7 @@ import Box from '../../layout/box/Box';
 import { useOnClickOutside } from '../../../utils';
 import { usePopper } from 'react-popper';
 import { omit } from 'lodash';
+import { getThemeValue } from '../../theme_utils';
 
 export type DropdownOption = {
     label: string;
@@ -31,15 +32,14 @@ type DropdownItemProps = {
 
 const StyledDropdownItem = styled.button`
     font-size: 1rem;
-    color: ${props => props.theme.actionButtonTextColor};
+    color: ${getThemeValue('dropdown.color')};
     cursor: pointer;
-    background: white;
+    background: ${getThemeValue('dropdown.background')};
     border: none;
     padding: 0.75rem 1rem;
     text-align: left;
     outline: none;
     &:hover {
-        background: ${props => props.theme.actionButtonHover};
         color: ${props => props.theme.dropdownItemHoverColor};
     }
     &:first-child {
@@ -74,30 +74,26 @@ const StyledDropdownButton = styled.button<Partial<DropdownProps>>`
     background: transparent;
     border-radius: 3px;
     border: none;
-    ${props => !props.silent && `box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.3), 0px 0px 3px rgba(24, 25, 33, 0.02);`}
     outline: none;
     padding: ${props => (!props.silent ? '0.35rem 0.5rem' : '0.5rem 0.35rem 0.5rem 0.35rem')};
     font-size: ${props => (!props.silent ? `1rem` : `1rem`)};
-    color: ${props => props.theme.actionButtonTextColor};
+    color: ${getThemeValue('dropdown.color')};
     font-weight: ${props => (!props.silent ? '500' : '700')};
     cursor: pointer;
     ${props => !props.silent && `min-width: 125px;`}
-    &:active {
-        ${props => !props.silent && `box-shadow: 0px 1px 2px rgba(24, 25, 33, 0.2), 0px 0px 3px rgba(24, 25, 33, 0.02);`}
-    }
     &:hover {
-        color: ${props => (!props.silent ? props.theme.actionButtonTextColor : props.theme.silentdropdownHover)};
-        background: ${props => (!props.silent ? '' : props.theme.silentdropdownButtonHover)};
+        color: ${getThemeValue('dropdown.hoverColor')};
+        background: ${getThemeValue('dropdown.background')};
     }
 `;
 
 const StyledDropdownMenu = styled(Stack)<{ minWidth?: string }>`
-    background: white;
+    background: ${getThemeValue('dropdown.background')};
     position: absolute;
     top: 2rem;
     left: 0;
     right: 0;
-    box-shadow: 0px 10px 40px rgba(100, 100, 100, 0.1), 0px 10px 20px rgba(100, 100, 100, 0.2);
+    ${getThemeValue('shadow')};
     border-radius: 10px;
     z-index: 2;
     min-width: ${props => props?.minWidth || '100%'};
@@ -131,7 +127,7 @@ const Dropdown: FC<DropdownProps> = props => {
     useOnClickOutside(dropdownRef, () => setOptionsVisible(false));
 
     const { styles, attributes } = usePopper(referenceElement, popperElement, {
-        placement: 'bottom-start'
+        placement: 'bottom-start',
     });
 
     return (
@@ -146,22 +142,22 @@ const Dropdown: FC<DropdownProps> = props => {
                 </Stack>
             </StyledDropdownButton>
             {/* <AnimatePresence> */}
-                {optionsVisible && (
-                    <StyledDropdownMenu
-                        ref={setPopperElement}
-                        style={styles.popper}
-                        transition={springConfig}
-                        // initial={{ opacity: 0, transform: `scale(0.95) ${styles.popper.transform || ''}` }}
-                        // animate={{ opacity: 1, transform: `scale(1) ${styles.popper.transform || ''}` }}
-                        // exit={{ opacity: 0,  transform: `scale(0.95) ${styles.popper.transform || ''}` }}
-                        gap='x-small'
-                        minWidth={menuWidth}
-                    >
-                        {(options || []).map(option => (
-                            <DropdownItem onClick={handleOptionSelected} option={option} key={option.value} />
-                        ))}
-                    </StyledDropdownMenu>
-                )}
+            {optionsVisible && (
+                <StyledDropdownMenu
+                    ref={setPopperElement}
+                    style={styles.popper}
+                    transition={springConfig}
+                    // initial={{ opacity: 0, transform: `scale(0.95) ${styles.popper.transform || ''}` }}
+                    // animate={{ opacity: 1, transform: `scale(1) ${styles.popper.transform || ''}` }}
+                    // exit={{ opacity: 0,  transform: `scale(0.95) ${styles.popper.transform || ''}` }}
+                    gap='x-small'
+                    minWidth={menuWidth}
+                >
+                    {(options || []).map(option => (
+                        <DropdownItem onClick={handleOptionSelected} option={option} key={option.value} />
+                    ))}
+                </StyledDropdownMenu>
+            )}
             {/* </AnimatePresence> */}
         </StyledDropdownContainer>
     );

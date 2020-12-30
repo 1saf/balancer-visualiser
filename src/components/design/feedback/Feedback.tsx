@@ -21,10 +21,9 @@ const StyledFeedback = styled(Stack)<Props>`
     & > svg {
         color: ${props => emotionColor[props.emotion]};
     }
-    background: #fff;
     border-radius: 8px;
-    font-size: 0.75rem;
-    color: ${tokens.colors.gray700};
+    font-size: 0.85rem;
+    color: ${tokens.colors.gray200};
     font-weight: 500;
 `;
 
@@ -32,7 +31,7 @@ const Feedback: FC<Props> = props => {
     const { emotion, children } = props;
     return (
         <StyledFeedback orientation='horizontal' gap='small' align='center' emotion={emotion} {...props}>
-            <InfoCircle style={{ width: '16px', height: '16px' }} />
+            <InfoCircle style={{ width: '20px', height: '20px' }} />
             <Box>{children}</Box>
         </StyledFeedback>
     );

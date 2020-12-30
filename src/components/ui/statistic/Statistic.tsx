@@ -15,8 +15,9 @@ import QuestionMark from '../../../assets/question-circle-solid.svg';
 import { tokens } from '../../../style/Theme';
 import { ResponsiveProp } from '../../layout/layout.t';
 import Grid from '../../layout/grid/Grid';
-import Skeleton from '../../design/skeleton/Skeleton';
+import Skeleton, { SkeletonText } from '../../design/skeleton/Skeleton';
 import StatisticSkeleton from './StatisticSkeleton';
+import { getThemeValue } from '../../theme_utils';
 
 type Props = {
     heading: string;
@@ -46,17 +47,11 @@ const changeBackground = {
     neutral: tokens.colors.red100,
 };
 
-const changeTextColor = {
-    positive: tokens.colors.green600,
-    negative: tokens.colors.red600,
-    neutral: tokens.colors.red600,
-};
 
 const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
     font-size: 0.75rem;
     font-weight: 600;
     background: ${props => changeBackground[props.type]};
-    color: ${props => changeTextColor[props.type]};
     display: flex;
     justify-content: center;
     align-items: center;
@@ -161,13 +156,14 @@ export type SharedStatisticProps = {
     icon?: React.ReactNode;
     description?: string;
     statistics: Statistic[];
-    isLoading;
+    isLoading: boolean;
 };
 
 const StyledSharedStatistic = styled(Grid)`
-    background: #fff;
+    background: ${getThemeValue('card.background')};
+    box-shadow: ${getThemeValue('shadow')};
     border-radius: 10px;
-    box-shadow: 0 0 0 1px ${props => props.theme.borderColor};
+    border: 1px solid ${getThemeValue('card.borderColor')};
     grid-column-gap: 0;
     grid-row-gap: 0;
     grid-template-columns: repeat(12, 1fr);
@@ -231,9 +227,11 @@ export const SharedStatistic = (props: SharedStatisticProps) => {
                 if (isLoading) {
                     return (
                         <DividedBox key={statistic?.name} spanX={[12, 6, 4, 4, 3]} padding='large'>
-                            <Skeleton width={249} height={75} viewBox='0 0 249 75'>
-                                <StatisticSkeleton />
-                            </Skeleton>
+                            <Stack gap='small'>
+                                <SkeletonText width='120px' height='1.1rem' />
+                                <SkeletonText width='100px' height='1.6rem' />
+                                <SkeletonText width='85px' height='1.1rem' />
+                            </Stack>
                         </DividedBox>
                     );
                 }

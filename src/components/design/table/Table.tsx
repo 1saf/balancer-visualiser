@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { FC, MouseEvent, useCallback, useEffect, useImperativeHandle } from 'react';
-import { useTable, useSortBy, useAsyncDebounce, useBlockLayout, useFlexLayout } from 'react-table';
+import React, { MouseEvent, useCallback, useEffect } from 'react';
+import { useTable, useSortBy, useBlockLayout } from 'react-table';
 import { useSticky } from 'react-table-sticky';
 import styled from 'styled-components';
 import { tokens } from '../../../style/Theme';
@@ -9,6 +9,9 @@ import QuestionMark from '../../../assets/question-circle-solid.svg';
 
 import Stack from '../../layout/stack/Stack';
 import Tooltip from '../tooltip/Tooltip';
+import { SkeletonText } from '../../design/skeleton/Skeleton';
+import { useAppContext } from '../../../layouts/AppLayout';
+import { ThemeProp } from '../../theme_utils';
 
 export type ColumnDefinition = {
     Header: string;
@@ -26,9 +29,15 @@ type Props = {
     initialState?: any;
 };
 
-const StyledTable = styled.div`
+const StyledTable = styled.div<ThemeProp>`
     width: 100%;
-    overflow-y: scroll;
+    background: ${props => props.theme[props.innerTheme].table.background};
+    box-shadow: ${props => props.theme.shadow};
+    border: 1px solid ${tokens.colors.gray400};
+    border-radius: 10px;
+    overflow: hidden;
+    overflow-x: scroll;
+    min-width: auto !important;
 
     .header,
     .footer {
@@ -62,7 +71,7 @@ const StyledTable = styled.div`
     &::-webkit-scrollbar {
         width: 3px;
         height: 3px;
-        paddingRight: 20px;
+        paddingright: 20px;
     }
 
     &::-webkit-scrollbar-track {
@@ -88,11 +97,17 @@ const StyledBody = styled(motion.div)`
     z-index: 0;
 `;
 
-const StyledCellRow = styled(motion.div)``;
+const StyledCellRow = styled(motion.div)`
+    width: 100% !important;
 
-const StyledHeaderCell = styled.div<{ isNumerical?: boolean }>`
+    @media (max-width: 768px) {
+        display: flex;
+    }
+`;
+
+const StyledHeaderCell = styled.div<{ isNumerical?: boolean; mobileWidth?: number } & ThemeProp>`
     font-weight: 500;
-    color: ${tokens.colors.gray800};
+    color: ${props => props.theme[props.innerTheme].table.headerColor};
     padding-top: 1rem;
     padding-bottom: 0.5rem;
     padding-left: 1rem;
@@ -101,20 +116,22 @@ const StyledHeaderCell = styled.div<{ isNumerical?: boolean }>`
     position: sticky;
     top: 0;
     border-bottom: 2px ${tokens.colors.gray400} solid;
-    background: #fff;
-    font-size: 0.85rem;
+    background: ${props => props.theme[props.innerTheme].table.headerBackground};
+    font-size: 1rem;
     font-weight: 500;
+
+    @media (max-width: 768px) {
+    }
 `;
 
-const StyledCell = styled.div<{ isNumerical?: boolean }>`
+const StyledCell = styled.div<{ isNumerical?: boolean; mobileWidth?: number } & ThemeProp>`
     font-weight: 500;
-    color: ${tokens.colors.gray800};
+    color: ${props => props.theme[props.innerTheme].table.cellPrimaryColor};
     padding: 1.25rem 1rem;
     font-size: 0.75rem;
     text-align: ${props => (props.isNumerical ? 'right' : 'left')};
     vertical-align: middle;
     border-top: 1px ${tokens.colors.gray400} solid;
-    
 `;
 
 const StyledSortIndicator = styled(Box)<{ active?: boolean }>`
@@ -126,58 +143,63 @@ const StyledSortIndicator = styled(Box)<{ active?: boolean }>`
 const StyledInlineSearch = styled.input`
     border: none;
     color: ${tokens.colors.ultramarine};
-    font-weight: 400;
+    font-weight: 500;
     outline: none;
     padding-top: 0.25rem;
     padding-bottom: 0.25rem;
+    background: transparent;
 
     ::placeholder {
         color: ${tokens.colors.blue400};
     }
-
-    &:hover {
-        background-color: ${tokens.colors.gray200};
-    }
 `;
 
-const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number }>`
-    background-color: #edf2f7;
-    animation: skeleton linear 2s infinite;
-    -webkit-animation: skeleton linear 2s infinite;
+export const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number; width: number; grow?: boolean }>`
+    flex-grow: ${props => (props.grow ? 1 : 0)};
+    min-width: ${props => props.width}px;
+    background-color: ${tokens.colors.gray900};
     padding: 1.25rem 1rem;
+    border-top: 1px ${tokens.colors.gray400} solid;
+
     min-height: ${props => props.skeletonHeight}px;
     height: ${props => props.skeletonHeight}px;
-    @keyframes skeleton {
-        0% {
-            background-color: ${tokens.colors.blue100};
-        }
-        50% {
-            background-color: #fff;
-        }
-        100% {
-            background-color: ${tokens.colors.blue100};
-        }
-    }
+`;
 
-    @-webkit-keyframes skeleton {
-        0% {
-            background-color: ${tokens.colors.blue100};
-        }
-        50% {
-            background-color: #fff;
-        }
-        100% {
-            background-color: ${tokens.colors.blue100};
-        }
+const SkeletonRow = () => {
+    return (
+        <Stack orientation='horizontal' width='100%'>
+            <StyledSkeletonCell width={200} grow={true}>
+                <Stack gap='small'>
+                    <SkeletonText height='0.85rem' width='75%' />
+                    <SkeletonText height='0.85rem' width='15%' />
+                </Stack>
+            </StyledSkeletonCell>
+            <StyledSkeletonCell width={150}>
+                <SkeletonText height='0.85rem' width='35%' float='right' />
+            </StyledSkeletonCell>
+
+            <StyledSkeletonCell width={150}>
+                <SkeletonText height='0.85rem' width='35%' float='right' />
+            </StyledSkeletonCell>
+        </Stack>
+    );
+};
+
+const StyledHeaderWrapper = styled(Box)`
+    width: 100% !important;
+
+    @media (max-width: 768px) {
+        display: flex;
     }
 `;
 
 const Table = React.forwardRef((props: Props, ref) => {
+    const { theme } = useAppContext();
     const { columns, data, setTableState, isLoading, skeletonHeight, isFetchingMore, initialState } = props;
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         { columns: columns as any, data, autoResetSortBy: false, initialState } as any,
         useSortBy,
-        useFlexLayout,
+        useBlockLayout,
         useSticky
     );
 
@@ -192,13 +214,13 @@ const Table = React.forwardRef((props: Props, ref) => {
     }, []);
 
     return (
-        <StyledTable {...getTableProps()} ref={ref as any}>
+        <StyledTable {...getTableProps()} ref={ref as any} innerTheme={theme}>
             <StyledHead>
                 {
                     // Loop over the header rows
                     headerGroups.map(headerGroup => (
                         // Apply the header row props
-                        <div {...headerGroup.getHeaderGroupProps()}>
+                        <StyledHeaderWrapper {...headerGroup.getHeaderGroupProps()}>
                             {
                                 // Loop over the headers in each row
                                 headerGroup.headers.map(column => {
@@ -208,21 +230,33 @@ const Table = React.forwardRef((props: Props, ref) => {
                                     const onSearch = (column as any)?.onSearch;
                                     const disableSortBy = (column as any)?.disableSortBy;
                                     const helpText = (column as any)?.helpText;
-
-                                    console.log('elp', helpText);
+                                    const extraStyle = (column as any)?.extraStyle;
+                                    const style = (column as any)?.style;
                                     return (
                                         <StyledHeaderCell
+                                            innerTheme={theme}
                                             {...column.getHeaderProps((column as any).getSortByToggleProps())}
                                             isNumerical={(column as any).isNumerical}
+                                            style={{
+                                                ...style,
+                                                ...extraStyle,
+                                            }}
                                         >
                                             <Stack gap='small'>
-                                                <Stack orientation='horizontal' width='100%' justify={justify} gap='small' align='center'>
-                                                    <Box>
+                                                <Stack
+                                                    orientation='horizontal'
+                                                    width='100%'
+                                                    height='100%'
+                                                    justify={justify}
+                                                    gap='small'
+                                                    align='center'
+                                                >
+                                                    <Stack>
                                                         {
                                                             // Render the header
                                                             column.render('Header')
                                                         }
-                                                    </Box>
+                                                    </Stack>
                                                     {!disableSortBy && (
                                                         <Stack>
                                                             <StyledSortIndicator
@@ -258,7 +292,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                                     );
                                 })
                             }
-                        </div>
+                        </StyledHeaderWrapper>
                     ))
                 }
             </StyledHead>
@@ -266,7 +300,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                 <StyledBody>
                     {[...Array(20)].map((_, i) => (
                         <StyledCellRow key={`top-tableskeleton-${i}`}>
-                            <StyledSkeletonCell skeletonHeight={skeletonHeight} />
+                            <SkeletonRow />
                         </StyledCellRow>
                     ))}
                 </StyledBody>
@@ -291,7 +325,15 @@ const Table = React.forwardRef((props: Props, ref) => {
                                         row.cells.map(cell => {
                                             // Apply the cell props
                                             return (
-                                                <StyledCell {...cell.getCellProps()} isNumerical={(cell?.column as any).isNumerical}>
+                                                <StyledCell
+                                                    isNumerical={(cell?.column as any).isNumerical}
+                                                    innerTheme={theme}
+                                                    {...cell.getCellProps()}
+                                                    style={{
+                                                        ...(cell?.column as any).style,
+                                                        ...(cell?.column as any).extraStyle,
+                                                    }}
+                                                >
                                                     {
                                                         // Render the cell contents
                                                         cell.render('Cell')
@@ -308,12 +350,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                         {isFetchingMore &&
                             [...Array(3)].map((_, i) => (
                                 <StyledCellRow key={`bottom-tableskeleton-${i}`}>
-                                    <StyledSkeletonCell
-                                        skeletonHeight={skeletonHeight}
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                    />
+                                    <SkeletonRow />
                                 </StyledCellRow>
                             ))}
                     </AnimatePresence>

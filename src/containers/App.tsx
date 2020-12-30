@@ -35,7 +35,7 @@ const AppContainer: FC<Props> = ({ router }) => {
 
         const db = firebase.firestore();
         if (location.hostname === 'localhost') {
-            // db.useEmulator('localhost', 8080);
+            db.useEmulator('localhost', 8080);
         }
         firebase.analytics();
     }, []);

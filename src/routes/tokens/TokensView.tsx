@@ -1,53 +1,46 @@
 import React, { FC, SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import Table from '../../components/design/table/Table';
 import Box from '../../components/layout/box/Box';
-import Grid from '../../components/layout/grid/Grid';
 import { useTokensViewState } from './state/hooks';
 
 import numeral from 'numeral';
 import Stack from '../../components/layout/stack/Stack';
 import styled from 'styled-components';
-import { tokens } from '../../style/Theme';
 import { useDebouncedCallback } from 'use-debounce/lib';
 
 import Web3Utils from 'web3-utils';
 import { useAppContext } from '../../layouts/AppLayout';
 import Feedback from '../../components/design/feedback/Feedback';
 
+import { ThemeProp } from '../../components/theme_utils';
+import { tokens } from '../../style/Theme';
+
 type Props = {};
 
-const StyledTokenSymbol = styled.span`
+const StyledTokenSymbol = styled.span<ThemeProp>`
     display: inline-block;
-    color: ${tokens.colors.gray600};
+    color: ${props => props.theme[props.innerTheme]?.table?.cellSecondaryColor};
 `;
 
-const StyledTokenName = styled.span`
+const StyledTokenName = styled.span<ThemeProp>`
     display: inline-block;
-    color: ${tokens.colors.raisin_black};
+    max-width: 150px;
+    line-height: 1.2;
+    color: ${props => props.theme[props.innerTheme]?.table?.cellPrimaryColor};
 `;
 
 const StyledTokensView = styled(Stack)`
-    display: flex;
-    overflow: hidden;
     padding: 0 1rem;
     padding-bottom: 0.5rem;
 
     @media (min-width: 1024px) {
         padding: 0;
+        padding-bottom: 1rem;
         justify-content: center;
         width: 1164px;
         margin: 0 auto;
         max-width: 1164px;
     }
-`;
-
-const TokenViewBorderContainer = styled(Box)`
-    display: flex;
-    border: 2px solid ${props => props.theme.borderColor};
-    border-radius: 10px;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
 `;
 
 const StyledTokenIcon = styled(Box)`
@@ -71,8 +64,12 @@ const StyledTokenIcon = styled(Box)`
     }
 `;
 
+const StyledPing = styled.span`
+    color: ${tokens.colors.green400};
+    font-size: 0.85rem;
+`;
+
 const TokensView: FC<Props> = props => {
-    const {} = props;
     const tableContainerRef = useRef(null);
     const [tableState, setTableState] = useState({} as { sortBy: { id: string; desc: boolean } });
     const {
@@ -85,20 +82,32 @@ const TokensView: FC<Props> = props => {
         isLoading,
         isLoadingTokenPrices,
         tokenPrices,
+        lastRefreshedAt,
     } = useTokensViewState({
         orderDesc: tableState?.sortBy?.desc,
         orderKey: tableState?.sortBy?.id,
     });
-    const { setHeading } = useAppContext();
-
-    useEffect(() => {
-        setHeading('Tokens');
-    }, []);
+    const { setHeading, theme, setScrollToEndHandler } = useAppContext();
 
     const handleTokenSearch = useDebouncedCallback(async (event: SyntheticEvent) => {
         const searchText = (event.target as any).value as string;
         setTokenSearchText(searchText);
     }, 250);
+
+    const handleScrollToEnd = useCallback(() => {
+        // ensure that server doesn't get spammed while its already attempting
+        // a request to fetch more data if the user scrolls up and back down
+        // also do not perform a search when there is search text as it goes
+        // through algolia and we want to preserve those expensive ass queries
+        if (!isFetchingTokens || (!isFetchingMoreTokens && !tokenSearchText)) {
+            fetchMoreTokens();
+        }
+    }, [isFetchingTokens, isFetchingMoreTokens, tokenSearchText]);
+
+    useEffect(() => {
+        setHeading('Tokens');
+        setScrollToEndHandler(handleScrollToEnd);
+    }, []);
 
     const columns = useMemo(
         () => [
@@ -115,13 +124,15 @@ const TokensView: FC<Props> = props => {
                             />
                         </StyledTokenIcon>
                         <Stack gap='small'>
-                            <StyledTokenName>{String(value)}</StyledTokenName>
-                            <StyledTokenSymbol>{String(row?.original?.symbol)}</StyledTokenSymbol>
+                            <StyledTokenName innerTheme={theme}>{String(value)}</StyledTokenName>
+                            <StyledTokenSymbol innerTheme={theme}>{String(row?.original?.symbol)}</StyledTokenSymbol>
                         </Stack>
                     </Stack>
                 ),
-                width: 400,
-                maxWidth: 400,
+                style: {
+                    flexGrow: 1,
+                    minWidth: '200px',
+                },
                 isSearchable: true,
                 onSearch: (event: SyntheticEvent) => {
                     event.persist();
@@ -129,92 +140,55 @@ const TokensView: FC<Props> = props => {
                 },
             },
             {
-                Header: 'Price',
-                accessor: (row: any) => (tokenPrices || {})[row?.contract_address]?.usd,
-                width: 100,
-                maxWidth: 100,
-                isNumerical: true,
-                Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
-                disableSortBy: true,
-            },
-            {
-                Header: 'Calculated Price',
-                accessor: 'price',
-                width: 120,
-                maxWidth: 120,
-                isNumerical: true,
-                Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
-                disableSortBy: true,
-                helpText: 'The price that was used to calculate total liquidity as a product of the number of units.',
-            },
-            {
                 Header: 'Total Liquidity',
                 accessor: 'liquidity',
-                width: 120,
-                maxWidth: 120,
                 isNumerical: true,
                 Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
+                style: {
+                    minWidth: '150px',
+                },
             },
             {
-                Header: 'Units',
-                accessor: 'balance',
-                width: 100,
-                maxWidth: 100,
+                Header: 'Price',
+                accessor: (row: any) => (tokenPrices || {})[row?.contract_address]?.usd,
                 isNumerical: true,
-                Cell: ({ value }: any) => <span>{numeral(value).format('0.00a')}</span>,
+                Cell: ({ value }: any) => <span>{numeral(value).format('$0.00a')}</span>,
                 disableSortBy: true,
-                helpText: 'The total amount of tokens in circulation across all pools.',
+                style: {
+                    minWidth: '150px',
+                },
             },
         ],
-        [handleTokenSearch, isLoadingTokenPrices]
+        [handleTokenSearch, isLoadingTokenPrices, theme]
     );
 
-    const loadMore = useDebouncedCallback(() => {
-        if (
-            tableContainerRef &&
-            tableContainerRef.current.offsetHeight + tableContainerRef.current.scrollTop >= tableContainerRef.current.scrollHeight - 50
-        ) {
-            // ensure that server doesn't get spammed while its already attempting
-            // a request to fetch more data if the user scrolls up and back down
-            // also do not perform a search when there is search text as it goes
-            // through algolia and we want to preserve those expensive ass queries
-            if (!isFetchingTokens || (!isFetchingMoreTokens && !tokenSearchText)) {
-                fetchMoreTokens();
-            }
-        }
-    }, 100);
-
-    useEffect(() => {
-        if (tableContainerRef) {
-            tableContainerRef.current.onscroll = loadMore.callback;
-        }
-    }, [tableContainerRef]);
-
     if (!cachedTokenData) return null;
+
     return (
         <StyledTokensView paddingY='base' gap='base'>
-            <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
-                Please note that token Liquidity is calculated every hour against the price of the token at that hour.
-            </Feedback>
-            <TokenViewBorderContainer>
-                <Table
-                    setTableState={setTableState}
-                    ref={tableContainerRef}
-                    isLoading={isLoading || isLoadingTokenPrices}
-                    skeletonHeight={75}
-                    columns={columns}
-                    data={cachedTokenData}
-                    isFetchingMore={isFetchingTokens}
-                    initialState={{
-                        sortBy: [
-                            {
-                                id: 'liquidity',
-                                desc: true,
-                            },
-                        ],
-                    }}
-                ></Table>
-            </TokenViewBorderContainer>
+            <Stack gap='x-small'>
+                <Feedback paddingBottom='small' emotion='neutral' marginTop={['medium', 'medium']}>
+                    Please note that token Liquidity is calculated every hour against the price of the token at that hour.
+                </Feedback>
+                {!isLoading && <StyledPing>Liquidity data is representative of {lastRefreshedAt} ago.</StyledPing>}
+            </Stack>
+            <Table
+                setTableState={setTableState}
+                ref={tableContainerRef}
+                isLoading={isLoading || isLoadingTokenPrices}
+                skeletonHeight={75}
+                columns={columns}
+                data={cachedTokenData}
+                isFetchingMore={isFetchingTokens}
+                initialState={{
+                    sortBy: [
+                        {
+                            id: 'liquidity',
+                            desc: true,
+                        },
+                    ],
+                }}
+            ></Table>
         </StyledTokensView>
     );
 };

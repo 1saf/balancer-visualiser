@@ -30,6 +30,7 @@ export type BoxProps = {
     style?: any;
     background?: string;
     overflowY?: 'auto' | 'scroll' | 'none' | 'hidden';
+    float?: 'left' | 'right';
 };
 
 
@@ -42,6 +43,7 @@ const StyledBox = styled(motion.div)<BoxProps>`
     ${props => props.height && `height: ${props.height};`}
     ${props => props.background && `background: ${props.background};`}
     ${props => props.overflowY && `overflow-y: ${props.overflowY};`}
+    ${props => props.float && `float: ${props.float};`}
 `;
 
 const Box: FC<BoxProps> = forwardRef((props, ref) => {

@@ -8,19 +8,15 @@ export const tokens = {
         white: '#FFFFFF',
         medium_aquamarine: '#47E5BC',
 
-        green100: '#c1efdf',
-        green200: '#53e5be',
-        green300: '#4dc5a3',
-        green400: '#4da58a',
-        green500: '#488874',
-        green600: '#0e664f',
+        green100: '#B4FBB6',
+        green200: '#83E286',
+        green300: '#65DA69',
+        green400: '#51E556',
 
-        red100: '#f4e0e5',
-        red200: '#efc2ce',
-        red300: '#ec9ab1',
-        red400: '#e96b94',
-        red500: '#bd5d7b',
-        red600: '#c01d52',
+        red100: '#FF9999',
+        red200: '#F16868',
+        red300: '#E94A4A',
+        red400: '#F34040',
 
         yellow300: '#fce7cb',
         yellow400: '#f9ce97',
@@ -36,15 +32,15 @@ export const tokens = {
         blue800: '#101530',
         blue900: '#080b18',
 
-        gray100: '#FEFEFF',
-        gray200: '#F3F3F5',
-        gray300: '#E5E6EA',
-        gray400: '#D3D4DB',
-        gray500: '#AAACB9',
-        gray600: '#72758A',
-        gray700: '#62657C',
-        gray800: '#3C3E4D',
-        gray900: '#181921',
+        gray100: '#C4C4D8',
+        gray200: '#84849A',
+        gray300: '#51576C',
+        gray400: '#353749',
+        gray500: '#2A2D3E',
+        gray600: '#242637',
+        gray700: '#1F2130',
+        gray800: '#1B1D2C',
+        gray900: '#161825',
 
         background: '#f7fafc',
     },
@@ -63,8 +59,8 @@ export const tokens = {
         heading_3: 600,
         heading_4: 600,
         heading_5: 600,
-        heading_6: 600,  
-    }
+        heading_6: 600,
+    },
 };
 
 export default {
@@ -74,6 +70,64 @@ export default {
     background: tokens.colors.background,
 
     headerBg: tokens.colors.raisin_black,
+
+    shadow: `${tokens.colors.gray900} 0px 2px 4px 2px`,
+
+    dark: {
+        foreground: tokens.colors.white,
+        background: tokens.colors.gray800,
+        primaryFontColor: tokens.colors.gray100,
+        secondaryFontColor: tokens.colors.gray200,
+        shadow: `${tokens.colors.gray900} 0px 2px 4px 2px`,
+
+        heading: {
+            primaryColor: tokens.colors.gray100,
+            secondaryColor: tokens.colors.gray200,
+        },
+
+        buttonGroup: {
+            background: tokens.colors.gray700,
+            activeColor: tokens.colors.ultramarine,
+            inactiveColor: tokens.colors.gray200,
+            borderColor: tokens.colors.gray400,
+        },
+
+        dropdown: {
+        background: tokens.colors.gray500,
+            hoverColor: tokens.colors.ultramarine,
+            color: tokens.colors.gray100,
+        },
+
+        table: {
+            headerBackground: tokens.colors.gray900,
+            background: tokens.colors.gray900,
+            headerColor: tokens.colors.gray100,
+            cellPrimaryColor: tokens.colors.gray100,
+            cellSecondaryColor: tokens.colors.gray200,
+        },
+        card: {
+            background: tokens.colors.gray900,
+            borderColor: tokens.colors.gray400,
+        },
+
+        graph: {
+            color: tokens.colors.gray100,
+            foreground: tokens.colors.ultramarine,
+            background: tokens.colors.gray900,
+        },
+    },
+    light: {
+        foreground: tokens.colors.white,
+        background: tokens.colors.white,
+        table: {
+            headerBackground: tokens.colors.gray600,
+            background: tokens.colors.gray700,
+            headerColor: tokens.colors.gray100,
+            cellPrimaryColor: tokens.colors.gray100,
+            cellSecondaryColor: tokens.colors.gray200,
+        },
+    },
+
     borderColor: tokens.colors.gray600,
     emphasizedBorder: tokens.colors.gray500,
     headingColor: tokens.colors.gray800,
@@ -92,7 +146,7 @@ export default {
     silentdropdownHover: tokens.colors.ultramarine,
     silentdropdownButtonHover: tokens.colors.blue100,
     dropdownItemHoverColor: tokens.colors.blue500,
-    
+
     actionButtonHover: tokens.colors.gray200,
     actionButtonTextColor: tokens.colors.gray700,
 };

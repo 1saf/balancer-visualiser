@@ -6,9 +6,8 @@ import tokensQuery from '../query/tokens.graphql';
 import poolCountQuery from '../query/pool_count.graphql';
 
 import { chunk, flatten, last } from 'lodash';
-import { format, getUnixTime, startOfHour } from 'date-fns';
+import { format, fromUnixTime, getUnixTime, startOfHour, formatDistanceToNow } from 'date-fns';
 import { utcToZonedTime, zonedTimeToUtc } from 'date-fns-tz';
-import { order } from 'styled-system';
 import { useState } from 'react';
 
 import algoliasearch from 'algoliasearch';
@@ -60,6 +59,7 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         };
     }
 
+
     let hourlyTokenRef: any = firebase
         .firestore()
         .collection('dailydata')
@@ -69,11 +69,11 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         .orderBy(orderKey || 'liquidity', orderDirection);
 
     if (cursor) {
-        hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(50).get();
+        hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(25).get();
     } else {
-        hourlyTokenRef = await hourlyTokenRef.limit(50).get();
+        hourlyTokenRef = await hourlyTokenRef.limit(25).get();
     }
-
+    
     const tokens = hourlyTokenRef.docs.map((doc: any) => doc.data());
 
     return {
@@ -169,11 +169,11 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
     );
 
     const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery('tokenPrices', getTokenPrices);
-
-    const cachedTokenData = (tokenDbResponses || []).map(response => response.tokens);
+    const cachedTokenData = flatten((tokenDbResponses || []).map(response => response.tokens));
+    const lastRefreshedAt = formatDistanceToNow((fromUnixTime(cachedTokenData[0]?.timestamp || 0)));
 
     return {
-        cachedTokenData: flatten(cachedTokenData),
+        cachedTokenData,
         isLoading,
         fetchMoreTokens,
         isFetchingTokens,
@@ -182,5 +182,6 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
         tokenSearchText,
         tokenPrices,
         isLoadingTokenPrices,
+        lastRefreshedAt,
     };
 };

@@ -1,4 +1,4 @@
-import React, { FC, useContext, useState } from 'react';
+import React, { FC, useCallback, useContext, useEffect, useRef, useState } from 'react';
 import { useRouteNode } from 'react-router5';
 import { keyBy } from 'lodash';
 import routes from '../router/routes';
@@ -7,6 +7,10 @@ import styled, { css } from 'styled-components';
 import Box from '../components/layout/box/Box';
 import Stack from '../components/layout/stack/Stack';
 import Header from '../components/ui/header/Header';
+import Footer from '../components/ui/footer/Footer';
+
+import { ThemeProp } from '../components/theme_utils';
+import { useDebouncedCallback } from 'use-debounce/lib';
 
 type Props = {};
 
@@ -41,12 +45,15 @@ const RouteRenderer: FC<RouteRendererProps> = ({ route }) => {
     );
 };
 
-const AppLayout = styled(Box)`
+const AppLayout = styled(Box)<ThemeProp>`
     width: 100%;
     height: 100%;
     display: block;
+    background-color: ${props => props.theme[props.innerTheme].background};
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
+    overflow-y: scroll;
+    overflow-x: hidden;
 `;
 
 const FullWidthStack = styled(Stack)`
@@ -59,15 +66,38 @@ export const useAppContext = () => useContext(AppContext);
 
 const App: FC<Props> = props => {
     const { route } = useRouteNode('');
+    const onScrollToEnd = useRef(() => false);
     const [heading, setHeading] = useState('');
+    const [theme, setTheme] = useState<'light' | 'dark'>('dark');
+    const scrollContainerRef = useRef(null);
+
+    const setScrollToEndHandler = useCallback((func) => {
+        onScrollToEnd.current = func;
+    }, []);
+
+    const handleScrollToEnd = useDebouncedCallback(() => {
+        if (
+            scrollContainerRef &&
+            scrollContainerRef.current.offsetHeight + scrollContainerRef.current.scrollTop >= scrollContainerRef.current.scrollHeight - 50
+        ) {
+            if (onScrollToEnd.current) onScrollToEnd.current();
+        }
+    }, 100);
+
+    useEffect(() => {
+        if (scrollContainerRef) {
+            scrollContainerRef.current.onscroll = handleScrollToEnd.callback;
+        }
+    }, [scrollContainerRef]);
 
     return (
         <ReactQueryConfigProvider config={{ queries: { retry: 0, refetchOnWindowFocus: false } }}>
-            <AppContext.Provider value={{ heading, setHeading }}>
-                <AppLayout>
+            <AppContext.Provider value={{ heading, setHeading, theme, setTheme, setScrollToEndHandler }}>
+                <AppLayout ref={scrollContainerRef} innerTheme={theme}>
                     <FullWidthStack>
                         <Header heading={heading} />
                         <RouteRenderer route={route} />
+                        <Footer />
                     </FullWidthStack>
                 </AppLayout>
             </AppContext.Provider>
