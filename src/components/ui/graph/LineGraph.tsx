@@ -262,20 +262,8 @@ const StyledLoadingOverlay = styled(Box)`
     left: 0;
     width: 100%;
     animation: skeleton linear 2s infinite;
-    -webkit-animation: skeleton linear 2s infinite;
+    background-color: ${tokens.colors.gray700};
     @keyframes skeleton {
-        0% {
-            background-color: ${tokens.colors.gray700};
-        }
-        50% {
-            background-color: ${tokens.colors.gray900};
-        }
-        100% {
-            background-color: ${tokens.colors.gray700};
-        }
-    }
-
-    @-webkit-keyframes skeleton {
         0% {
             background-color: ${tokens.colors.gray700};
         }
