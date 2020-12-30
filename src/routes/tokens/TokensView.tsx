@@ -175,7 +175,7 @@ const TokensView: FC<Props> = props => {
             <Table
                 setTableState={setTableState}
                 ref={tableContainerRef}
-                isLoading={true || isLoadingTokenPrices}
+                isLoading={isLoading || isLoadingTokenPrices}
                 skeletonHeight={75}
                 columns={columns}
                 data={cachedTokenData}
