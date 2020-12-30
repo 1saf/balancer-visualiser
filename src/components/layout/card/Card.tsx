@@ -1,19 +1,22 @@
 import React, { FC } from 'react';
 import styled from 'styled-components';
+import { useAppContext } from '../../../layouts/AppLayout';
+import { getThemeValue, ThemeProp } from '../../theme_utils';
 import Box, { BoxProps } from '../box/Box';
 
 type Props = {} & BoxProps;
 
-const StyledCard = styled(Box)`
+const StyledCard = styled(Box)<ThemeProp>`
     position: relative;
-    background-color: ${props => props.theme.foreground};
+    background-color: ${getThemeValue('card.background')};
+    border: 1px solid ${getThemeValue('card.borderColor')};
     border-radius: 10px;
-    // border: 2px solid ${props => props.theme.borderColor};
-    box-shadow: 0 0 0 1px ${props => props.theme.borderColor};
+    box-shadow: ${props => props.theme.shadow};
 `;
 
 const Card: FC<Props> = (props) => {
-    return <StyledCard {...props} />;
+    const { theme } = useAppContext();
+    return <StyledCard innerTheme={theme} {...props} />;
 };
 
 export default Card;

@@ -12,14 +12,12 @@ type Props = {
 };
 
 const StyledPebbles = styled(Pebbles)`
-    height: 40px;
-    width: 40px;
+    height: 35px;
+    width: 35px;
     color: ${props => tokens.colors.white};
 `;
 
 const StyledHeader = styled(Grid)`
-    background: #fff;
-    background: ${props => props.theme.headerBg};
 `;
 
 const StyledHeaderLink = styled.a`
@@ -31,37 +29,24 @@ const StyledHeaderLink = styled.a`
     text-decoration: none;
 
     &:hover {
-        background: ${tokens.colors.gray800};
-        // color: ${props => props.theme.primary};
-        
+        background: ${tokens.colors.ultramarine};
     }
 `;
 
-const StyledCrumbs = styled(Grid)`
-`;
-
 const Header: FC<Props> = props => {
-    const { heading } = props;
     return (
         <Stack>
-            <StyledHeader paddingY='medium' paddingX={['base', 'base', 'base', 'none']}>
+            <StyledHeader paddingY='large' paddingX={['base', 'base', 'base', 'none']}>
                 <Box spanX={12}>
-                    <Stack orientation='horizontal' gap='base'>
+                    <Stack orientation='horizontal' gap='x-large'>
                         <StyledPebbles />
-                        <Stack marginLeft='base' orientation='horizontal' align='center' gap='small'>
+                        <Stack orientation='horizontal' align='center' gap='small'>
                             <StyledHeaderLink href='/'>Dashboard</StyledHeaderLink>
                             <StyledHeaderLink href='/tokens'>Tokens</StyledHeaderLink>
                         </Stack>
                     </Stack>
                 </Box>
             </StyledHeader>
-            <StyledCrumbs
-                background={tokens.colors.white}
-                paddingTop='x-large'
-                paddingX={['base', 'base', 'base', 'none']}
-            >
-                <Heading level='4'>{heading}</Heading>
-            </StyledCrumbs>
         </Stack>
     );
 };

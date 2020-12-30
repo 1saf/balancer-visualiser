@@ -64,7 +64,7 @@ const HistoricalUtilisationGraph: FC<Props> = props => {
     return (
         <React.Fragment>
             <Box spanX={12}>
-                <Heading level='5'>Utilisation</Heading>
+                <Heading level='5'>Utilisation Metrics</Heading>
             </Box>
             <LineGraph
                 headerRenderer={ref => (

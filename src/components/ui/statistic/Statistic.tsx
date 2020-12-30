@@ -17,6 +17,7 @@ import { ResponsiveProp } from '../../layout/layout.t';
 import Grid from '../../layout/grid/Grid';
 import Skeleton from '../../design/skeleton/Skeleton';
 import StatisticSkeleton from './StatisticSkeleton';
+import { getThemeValue } from '../../theme_utils';
 
 type Props = {
     heading: string;
@@ -161,13 +162,14 @@ export type SharedStatisticProps = {
     icon?: React.ReactNode;
     description?: string;
     statistics: Statistic[];
-    isLoading;
+    isLoading: boolean;
 };
 
 const StyledSharedStatistic = styled(Grid)`
-    background: #fff;
+    background: ${getThemeValue('card.background')};
+    box-shadow: ${getThemeValue('shadow')};
     border-radius: 10px;
-    box-shadow: 0 0 0 1px ${props => props.theme.borderColor};
+    border: 1px solid ${getThemeValue('card.borderColor')};
     grid-column-gap: 0;
     grid-row-gap: 0;
     grid-template-columns: repeat(12, 1fr);

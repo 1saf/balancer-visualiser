@@ -60,6 +60,7 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         };
     }
 
+
     let hourlyTokenRef: any = firebase
         .firestore()
         .collection('dailydata')
@@ -69,11 +70,11 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         .orderBy(orderKey || 'liquidity', orderDirection);
 
     if (cursor) {
-        hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(50).get();
+        hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(25).get();
     } else {
-        hourlyTokenRef = await hourlyTokenRef.limit(50).get();
+        hourlyTokenRef = await hourlyTokenRef.limit(25).get();
     }
-
+    
     const tokens = hourlyTokenRef.docs.map((doc: any) => doc.data());
 
     return {
@@ -168,7 +169,7 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
         }
     );
 
-    const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery('tokenPrices', getTokenPrices);
+    // const { data: tokenPrices, isLoading: isLoadingTokenPrices } = useQuery('tokenPrices', getTokenPrices);
 
     const cachedTokenData = (tokenDbResponses || []).map(response => response.tokens);
 
@@ -180,7 +181,7 @@ export const useTokensViewState = (sortAndOrderOpts: SortAndPaginationOptions) =
         isFetchingMoreTokens,
         setTokenSearchText,
         tokenSearchText,
-        tokenPrices,
-        isLoadingTokenPrices,
+        tokenPrices: {},
+        isLoadingTokenPrices: false,
     };
 };

@@ -9,6 +9,7 @@ import numeral from 'numeral';
 import 'echarts/lib/component/markLine';
 import { last } from 'lodash';
 import Skeleton from '../../design/skeleton/Skeleton';
+import { getThemeValue } from '../../theme_utils';
 
 export type LineChartData = {
     series: any;
@@ -35,7 +36,7 @@ const lineChartConfig = {
             },
             {
                 offset: 1,
-                color: tokens.colors.white,
+                color: tokens.colors.gray900,
             },
         ]) as any,
     },
@@ -86,6 +87,7 @@ const StyledLineGraphContainer = styled(Card)`
     min-height: 600px;
     height: 600px;
     position: relative;
+    margin-top: -0.5rem;
 `;
 
 const option = (data: LineChartData, dataFormat: string): echarts.EChartOption => ({
@@ -187,7 +189,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 formatter: (v: number, i: number) => formatDate(new Date(v * 1000), 'do LLL yy'),
                 fontFamily: 'Inter',
                 fontSize: 12,
-                color: tokens.colors.gray700,
+                color: tokens.colors.gray100,
                 fontWeight: '600',
             },
         },
@@ -211,7 +213,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
                 formatter: (v: number, i: number) => numeral(v).format(dataFormat),
                 fontFamily: 'Inter',
                 fontSize: 14,
-                color: tokens.colors.gray800,
+                color: tokens.colors.gray100,
             },
             axisLine: {
                 show: false,

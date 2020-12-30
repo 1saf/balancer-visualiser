@@ -36,7 +36,7 @@ export const tokens = {
         blue800: '#101530',
         blue900: '#080b18',
 
-        gray100: '#FEFEFF',
+        gray100: '#C4C4D8',
         gray200: '#84849A',
         gray300: '#51576C',
         gray400: '#353749',
@@ -44,6 +44,7 @@ export const tokens = {
         gray600: '#242637',
         gray700: '#1F2130',
         gray800: '#1B1D2C',
+        gray900: '#161825',
 
         background: '#f7fafc',
     },
@@ -62,8 +63,8 @@ export const tokens = {
         heading_3: 600,
         heading_4: 600,
         heading_5: 600,
-        heading_6: 600,  
-    }
+        heading_6: 600,
+    },
 };
 
 export default {
@@ -74,11 +75,60 @@ export default {
 
     headerBg: tokens.colors.raisin_black,
 
+    shadow: `${tokens.colors.gray900} 0px 2px 4px 2px`,
+
     dark: {
-        table: {
-            headerBackground: tokens.colors.gray800,
+        foreground: tokens.colors.white,
+        background: tokens.colors.gray800,
+        primaryFontColor: tokens.colors.gray100,
+        secondaryFontColor: tokens.colors.gray200,
+        shadow: `${tokens.colors.gray900} 0px 2px 4px 2px`,
+
+        heading: {
+            primaryColor: tokens.colors.gray100,
+            secondaryColor: tokens.colors.gray200,
+        },
+
+        buttonGroup: {
             background: tokens.colors.gray700,
-            headerColor: tokens.colors.gray300,
+            activeColor: tokens.colors.ultramarine,
+            inactiveColor: tokens.colors.gray200,
+            borderColor: tokens.colors.gray400,
+        },
+
+        dropdown: {
+        background: tokens.colors.gray500,
+            hoverColor: tokens.colors.ultramarine,
+            color: tokens.colors.gray100,
+        },
+
+        table: {
+            headerBackground: tokens.colors.gray900,
+            background: tokens.colors.gray900,
+            headerColor: tokens.colors.gray100,
+            cellPrimaryColor: tokens.colors.gray100,
+            cellSecondaryColor: tokens.colors.gray200,
+        },
+        card: {
+            background: tokens.colors.gray900,
+            borderColor: tokens.colors.gray400,
+        },
+
+        graph: {
+            color: tokens.colors.gray100,
+            foreground: tokens.colors.ultramarine,
+            background: tokens.colors.gray900,
+        },
+    },
+    light: {
+        foreground: tokens.colors.white,
+        background: tokens.colors.white,
+        table: {
+            headerBackground: tokens.colors.gray600,
+            background: tokens.colors.gray700,
+            headerColor: tokens.colors.gray100,
+            cellPrimaryColor: tokens.colors.gray100,
+            cellSecondaryColor: tokens.colors.gray200,
         },
     },
 
@@ -100,7 +150,7 @@ export default {
     silentdropdownHover: tokens.colors.ultramarine,
     silentdropdownButtonHover: tokens.colors.blue100,
     dropdownItemHoverColor: tokens.colors.blue500,
-    
+
     actionButtonHover: tokens.colors.gray200,
     actionButtonTextColor: tokens.colors.gray700,
 };
