@@ -75,7 +75,7 @@ export default {
 
     dark: {
         foreground: tokens.colors.white,
-        background: tokens.colors.gray800,
+        background: tokens.colors.gray700,
         primaryFontColor: tokens.colors.gray100,
         secondaryFontColor: tokens.colors.gray200,
         shadow: `${tokens.colors.gray900} 0px 2px 4px 2px`,
@@ -93,7 +93,7 @@ export default {
         },
 
         dropdown: {
-        background: tokens.colors.gray500,
+            background: tokens.colors.gray500,
             hoverColor: tokens.colors.ultramarine,
             color: tokens.colors.gray100,
         },
