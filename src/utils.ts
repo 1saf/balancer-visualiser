@@ -58,6 +58,7 @@ export const getDynamicChange = (data: BalancerData[]) => (statistic: string, pe
         yesterday,
         today,
         change,
+        volume: today - yesterday,
     };
 };
 

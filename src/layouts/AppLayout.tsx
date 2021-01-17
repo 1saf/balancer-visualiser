@@ -49,7 +49,6 @@ const AppLayout = styled(Box)<ThemeProp>`
     width: 100%;
     height: 100%;
     display: block;
-    // background-color: ${props => props.theme[props.innerTheme].background};
     background: rgb(27,29,44);
     background: radial-gradient(circle, rgba(27,29,44,1) 57%, rgba(22,24,37,1) 100%);
     font-family: 'Inter', sans-serif;

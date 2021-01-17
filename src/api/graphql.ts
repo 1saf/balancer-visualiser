@@ -1,5 +1,5 @@
 import bent from 'bent';
-import { useQuery, QueryKey, QueryConfig } from 'react-query';
+import { useQuery, QueryKey, QueryConfig, useInfiniteQuery, InfiniteQueryConfig } from 'react-query';
 import { spawn } from '../threads';
 import { print } from 'graphql';
 import { from } from 'rxjs';
@@ -13,7 +13,8 @@ export type GraphQLResponse<T> = { data: T };
 
 export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, loop?: boolean) => async (
     key: string,
-    variables: Record<string, any>
+    variables: Record<string, any>,
+    extraData: Record<string, unknown>,
 ): Promise<TResult> => {
     const request = bent(subGraphURL, 'POST', 'json', [200, 400, 404, 401, 500, 503]);
     if (loop) {
@@ -39,7 +40,7 @@ export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, 
     }
     // need to cast as unknown first, need to tell typescript that we know
     // what we are doing if we provide a type to this function
-    return (request('', { query: literal, variables }) as unknown) as TResult;
+    return (request('', { query: literal, variables: { ...variables, ...extraData } }) as unknown) as TResult;
 };
 
 type CustomQueryConfig = {
@@ -56,4 +57,15 @@ export const useGraphQuery = <TResult = unknown, TError = unknown>(
     const request = subgraphPOST<TResult>(endpoint)(literal, queryConfig?.loop);
 
     return useQuery(queryKey, request, queryConfig);
+};
+
+export const useInfiniteGraphQuery = <TResult = unknown, TError = unknown>(
+    queryKey: QueryKey,
+    literal: string,
+    queryConfig?: InfiniteQueryConfig<TResult, TError> & CustomQueryConfig,
+) => {
+    const endpoint = queryConfig?.graphEndpoint || BALANCER_SUBGRAPH_URL;
+    const request = subgraphPOST<TResult>(endpoint)(literal, queryConfig?.loop);
+
+    return useInfiniteQuery(queryKey, request, queryConfig);
 };

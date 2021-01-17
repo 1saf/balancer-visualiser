@@ -144,6 +144,7 @@ export const useOverviewStatistics = (overviewPeriod: Option & { periodLength: n
         yesterday: historicalBalPrices[0],
         today: last(historicalBalPrices),
         change: calculateChange(historicalBalPrices[0], last(historicalBalPrices)),
+        volume: last(historicalBalPrices) - historicalBalPrices[0],
     }
 
     const totalLiquidity = getDynamicChange(data as BalancerData[])('totalLiquidity', overviewPeriod?.periodLength / 2);

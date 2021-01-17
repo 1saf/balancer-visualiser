@@ -47,7 +47,6 @@ const changeBackground = {
     neutral: tokens.colors.red100,
 };
 
-
 const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
     font-size: 0.75rem;
     font-weight: 600;
@@ -61,9 +60,10 @@ const StyledChange = styled(Box)<{ type: 'positive' | 'negative' | 'neutral' }>`
 
 type ChangeProps = {
     change: number;
+    volume: number;
 };
 
-const Change = ({ change }: ChangeProps) => {
+const Change = ({ change, volume }: ChangeProps) => {
     let type = 'neutral';
     let ascii = '';
     if (change > 0) {
@@ -78,7 +78,7 @@ const Change = ({ change }: ChangeProps) => {
 
     return (
         <StyledChange type={type}>
-            {ascii} {numeral(change).format('0.000%')}
+            {ascii} {numeral(volume).format('0.00a')} {ascii} {numeral(change).format('0.000%')}
         </StyledChange>
     );
 };
@@ -105,6 +105,7 @@ const Statistic = (props: Props) => {
 
     // Large or small card
     const percentage = data && data?.length ? (last(data) - data[0]) / data[0] : 0;
+    const volume = data && data?.length ? last(data) - data[0] : 0;
     const span: ResponsiveProp<number> = data && data?.length ? [12, 6, 6, 4] : [12, 6, 6, 3];
 
     const formattedPercentage = numeral(percentage).format('+0.00%');
@@ -128,7 +129,7 @@ const Statistic = (props: Props) => {
                             {data && (
                                 <Tooltip tip={`${formattedPercentage} over the past 30 days.`}>
                                     <Box>
-                                        <Change change={percentage} />
+                                        <Change change={percentage} volume={volume} />
                                     </Box>
                                 </Tooltip>
                             )}
@@ -150,6 +151,7 @@ type Statistic = {
     value: string | number;
     previousValue: string | number;
     change: string | number;
+    volume?: number;
 };
 
 export type SharedStatisticProps = {
@@ -252,9 +254,15 @@ export const SharedStatistic = (props: SharedStatisticProps) => {
                                     <Stack orientation='horizontal' align='end' gap='small'>
                                         <Heading level='4'>{statistic?.value}</Heading>
                                     </Stack>
-                                    <Stack orientation='horizontal' width='100%' justify='between'>
-                                        <Subheading>From {statistic?.previousValue}</Subheading>
-                                        <Change change={statistic?.change} />
+                                    <Stack orientation='vertical' gap='small' justify='start'>
+                                        <Box width='fit-content'>
+                                            <Subheading>From {statistic?.previousValue}</Subheading>
+                                        </Box>
+                                        <Tooltip tip={`Moved ${numeral(statistic.volume).format('0,00.00')} in volume`}>
+                                            <Box width='fit-content'>
+                                                <Change change={statistic?.change as number} volume={statistic.volume} />
+                                            </Box>
+                                        </Tooltip>
                                     </Stack>
                                 </Stack>
                             </Stack>

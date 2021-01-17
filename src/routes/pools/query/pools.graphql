@@ -1,0 +1,11 @@
+query poolSharesQuery($first: Int, $skip: Int, $orderBy: String, $orderDirection: String) {
+    pools(first: $first, skip: $skip, orderBy: $orderBy, orderDirection: $orderDirection) {
+        totalSwapVolume
+        totalSwapFee
+        tokens {
+            address
+            symbol
+            denormWeight
+        }
+    }
+}

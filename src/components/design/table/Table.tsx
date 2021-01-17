@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from 'framer-motion';
-import React, { MouseEvent, useCallback, useEffect } from 'react';
+import React, { MouseEvent, ReactNode, useCallback, useEffect } from 'react';
 import { useTable, useSortBy, useBlockLayout } from 'react-table';
 import { useSticky } from 'react-table-sticky';
 import styled from 'styled-components';
@@ -27,6 +27,7 @@ type Props = {
     isFetchingMore?: boolean;
     skeletonHeight?: number;
     initialState?: any;
+    loadingElement?: ReactNode;
 };
 
 const StyledTable = styled.div<ThemeProp>`
@@ -36,8 +37,11 @@ const StyledTable = styled.div<ThemeProp>`
     border: 1px solid ${tokens.colors.gray400};
     border-radius: 10px;
     overflow: hidden;
-    overflow-x: scroll;
     min-width: auto !important;
+
+    @media (max-width: 768px) {
+        overflow-x: scroll;
+    }
 
     .header,
     .footer {
@@ -165,26 +169,6 @@ export const StyledSkeletonCell = styled(motion.div)<{ skeletonHeight?: number; 
     height: ${props => props.skeletonHeight}px;
 `;
 
-const SkeletonRow = () => {
-    return (
-        <Stack orientation='horizontal' width='100%'>
-            <StyledSkeletonCell width={200} grow={true}>
-                <Stack gap='small'>
-                    <SkeletonText height='0.85rem' width='75%' />
-                    <SkeletonText height='0.85rem' width='15%' />
-                </Stack>
-            </StyledSkeletonCell>
-            <StyledSkeletonCell width={150}>
-                <SkeletonText height='0.85rem' width='35%' float='right' />
-            </StyledSkeletonCell>
-
-            <StyledSkeletonCell width={150}>
-                <SkeletonText height='0.85rem' width='35%' float='right' />
-            </StyledSkeletonCell>
-        </Stack>
-    );
-};
-
 const StyledHeaderWrapper = styled(Box)`
     width: 100% !important;
 
@@ -300,7 +284,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                 <StyledBody>
                     {[...Array(20)].map((_, i) => (
                         <StyledCellRow key={`top-tableskeleton-${i}`}>
-                            <SkeletonRow />
+                            {loadingElement}
                         </StyledCellRow>
                     ))}
                 </StyledBody>
@@ -350,7 +334,7 @@ const Table = React.forwardRef((props: Props, ref) => {
                         {isFetchingMore &&
                             [...Array(3)].map((_, i) => (
                                 <StyledCellRow key={`bottom-tableskeleton-${i}`}>
-                                    <SkeletonRow />
+                                    {loadingElement}
                                 </StyledCellRow>
                             ))}
                     </AnimatePresence>

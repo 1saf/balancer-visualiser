@@ -1,6 +1,5 @@
 import React, { FC, SyntheticEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import Table from '../../components/design/table/Table';
-import Box from '../../components/layout/box/Box';
+import Table, { StyledSkeletonCell } from '../../components/design/table/Table';
 import { useTokensViewState } from './state/hooks';
 
 import numeral from 'numeral';
@@ -14,6 +13,8 @@ import Feedback from '../../components/design/feedback/Feedback';
 
 import { ThemeProp } from '../../components/theme_utils';
 import { tokens } from '../../style/Theme';
+import { StyledTokenIcon } from '../../components/ui/token_icon/TokenIcon';
+import { SkeletonText } from '../../components/design/skeleton/Skeleton';
 
 type Props = {};
 
@@ -43,31 +44,30 @@ const StyledTokensView = styled(Stack)`
     }
 `;
 
-const StyledTokenIcon = styled(Box)`
-    height: 100%;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 12px;
-    overflow: hidden;
-    & > img {
-        width: 24px;
-        height: 24px;
-
-        &:before {
-            content: ' ';
-            display: block;
-            position: absolute;
-            height: 24px;
-            width: 24px;
-            background: #FFF;
-    }
-`;
-
 const StyledPing = styled.span`
     color: ${tokens.colors.green400};
     font-size: 0.85rem;
 `;
+
+const SkeletonRow = () => {
+    return (
+        <Stack orientation='horizontal' width='100%'>
+            <StyledSkeletonCell width={200} grow={true}>
+                <Stack gap='small'>
+                    <SkeletonText height='0.85rem' width='75%' />
+                    <SkeletonText height='0.85rem' width='15%' />
+                </Stack>
+            </StyledSkeletonCell>
+            <StyledSkeletonCell width={150}>
+                <SkeletonText height='0.85rem' width='35%' float='right' />
+            </StyledSkeletonCell>
+
+            <StyledSkeletonCell width={150}>
+                <SkeletonText height='0.85rem' width='35%' float='right' />
+            </StyledSkeletonCell>
+        </Stack>
+    );
+};
 
 const TokensView: FC<Props> = props => {
     const tableContainerRef = useRef(null);
@@ -180,6 +180,7 @@ const TokensView: FC<Props> = props => {
                 columns={columns}
                 data={cachedTokenData}
                 isFetchingMore={isFetchingTokens}
+                loadingElement={<SkeletonRow />}
                 initialState={{
                     sortBy: [
                         {
