@@ -25,6 +25,7 @@ const StyledFeedback = styled(Stack)<Props>`
     font-size: 0.85rem;
     color: ${tokens.colors.gray200};
     font-weight: 500;
+    line-height: 1.2;
 `;
 
 const Feedback: FC<Props> = props => {

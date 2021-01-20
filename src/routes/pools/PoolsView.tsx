@@ -9,6 +9,8 @@ import styled from 'styled-components';
 import { StyledTokenIcon, TokenIconGroup } from '../../components/ui/token_icon/TokenIcon';
 import Web3Utils from 'web3-utils';
 import { SkeletonText } from '../../components/design/skeleton/Skeleton';
+import Feedback from '../../components/design/feedback/Feedback';
+import Box from '../../components/layout/box/Box';
 
 type Props = {};
 
@@ -108,7 +110,13 @@ export const PoolsView = (props: Props) => {
     );
 
     return (
-        <StyledPoolsView>
+        <StyledPoolsView gap='base'>
+            <Box marginY='base'>
+                <Feedback emotion='negative'>
+                    Please note that this page is incomplete. Currently only basic tabular features work such as sorting and scrolling
+                    through all Pools. Also note that the UI may also be jarring and this is definitely due to be polished soon.
+                </Feedback>
+            </Box>
             <Table
                 setTableState={setTableState}
                 isLoading={false}

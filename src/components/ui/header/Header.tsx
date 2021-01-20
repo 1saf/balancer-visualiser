@@ -43,6 +43,7 @@ const Header: FC<Props> = props => {
                         <Stack orientation='horizontal' align='center' gap='small'>
                             <StyledHeaderLink href='/'>Dashboard</StyledHeaderLink>
                             <StyledHeaderLink href='/tokens'>Tokens</StyledHeaderLink>
+                            <StyledHeaderLink href='/tokens'>Pools</StyledHeaderLink>
                         </Stack>
                     </Stack>
                 </Box>
