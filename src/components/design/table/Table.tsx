@@ -179,7 +179,7 @@ const StyledHeaderWrapper = styled(Box)`
 
 const Table = React.forwardRef((props: Props, ref) => {
     const { theme } = useAppContext();
-    const { columns, data, setTableState, isLoading, skeletonHeight, isFetchingMore, initialState } = props;
+    const { columns, data, setTableState, isLoading, loadingElement, isFetchingMore, initialState } = props;
     const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow, state } = useTable(
         { columns: columns as any, data, autoResetSortBy: false, initialState } as any,
         useSortBy,
