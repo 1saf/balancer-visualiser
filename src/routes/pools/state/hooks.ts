@@ -23,7 +23,7 @@ export const usePoolsViewState = () => {
     const { setScrollToEndHandler } = useAppContext();
 
     const { data: poolsResponse, isLoading, isFetching, isFetchingMore, fetchMore } = useInfiniteGraphQuery<GraphQLResponse<PoolsData>>(
-        ['blockTimestamps', { first: 50, skip: 0, orderBy: tableState?.sortBy?.id, orderDirection: tableState?.sortBy?.desc ? 'desc' : 'asc' }],
+        ['poolsList', { first: 50, skip: 0, orderBy: tableState?.sortBy?.id, orderDirection: tableState?.sortBy?.desc ? 'desc' : 'asc' }],
         poolDataQuery,
         {
             getFetchMore: () => {
