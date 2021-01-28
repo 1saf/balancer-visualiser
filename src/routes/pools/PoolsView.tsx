@@ -1,4 +1,4 @@
-import React, { Fragment, useMemo } from 'react';
+import React, { Fragment, SyntheticEvent, useMemo } from 'react';
 import Table, { StyledSkeletonCell } from '../../components/design/table/Table';
 import Stack from '../../components/layout/stack/Stack';
 import Text from '../../components/design/text/Text';
@@ -49,7 +49,7 @@ const SkeletonRow = () => {
 };
 
 export const PoolsView = (props: Props) => {
-    const { setTableState, poolsData, isLoading } = usePoolsViewState();
+    const { handleTokenSearch, setTableState, poolsData, isLoading, isFetching } = usePoolsViewState();
 
     const columns = useMemo(
         () => [
@@ -86,6 +86,21 @@ export const PoolsView = (props: Props) => {
                     minWidth: '500px',
                 },
                 isSearchable: true,
+                onSearch: (event: SyntheticEvent) => {
+                    event.persist();
+                    handleTokenSearch.callback(event);
+                },
+                disableSortBy: true,
+            },
+            {
+                Header: '24H Swap Volume',
+                accessor: 'volume24h',
+                isNumerical: true,
+                Cell: ({ value }: any) => <Text size='0.85rem'>{numeral(value).format('$0,0')}</Text>,
+                style: {
+                    minWidth: '200px',
+                },
+                disableSortBy: true,
             },
             {
                 Header: 'Total Fee Volume',
@@ -119,7 +134,7 @@ export const PoolsView = (props: Props) => {
             </Box>
             <Table
                 setTableState={setTableState}
-                isLoading={false}
+                isLoading={isFetching || isLoading}
                 skeletonHeight={75}
                 columns={columns}
                 data={poolsData as any}
