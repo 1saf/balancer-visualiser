@@ -5,9 +5,11 @@ export const tokens = {
         raisin_black: '#21222c',
         cultured: '#fafafa',
         mellow_apricot: '#F7C27D',
-        congo_pink: '#E96B94',
+        congo_pink: '#F54780',
         white: '#FFFFFF',
         medium_aquamarine: '#47E5BC',
+        yellow: '#F8FD20',
+        pingo: '#FD5AA8',
 
         green100: '#B4FBB6',
         green200: '#83E286',
@@ -89,7 +91,7 @@ export default {
         buttonGroup: {
             background: tokens.colors.gray700,
             activeColor: tokens.colors.white,
-            activeBackground: tokens.colors.ultramarine,
+            activeBackground: tokens.colors.supermarine,
             inactiveColor: tokens.colors.gray200,
             borderColor: tokens.colors.gray400,
         },
@@ -142,7 +144,7 @@ export default {
 
     cardBackgroundColor: tokens.colors.gray100,
 
-    tooltipBackgroundColor: tokens.colors.ultramarine,
+    tooltipBackgroundColor: tokens.colors.congo_pink,
     tooltipTextColor: tokens.colors.gray100,
 
     silentdropdownHover: tokens.colors.ultramarine,

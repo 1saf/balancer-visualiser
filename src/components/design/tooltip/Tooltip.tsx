@@ -3,6 +3,8 @@ import Tippy from '@tippyjs/react/headless';
 import styled from 'styled-components';
 import { useSpring } from 'framer-motion';
 import Box from '../../layout/box/Box';
+import { getThemeValue } from '../../theme_utils';
+import { tokens } from '../../../style/Theme';
 
 type Props = {
     tip: string;
@@ -10,11 +12,12 @@ type Props = {
 
 const StyledTippy = styled(Box)`
     background: ${props => props.theme.tooltipBackgroundColor};
-    color: ${props => props.theme.tooltipTextColor};
+    color: ${tokens.colors.gray600};
     border-radius: 4px;
-    box-shadow: 0px 10px 40px rgba(100, 100, 100, 0.1), 0px 10px 20px rgba(100, 100, 100, 0.2);
+    box-shadow: ${getThemeValue('shadow')};
     font-family: Inter;
     font-size: 0.875rem;
+    font-weight: 600;
 `;
 
 const initialScale = 0.95;
