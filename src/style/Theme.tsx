@@ -89,11 +89,23 @@ export default {
         },
 
         buttonGroup: {
-            background: tokens.colors.gray700,
-            activeColor: tokens.colors.white,
-            activeBackground: tokens.colors.supermarine,
-            inactiveColor: tokens.colors.gray200,
-            borderColor: tokens.colors.gray400,
+            primary: {
+                background: tokens.colors.gray700,
+                activeColor: tokens.colors.white,
+                activeBackground: tokens.colors.supermarine,
+                inactiveColor: tokens.colors.gray200,
+                borderColor: tokens.colors.gray200,
+                hoverColor: tokens.colors.white,
+            },
+
+            secondary: {
+                background: tokens.colors.gray700,
+                activeColor: tokens.colors.gray700,
+                activeBackground: tokens.colors.congo_pink,
+                inactiveColor: tokens.colors.gray200,
+                borderColor: tokens.colors.gray400,
+                hoverColor: tokens.colors.white,
+            }
         },
 
         dropdown: {
