@@ -1,4 +1,4 @@
-import { fromUnixTime, getUnixTime, parse, subDays, subHours } from "date-fns";
+import { differenceInDays, fromUnixTime, getUnixTime, parse, subDays, subHours } from "date-fns";
 import { dropRight, flatten, last, over, pad, sortBy, takeRight, times } from "lodash";
 import { useMemo, useState } from "react";
 import { useQuery } from "react-query";
@@ -146,7 +146,8 @@ export const getHistoricalBalancerData = async (
     });
 
     const resolvedDayData = await Promise.all(dayData);
-    const flattenedData = takeRight(flatten(resolvedDayData.reverse()), getIntervalBetweenPeriod(period) * 24);
+
+    let flattenedData = takeRight(flatten(resolvedDayData.reverse()), getIntervalBetweenPeriod(period) * 24);
     return flattenedData as BalancerData[];
 };
 
@@ -259,10 +260,7 @@ export const useHistoricalGraphState = (
     // default to start at 24 hour
     const [graphTimePeriod, setGraphTimePeriod] = useState<Period>("7d");
 
-    let fromDate =
-        graphTimePeriod === "24h"
-            ? BALANCER_CONTRACT_START_DATE
-            : subHours(TODAY, 24);
+    let fromDate = subHours(TODAY, getIntervalBetweenPeriod(graphTimePeriod) * 24);
     // get balancer usd prices, query disabled until till the datakey is balancer_usd
     const historicalBalancerPriceChartData = useHistoricalBalancePrice(
         dataKey?.value === "balancerPrice",

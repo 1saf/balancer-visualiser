@@ -9,6 +9,7 @@ import {
     format as formatDate,
     startOfDay,
     eachHourOfInterval,
+    differenceInDays,
 } from "date-fns";
 import { chunk, first, last, mean, take, takeRight } from "lodash";
 import { useEffect } from "react";
@@ -188,7 +189,7 @@ const dayIntervalMap: Record<Period, number> = {
     "30d": 30,
     "7d": 7,
     "90d": 90,
-    max: -1,
+    max: differenceInDays(TODAY, BALANCER_CONTRACT_START_DATE),
 };
 
 export const getIntervalBetweenPeriod = (period: Period) => {
