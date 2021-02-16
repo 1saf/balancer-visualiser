@@ -24,6 +24,12 @@ type LineGraphHeaderProps = {
     periodOptions: Option[];
 };
 
+const StyledHeaderOptions = styled(Stack)`
+    @media (max-width: 768px) {
+        flex-direction: column-reverse;
+    }
+`;
+
 const StyledGraphInfo = styled(Stack)`
     align-items: flex-end;
     border-top-right-radius 15px;
@@ -62,7 +68,7 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
     return (
         <React.Fragment>
             <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='large'>
-                <Stack justify='between' orientation='horizontal' width='100%'>
+                <StyledHeaderOptions justify='between' orientation='horizontal' width='100%'>
                     <Stack>
                         <Dropdown silent options={dataOptions} onSelected={_onDataKeyChange} menuWidth='225px' />
                         <Stack gap='x-small' paddingLeft='x-small'>
@@ -76,7 +82,7 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
                             <ButtonGroup weight='secondary' size='small' value={`${selectedPeriod.value}-${selectedPeriod.label}`} options={periodOptions} setValue={handlePeriodChange} />
                         }
                     </Box>
-                </Stack>
+                </StyledHeaderOptions>
             </StyledGraphInfo>
         </React.Fragment>
     );

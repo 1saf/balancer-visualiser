@@ -55,6 +55,7 @@ const StyledButtonGroup = styled(Stack)`
     box-shadow: ${getThemeValue("shadow")};
     border-radius: 10px;
     border: 1px solid ${getThemeValue("buttonGroup.borderColor")};
+    width: fit-content;
 `;
 
 const ButtonGroup: FC<Props> = (props) => {

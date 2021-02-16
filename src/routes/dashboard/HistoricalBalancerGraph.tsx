@@ -58,7 +58,6 @@ const HistoricalBalancerGraph: FC<Props> = props => {
     );
 
     const movementData = useBalancerMovementData(currentDataKey?.value, values, timestamps);
-    console.log('mvmt', movementData);
     const chartConfig = {
         series: [getSeries('line', name, values), getSeries("bar", "Movement", movementData.values, 1)],
         axis: timestamps,

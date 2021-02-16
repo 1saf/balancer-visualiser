@@ -129,7 +129,6 @@ export const getHistoricalBalancerData = async (
     // might be incomplete for current day
     if (padDates) limit += 1;
 
-    console.log('lemet', limit);
     const days = await firebase
         .firestore()
         .collection("dailydata")

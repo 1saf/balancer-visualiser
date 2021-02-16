@@ -74,7 +74,6 @@ export const calculateLiquidityUtilisation = (
     data: BalancerData[],
     chunkSize = 24
 ) => {
-    console.log('d', data);
     const liquidityExtractor = dataExtractors["totalLiquidity"];
     const swapVolumeExtractor = dataExtractors["totalSwapVolume"];
 
@@ -93,8 +92,6 @@ export const calculateLiquidityUtilisation = (
         if (i === utilisations.length - 1) return NaN;
         return (utilisations[i + 1] - utilisation) / utilisation;
     });
-
-    console.log('util', changes, utilisations);
 
     return {
         data: utilisations,

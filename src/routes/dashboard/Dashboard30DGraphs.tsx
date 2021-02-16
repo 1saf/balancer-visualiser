@@ -40,8 +40,6 @@ const useHistoricalBalancerData = (historicalDataQuery: string) => {
     // any overhead
     const { data: historicalBalancerData, isLoading: isHistoricalBalancerResponseLoading } = useHistoricalBalancerState(blocks);
 
-    console.log('esh', historicalBalancerData, isHistoricalBalancerResponseLoading );
-
     const timestamps = dates.map(r => r.first_ten);
 
     const isLoading = isEthTimestampResponseLoading || isHistoricalBalancerResponseLoading;
