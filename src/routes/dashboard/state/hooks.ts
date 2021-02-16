@@ -257,7 +257,7 @@ export const useHistoricalGraphState = (
     name: string,
     extractor?: DataExtractorFn
 ) => {
-    // default to start at 24 hour
+    // default to start at 24 hour 
     const [graphTimePeriod, setGraphTimePeriod] = useState<Period>("7d");
 
     let fromDate = subHours(TODAY, getIntervalBetweenPeriod(graphTimePeriod) * 24);
