@@ -10,7 +10,8 @@ import Dropdown, { DropdownOption } from '../../design/dropdown/Dropdown';
 import { LineChartData } from './LineGraph';
 import Box from '../../layout/box/Box';
 import Tooltip from '../../design/tooltip/Tooltip';
-import { Option } from '../../../api/datatypes';
+import { Option, Period } from '../../../api/datatypes';
+import ButtonGroup from '../../design/button_group/ButtonGroup';
 
 type LineGraphHeaderProps = {
     data: LineChartData;
@@ -20,7 +21,14 @@ type LineGraphHeaderProps = {
     isLoading?: boolean;
     dataFormat: string;
     dataOptions?: Option[];
+    periodOptions: Option[];
 };
+
+const StyledHeaderOptions = styled(Stack)`
+    @media (max-width: 768px) {
+        flex-direction: column-reverse;
+    }
+`;
 
 const StyledGraphInfo = styled(Stack)`
     align-items: flex-end;
@@ -28,23 +36,11 @@ const StyledGraphInfo = styled(Stack)`
     border-top-left-radius: 15px;
 `;
 
-const timePeriods = [
-    {
-        value: 'day',
-        label: 'All Time',
-        description: 'Daily data since the inception of the Balancer smart contract.',
-    },
-    {
-        value: 'hour',
-        label: 'Last 24 Hours',
-        description: 'Hourly data starting 24 hours from the current minute.',
-    },
-];
-
 const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
-    const { data, onPeriodChange, onDataKeyChange, dataFormat, dataOptions = [] } = props;
+    const { data, onPeriodChange, onDataKeyChange, dataFormat, dataOptions = [], periodOptions } = props;
     const [hoveredValue, setHoveredValue] = useState<string>('$ - . -');
     const [hoveredDate, setHoveredDate] = useState<string>('-');
+    const [selectedPeriod, setSelectedPeriod] = useState(periodOptions[1]);
     const axisMouseIndex = useRef<number>();
 
     useImperativeHandle(ref, () => ({
@@ -64,10 +60,15 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
         onDataKeyChange(option);
     }
 
+    const handlePeriodChange = (change: { value: string, label: string }) => {
+        onPeriodChange(change.value);
+        setSelectedPeriod(change);
+    }
+
     return (
         <React.Fragment>
             <StyledGraphInfo gap='x-small' orientation='horizontal' paddingX='x-large' paddingTop='large'>
-                <Stack justify='between' orientation='horizontal' width='100%'>
+                <StyledHeaderOptions justify='between' orientation='horizontal' width='100%'>
                     <Stack>
                         <Dropdown silent options={dataOptions} onSelected={_onDataKeyChange} menuWidth='225px' />
                         <Stack gap='x-small' paddingLeft='x-small'>
@@ -78,10 +79,10 @@ const LineGraphHeader = forwardRef((props: LineGraphHeaderProps, ref) => {
                     <Box>
                         {
                             onPeriodChange &&
-                            <Dropdown silent options={timePeriods} onSelected={onPeriodChange} menuWidth='225px' />
+                            <ButtonGroup weight='secondary' size='small' value={`${selectedPeriod.value}-${selectedPeriod.label}`} options={periodOptions} setValue={handlePeriodChange} />
                         }
                     </Box>
-                </Stack>
+                </StyledHeaderOptions>
             </StyledGraphInfo>
         </React.Fragment>
     );

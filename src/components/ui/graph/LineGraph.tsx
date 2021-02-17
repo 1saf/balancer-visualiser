@@ -7,7 +7,7 @@ import { tokens } from '../../../style/Theme';
 import { format as formatDate } from 'date-fns';
 import numeral from 'numeral';
 import 'echarts/lib/component/markLine';
-import { last } from 'lodash';
+import { last, values } from 'lodash';
 import { getThemeValue } from '../../theme_utils';
 
 export type LineChartData = {
@@ -57,6 +57,7 @@ export const getSeries = (type: 'bar' | 'line', name: string, values: unknown[] 
         commonConfig.xAxisIndex = index;
         commonConfig.yAxisIndex = index;
     }
+
     if (type === 'line')
         return {
             ...commonConfig,
@@ -165,6 +166,7 @@ const option = (data: LineChartData, dataFormat: string): echarts.EChartOption =
             type: 'slider',
             top: '87.5%',
             labelFormatter: (value: any, valueStr: any) => {
+                if (!valueStr) return formatDate(new Date(), 'do LLL yy');
                 return formatDate(new Date(parseInt(valueStr, 10) * 1000), 'do LLL yy');
             },
             textStyle: {

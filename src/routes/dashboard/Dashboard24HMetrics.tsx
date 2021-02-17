@@ -1,5 +1,5 @@
 import React, { FC, Fragment, useCallback, useState } from 'react';
-import { BalancerData, BalancerState, Change24H, Option } from '../../api/datatypes';
+import { BalancerData, BalancerState, Change24H, Option, Period } from '../../api/datatypes';
 import Box from '../../components/layout/box/Box';
 import { SharedStatistic } from '../../components/ui/statistic/Statistic';
 import { useOverviewStatistics } from './state/hooks';
@@ -13,14 +13,15 @@ type Props = {
     balancerState: BalancerState;
 };
 
-const OverviewOptions = [
-    { value: 'hour', label: '24H', periodLength: 48 },
-    { value: 'hour', label: '7 Days', periodLength: 336 },
-    { value: 'hour', label: '30 Days', periodLength: 1440 },
+const PeriodOptions = [
+    { value: '2d', label: '24H' },
+    { value: '14d', label: '7D' },
+    { value: '60d', label: '30D' },
 ];
 
 const Dashboard24HMetrics: FC<Props> = props => {
-    const [overviewPeriod, _setOverviewPeriod] = useState(OverviewOptions[0]);
+    const [overviewPeriod, _setOverviewPeriod] = useState(PeriodOptions[0]);
+
     const {
         feeVolume,
         swapVolume,
@@ -31,7 +32,7 @@ const Dashboard24HMetrics: FC<Props> = props => {
         finalizedPoolCount,
         balancerPrice,
         isLoading,
-    } = useOverviewStatistics(overviewPeriod);
+    } = useOverviewStatistics(overviewPeriod.value as Period);
 
     const setOverviewPeriod = useCallback((option: Option) => {
         _setOverviewPeriod(option);
@@ -42,7 +43,7 @@ const Dashboard24HMetrics: FC<Props> = props => {
             <Box spanX={12}>
                 <Stack align='start' gap='base'>
                     <Heading level='5'>Overview</Heading>
-                    <ButtonGroup options={OverviewOptions} value={`${overviewPeriod?.value}-${overviewPeriod.label}`} setValue={setOverviewPeriod} />
+                    <ButtonGroup options={PeriodOptions} value={`${overviewPeriod?.value}-${overviewPeriod.label}`} setValue={setOverviewPeriod} />
                 </Stack>
             </Box>
             <Box spanX={12} style={{ marginTop: '-0.5rem' }}>
@@ -86,17 +87,17 @@ const Dashboard24HMetrics: FC<Props> = props => {
                         },
                         {
                             name: 'Liquidity Utilisation',
-                            value: numeral(utilisation?.data[utilisation?.data.length - 2]).format('0.000%'),
+                            value: numeral(utilisation?.data[utilisation?.data.length - 1]).format('0.000%'),
                             previousValue: numeral(utilisation?.data[0]).format('0.000%'),
                             change: utilisation?.changes[0],
-                            volume: last(utilisation?.data) - utilisation.data[0],
+                            volume: (last(utilisation?.data) - utilisation.data[0]) * 100,
                         },
                         {
                             name: 'Revenue Ratio',
-                            value: numeral(revenueRatio?.data[revenueRatio?.data.length - 2]).format('0.000%'),
+                            value: numeral(revenueRatio?.data[revenueRatio?.data.length - 1]).format('0.000%'),
                             previousValue: numeral(revenueRatio?.data[0]).format('0.000%'),
                             change: revenueRatio?.changes[0],
-                            volume: last(revenueRatio?.data) - revenueRatio.data[0],
+                            volume: (last(revenueRatio?.data) - revenueRatio.data[0]) * 100,
                         },
                         {
                             name: 'Balancer Price',

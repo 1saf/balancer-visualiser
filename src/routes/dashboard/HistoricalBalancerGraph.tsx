@@ -40,6 +40,14 @@ export const graphOptions = [
     },
 ];
 
+const PeriodOptions = [
+    { value: '24h', label: '24H' },
+    { value: '7d', label: '7D' },
+    { value: '30d', label: '30D' },
+    { value: '90d', label: '90D' },
+    { value: 'max', label: 'Max' },
+];
+
 const HistoricalBalancerGraph: FC<Props> = props => {
     const { dataKey } = props;
     const [currentDataKey, setCurrentDataKey] = useState<DropdownOption>({ value: dataKey, label: 'Total Value Locked' });
@@ -51,7 +59,7 @@ const HistoricalBalancerGraph: FC<Props> = props => {
 
     const movementData = useBalancerMovementData(currentDataKey?.value, values, timestamps);
     const chartConfig = {
-        series: [getSeries('line', name, values), getSeries('bar', `Volume Movement`, movementData?.values, 1)],
+        series: [getSeries('line', name, values), getSeries("bar", "Movement", movementData.values, 1)],
         axis: timestamps,
     };
 
@@ -70,6 +78,7 @@ const HistoricalBalancerGraph: FC<Props> = props => {
                         onPeriodChange={setGraphTimePeriod}
                         ref={ref}
                         dataOptions={graphOptions}
+                        periodOptions={PeriodOptions}
                     />
                 )}
                 isLoading={isLoading}
