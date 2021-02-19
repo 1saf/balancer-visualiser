@@ -64,7 +64,6 @@ export const getChangeByPeriodLength = (data: BalancerData[], period: Period, is
     let pointsToGoBack = getIntervalBetweenPeriod(period) * 24;
     if (isDouble) pointsToGoBack = pointsToGoBack / 2;
 
-
     const yesterday = extractorFn(data[data.length - pointsToGoBack]) as number;
     const today = extractorFn(last(data)) as number;
     const change = (today - yesterday) / yesterday;
@@ -85,6 +84,7 @@ export const calculateLiquidityUtilisation = (
 
     const chunkedLiquidity = chunk(data.map(liquidityExtractor), chunkSize);
     const chunkedSwapVolume = chunk(data.map(swapVolumeExtractor), chunkSize);
+
 
     const liquidityMeans = chunkedLiquidity.map(mean);
     const volumeMovement = chunkedSwapVolume.map(

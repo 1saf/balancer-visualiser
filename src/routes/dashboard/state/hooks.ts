@@ -208,7 +208,7 @@ export const useOverviewStatistics = (period: Period) => {
     } = useHistoricalBalancePrice(true, startDate);
 
     const balancerPrice = {
-        yesterday: historicalBalPrices[0],
+        yesterday: historicalBalPrices[historicalBalPrices.length - ((getIntervalBetweenPeriod(period) * 24) / 2)],
         today: last(historicalBalPrices),
         change: calculateChange(
             historicalBalPrices[0],
