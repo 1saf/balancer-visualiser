@@ -55,12 +55,17 @@ export const getDates = (
     return dates;
 };
 
-export const getDynamicChange = (data: BalancerData[]) => (
+export const getChangeByPeriodLength = (data: BalancerData[], period: Period, isDouble = false) => (
     statistic: string
 ) => {
     const extractorFn = dataExtractors[statistic];
 
-    const yesterday = extractorFn(data[0]) as number;
+    // measured in hours
+    let pointsToGoBack = getIntervalBetweenPeriod(period) * 24;
+    if (isDouble) pointsToGoBack = pointsToGoBack / 2;
+
+
+    const yesterday = extractorFn(data[data.length - pointsToGoBack]) as number;
     const today = extractorFn(last(data)) as number;
     const change = (today - yesterday) / yesterday;
     return {

@@ -27,7 +27,7 @@ import {
     TODAY,
     sortBlockKeys,
     calculateChange,
-    getDynamicChange,
+    getChangeByPeriodLength,
     getIntervalBetweenPeriod,
 } from "../../../utils";
 import { getBalancerPrice, getHistoricalBalancerPrice } from "../query/rest";
@@ -204,7 +204,6 @@ export const useOverviewStatistics = (period: Period) => {
 
     const {
         values: historicalBalPrices,
-        timestamps: historicalBalTimestamps,
         isLoading: isLoadingHistoricalBalPrices,
     } = useHistoricalBalancePrice(true, startDate);
 
@@ -218,19 +217,19 @@ export const useOverviewStatistics = (period: Period) => {
         volume: last(historicalBalPrices) - historicalBalPrices[0],
     };
 
-    const totalLiquidity = getDynamicChange(data as BalancerData[])(
-        "totalLiquidity"
+    const totalLiquidity = getChangeByPeriodLength(data as BalancerData[], period, true)(
+        "totalLiquidity",
     );
-    const feeVolume = getDynamicChange(data as BalancerData[])(
+    const feeVolume = getChangeByPeriodLength(data as BalancerData[], period, true)(
         "totalSwapFeeVolume"
     );
-    const swapVolume = getDynamicChange(data as BalancerData[])(
+    const swapVolume = getChangeByPeriodLength(data as BalancerData[], period, true)(
         "totalSwapVolume"
     );
-    const privatePools = getDynamicChange(data as BalancerData[])(
+    const privatePools = getChangeByPeriodLength(data as BalancerData[], period, true)(
         "privatePools"
     );
-    const finalizedPoolCount = getDynamicChange(data as BalancerData[])(
+    const finalizedPoolCount = getChangeByPeriodLength(data as BalancerData[], period, true)(
         "finalizedPoolCount"
     );
 

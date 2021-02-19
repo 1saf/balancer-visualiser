@@ -59,7 +59,6 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         };
     }
 
-
     let hourlyTokenRef: any = firebase
         .firestore()
         .collection('dailydata')
@@ -67,6 +66,7 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
         .collection('hourlytokendata')
         .where('timestamp', '==', hourlySnapshotTimestamp)
         .orderBy(orderKey || 'liquidity', orderDirection);
+
 
     if (cursor) {
         hourlyTokenRef = await hourlyTokenRef.startAfter(cursor).limit(25).get();
@@ -77,7 +77,7 @@ const getTokenData = async (key: string, { orderDesc, orderKey, tokenSearchText 
     const tokens = hourlyTokenRef.docs.map((doc: any) => doc.data());
 
     return {
-        tokens,
+    tokens,
         cursor: last(hourlyTokenRef.docs),
     };
 };
@@ -102,6 +102,8 @@ const getTokenPrices = async () => {
             balancer: { finalizedPoolCount: number };
         }>
     >(BALANCER_SUBGRAPH_URL)(poolCountQuery)('', {});
+
+    console.log('c', poolCountResponse);
 
     const poolCount = Math.abs(poolCountResponse?.data?.balancer?.finalizedPoolCount);
 

@@ -14,7 +14,7 @@ export type GraphQLResponse<T> = { data: T };
 export const subgraphPOST = <TResult>(subGraphURL: string) => (literal: string, loop?: boolean) => async (
     key: string,
     variables: Record<string, any>,
-    extraData: Record<string, unknown>,
+    extraData?: Record<string, unknown>,
 ): Promise<TResult> => {
     const request = bent(subGraphURL, 'POST', 'json', [200, 400, 404, 401, 500, 503]);
     if (loop) {
